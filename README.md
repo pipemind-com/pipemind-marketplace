@@ -42,7 +42,7 @@ cp -r user_level_settings/skills ~/.claude/
 
 # Verify installation
 ls ~/.claude/agents/         # Should show: agent-author.md
-ls ~/.claude/skills/         # Should show: 4 skill directories
+ls ~/.claude/skills/         # Should show: 5 skill directories
 ```
 
 ### Windows (PowerShell)
@@ -57,7 +57,7 @@ Copy-Item -Recurse user_level_settings\skills $env:USERPROFILE\.claude\
 
 # Verify installation
 dir $env:USERPROFILE\.claude\agents\     # Should show: agent-author.md
-dir $env:USERPROFILE\.claude\skills\     # Should show: 4 skill directories
+dir $env:USERPROFILE\.claude\skills\     # Should show: 5 skill directories
 ```
 
 ### What Gets Installed
@@ -68,6 +68,8 @@ dir $env:USERPROFILE\.claude\skills\     # Should show: 4 skill directories
 ├── agents/
 │   └── agent-author.md              # Meta-agent (creates other agents)
 └── skills/
+    ├── creating-claude-settings/    # CLAUDE.md generator
+    │   └── SKILL.md
     ├── creating-planner-agent/      # Planner compiler
     │   └── SKILL.md
     ├── creating-builder-agent/      # Builder compiler
@@ -81,6 +83,7 @@ dir $env:USERPROFILE\.claude\skills\     # Should show: 4 skill directories
 **Purpose of Each Tool:**
 
 - **agent-author**: Expert agent with comprehensive knowledge of Claude Code agent design patterns, tool permissions, and best practices
+- **creating-claude-settings**: Analyzes your codebase and generates comprehensive `CLAUDE.md` documentation with architecture, patterns, and workflows
 - **creating-planner-agent**: Analyzes your codebase and generates a `planner.md` specialized for your task management workflow
 - **creating-builder-agent**: Analyzes your tech stack and generates a `builder.md` with language-specific patterns, testing frameworks, and coding standards
 - **conducting-post-mortem**: Reviews completed tasks and proposes updates to `CLAUDE.md` for continuous improvement
@@ -118,8 +121,8 @@ cd /path/to/your-project/
 - Analyzes architectural patterns
 
 **Stage 2: Generation (uses global factory)**
-1. ✅ Creates `CLAUDE.md` - Architecture documentation specific to THIS project
-2. ✅ Creates `tasks/` - Task management structure
+1. ✅ Creates `tasks/` - Task management structure
+2. ✅ **Compiles** `CLAUDE.md` - Invokes `/creating-claude-settings` skill
 3. ✅ **Compiles** `planner.md` - Invokes `/creating-planner-agent` skill
 4. ✅ **Compiles** `builder.md` - Invokes `/creating-builder-agent` skill
 5. ✅ Validates setup completeness
@@ -141,6 +144,7 @@ These are the "tools that build tools":
 ├── agents/
 │   └── agent-author.md              # The Meta-Agent
 └── skills/
+    ├── creating-claude-settings/    # CLAUDE.md Generator
     ├── creating-planner-agent/      # Planner Generator
     ├── creating-builder-agent/      # Builder Generator
     ├── conducting-post-mortem/      # Learning Tool

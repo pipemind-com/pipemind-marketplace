@@ -98,60 +98,10 @@ echo -e "${BLUE}━━━━━━━━━━━━━━━━━━━━━�
 echo -e "${BLUE}Phase 3: Generating Architecture Documentation (Claude)${NC}"
 echo -e "${BLUE}━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━${NC}"
 
-echo -e "${CYAN}Running: claude (architecture analysis)...${NC}"
+echo -e "${CYAN}Running: claude --agent agent-author /creating-claude-settings...${NC}"
 echo ""
 
-# Note: Using long-form prompt as /init doesn't customize for specific project
-claude --prompt "Analyze this codebase and create a comprehensive CLAUDE.md file that documents:
-
-1. **Development Commands**: Commands for dev, build, test, deploy for each layer/stack
-
-2. **Architecture Overview**:
-   - Tech stack diagram showing all layers and how they communicate
-   - Key components in each layer
-   - Clear explanation of architecture pattern (NOT MVVM if applicable)
-
-3. **Data Flow**:
-   - Diagram key workflows with actual file paths
-   - Show how data moves through layers
-   - Include examples (e.g., import flow, processing flow, visualization flow)
-
-4. **Key Integration Points**:
-   - External services (authentication, database, APIs)
-   - Configuration requirements
-   - Environment variables
-
-5. **Important Patterns and Constraints**:
-   - Core patterns used (cache-aside, component-driven, etc.)
-   - Algorithm constraints or business rules
-   - Database schema considerations
-
-6. **Architecture Patterns** (detailed):
-   - Explain the primary pattern with clear rules
-   - Provide code examples showing correct vs incorrect usage
-   - Include a table of Anti-Patterns to Avoid
-
-7. **Deployment Strategy**:
-   - Critical deployment order with rationale
-   - Rollback considerations
-   - Environment-specific concerns
-
-8. **Testing Strategy**:
-   - Test pyramid showing layers
-   - What to test at each layer
-   - Testing frameworks and patterns
-
-9. **Common Gotchas**:
-   - Framework-specific pitfalls with examples
-   - State management confusion
-   - Deployment/configuration issues
-   - Algorithm/business logic edge cases
-
-Focus on cross-file concerns that require understanding multiple parts of the system.
-Use concrete code examples for all critical patterns.
-Make it actionable - developers should know WHAT to do and HOW to do it.
-
-Output to: CLAUDE.md"
+claude --agent agent-author -p "/creating-claude-settings"
 
 if [ $? -eq 0 ]; then
     echo -e "${GREEN}✓${NC} CLAUDE.md created"
