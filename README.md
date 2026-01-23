@@ -4,6 +4,8 @@ A professional, self-replicating agentic workflow for Claude Code. This system t
 
 **Key Concept**: Install the "factory" once globally (`~/.claude/`), then compile custom agents for each project (`./.claude/`).
 
+> **Quick Reference**: For command cheatsheets and skills tables, see [BOOTSTRAP-REFERENCE.md](BOOTSTRAP-REFERENCE.md).
+
 ## 📦 Installation Overview
 
 This system has a **two-tier architecture**:

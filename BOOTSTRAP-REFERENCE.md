@@ -1,3 +1,7 @@
+# Quick Reference
+
+> **For comprehensive documentation, see [README.md](README.md)**. This is a condensed reference for experienced users.
+
 # Bootstrap Script Reference
 
 ## Files in This Repository
@@ -56,14 +60,14 @@ cd /new-project/
 
 ```
 project/
-├── CLAUDE.md                    # Architecture (Phase 3)
+├── CLAUDE.md
 ├── .claude/agents/
-│   ├── planner.md              # Planning agent (Phase 4)
-│   └── builder.md              # Builder agent (Phase 5)
+│   ├── planner.md
+│   └── builder.md
 └── tasks/
-    ├── TEMPLATE.md             # From templates/ (Phase 2)
-    ├── README.md               # From templates/ (Phase 2)
-    ├── 000-example-task.md     # From templates/ (Phase 2)
+    ├── TEMPLATE.md
+    ├── README.md
+    ├── 000-example-task.md
     ├── backlog/
     └── completed/
 ```
@@ -106,33 +110,11 @@ Edit templates in `templates/` directory to customize structure.
 
 ## Troubleshooting
 
-### "Template directory not found"
-- Copy both `bootstrap-agentic.sh` AND `templates/` directory
-
-### "Claude CLI not found"
-- Install from https://github.com/anthropics/claude-code
-
-### "Not in a git repository"
-- Run `git init` first
-
-### Skills not working
-- Ensure Claude Code CLI is updated to latest version
-- Skills are built into Claude Code (no setup needed)
+See [README.md - Troubleshooting](README.md#-troubleshooting) for comprehensive issue resolution.
 
 ## Philosophy
 
-**Planner** (`/creating-planner-agent`):
-- 🧠 Analyzes problems, designs solutions
-- 📝 Creates detailed task files
-- 🎯 Goal: Builder executes mechanically
-
-**Builder** (`/creating-builder-agent`):
-- 🛠️ Implements according to task file
-- ✅ Writes tests proactively
-- 📊 Documents what was built
-- 🎯 Goal: Mechanical execution, no decisions
-
-**Task File**: Complete contract between planner and builder.
+See [README.md - Philosophy](README.md#philosophy) for the complete philosophy explanation.
 
 ---
 
