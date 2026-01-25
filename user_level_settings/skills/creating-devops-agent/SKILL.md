@@ -18,6 +18,8 @@ color: orange
 
 Creates a project-specific `devops.md` agent file customized for your infrastructure toolchain, CI/CD platform, and deployment workflows.
 
+**IMPORTANT**: This skill creates a **PROJECT-level** agent at `<project>/.claude/agents/devops.md` (relative to current working directory), NOT in user-level settings (`~/.claude/`). This agent is specific to the current project's infrastructure.
+
 ## When Invoked
 
 This skill will:
@@ -318,10 +320,11 @@ If user specifies tool not detected in project:
 ## Integration
 
 This skill is designed to:
-1. **Complement** existing planner/builder agents
-2. **Specialize** in infrastructure concerns
-3. **Reference** `CLAUDE.md` for deployment strategy
-4. **Separate** infrastructure changes from application logic
+1. **Live in user-level settings** at `~/.claude/skills/creating-devops-agent/` (the factory skill itself)
+2. **Create project-specific agents** at `<project>/.claude/agents/devops.md` (the generated agent)
+3. **Complement** existing planner/builder agents (specializes in infrastructure)
+4. **Reference** `CLAUDE.md` for deployment strategy
+5. **Separate** infrastructure changes from application logic
 
 The workflow:
 ```

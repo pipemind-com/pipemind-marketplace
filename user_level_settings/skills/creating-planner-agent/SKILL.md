@@ -18,6 +18,8 @@ color: purple
 
 Creates a project-specific `planner.md` agent file customized for your tech stack and task management workflow, focused on creating detailed, actionable task files.
 
+**IMPORTANT**: This skill creates a **PROJECT-level** agent at `<project>/.claude/agents/planner.md` (relative to current working directory), NOT in user-level settings (`~/.claude/`). This agent is specific to the current project's planning workflow.
+
 ## When Invoked
 
 This skill will:
@@ -255,3 +257,20 @@ Run this skill again after creating CLAUDE.md.
 - **Task Templates**: Create `tasks/TEMPLATE.md` for consistent task file structure
 - **Integration**: Planner will reference `CLAUDE.md` for up-to-date project context
 - **Pairing**: Use with `/creating-builder-agent` to establish complete workflow
+
+## Integration
+
+This skill is designed to:
+1. **Live in user-level settings** at `~/.claude/skills/creating-planner-agent/` (the factory skill itself)
+2. **Create project-specific agents** at `<project>/.claude/agents/planner.md` (the generated agent)
+3. **Be invoked** by agent-author or directly by user
+4. **Work with builder** agent (planner creates tasks, builder implements them)
+
+The factory pattern workflow:
+```
+~/.claude/skills/creating-planner-agent/  ← Factory skill (user-level)
+  ↓ invoked in project directory
+<project>/.claude/agents/planner.md       ← Generated agent (project-level)
+  ↓ used for planning in this project
+Planner creates task files specific to this codebase
+```

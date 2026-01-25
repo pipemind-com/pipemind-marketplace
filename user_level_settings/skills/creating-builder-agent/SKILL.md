@@ -18,6 +18,8 @@ color: blue
 
 Creates a project-specific `builder.md` agent file customized for your tech stack, including coding standards, task workflows, and testing patterns.
 
+**IMPORTANT**: This skill creates a **PROJECT-level** agent at `<project>/.claude/agents/builder.md` (relative to current working directory), NOT in user-level settings (`~/.claude/`). This agent is specific to the current project's coding standards and tech stack.
+
 ## When Invoked
 
 This skill will:
@@ -235,3 +237,20 @@ Run this skill again after creating CLAUDE.md.
 - **Customization**: Use argument to add specific sections or patterns
 - **Validation**: Always review generated file to ensure accuracy
 - **Integration**: Builder will reference `CLAUDE.md` for up-to-date project context
+
+## Integration
+
+This skill is designed to:
+1. **Live in user-level settings** at `~/.claude/skills/creating-builder-agent/` (the factory skill itself)
+2. **Create project-specific agents** at `<project>/.claude/agents/builder.md` (the generated agent)
+3. **Be invoked** by agent-author or directly by user
+4. **Work with planner** agent (planner creates tasks, builder implements them)
+
+The factory pattern workflow:
+```
+~/.claude/skills/creating-builder-agent/  ← Factory skill (user-level)
+  ↓ invoked in project directory
+<project>/.claude/agents/builder.md       ← Generated agent (project-level)
+  ↓ used for building in this project
+Builder implements code following project-specific standards
+```

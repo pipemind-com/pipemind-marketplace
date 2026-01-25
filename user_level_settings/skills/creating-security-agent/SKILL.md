@@ -18,6 +18,8 @@ color: red
 
 Creates a project-specific `security.md` agent file customized for your tech stack, acting as an adversarial "Red Teamer" specialized for your codebase.
 
+**IMPORTANT**: This skill creates a **PROJECT-level** agent at `<project>/.claude/agents/security.md` (relative to current working directory), NOT in user-level settings (`~/.claude/`). This agent is specific to the current project's security concerns.
+
 ## When Invoked
 
 This skill will:
@@ -321,10 +323,11 @@ Security Report with Critical/High/Medium/Low issues, PoC, recommendations
 
 ## Integration
 
-This skill is designed to be:
-1. **Part of global factory** in `~/.claude/skills/`
-2. **Invoked by agent-author** or directly by user
-3. **Complementary to builder/planner** agents (adds security layer)
+This skill is designed to:
+1. **Live in user-level settings** at `~/.claude/skills/creating-security-agent/` (the factory skill itself)
+2. **Create project-specific agents** at `<project>/.claude/agents/security.md` (the generated agent)
+3. **Be invoked** by agent-author or directly by user
+4. **Complement builder/planner** agents (adds security layer to project)
 
 The workflow:
 ```
