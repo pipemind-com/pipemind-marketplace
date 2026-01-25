@@ -223,7 +223,7 @@ echo -e "${BLUE}━━━━━━━━━━━━━━━━━━━━━�
 echo -e "${CYAN}Running: claude (validation check)...${NC}"
 echo ""
 
-claude --prompt "Validate the agentic setup by checking all files that were just created:
+claude -p "Validate the agentic setup by checking all files that were just created:
 
 1. **CLAUDE.md completeness**:
    - [ ] Development commands present
