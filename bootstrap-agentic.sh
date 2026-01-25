@@ -1,9 +1,45 @@
 #!/bin/bash
 # bootstrap-agentic.sh
 # One-command setup for complete agentic workflow (planner + builder + task system)
-# Usage: ./bootstrap-agentic.sh
+# Usage: ./bootstrap-agentic.sh [OPTIONS]
 
 set -e
+
+# Parse flags
+GENERATE_SECURITY=false
+GENERATE_DEVOPS=false
+
+while [[ $# -gt 0 ]]; do
+    case $1 in
+        --full)
+            GENERATE_SECURITY=true
+            GENERATE_DEVOPS=true
+            shift
+            ;;
+        --security)
+            GENERATE_SECURITY=true
+            shift
+            ;;
+        --devops)
+            GENERATE_DEVOPS=true
+            shift
+            ;;
+        -h|--help)
+            echo "Usage: ./bootstrap-agentic.sh [OPTIONS]"
+            echo ""
+            echo "Options:"
+            echo "  --full       Generate all agents (planner, builder, security, devops)"
+            echo "  --security   Also generate security agent"
+            echo "  --devops     Also generate devops agent"
+            echo "  -h, --help   Show this help"
+            exit 0
+            ;;
+        *)
+            echo "Unknown option: $1"
+            exit 1
+            ;;
+    esac
+done
 
 # Colors
 GREEN='\033[0;32m'
@@ -142,8 +178,46 @@ else
 fi
 echo ""
 
+# Conditional: Security Agent
+if [ "$GENERATE_SECURITY" = true ]; then
+    echo -e "${BLUE}━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━${NC}"
+    echo -e "${BLUE}Phase 6: Generating Security Agent (Claude)${NC}"
+    echo -e "${BLUE}━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━${NC}"
+
+    echo -e "${CYAN}Running: claude --agent agent-author /creating-security-agent...${NC}"
+    echo ""
+
+    claude --agent agent-author -p "/creating-security-agent"
+
+    if [ $? -eq 0 ]; then
+        echo -e "${GREEN}✓${NC} .claude/agents/security.md created"
+    else
+        echo -e "${YELLOW}⚠️  security.md generation had issues. Review manually.${NC}"
+    fi
+    echo ""
+fi
+
+# Conditional: DevOps Agent
+if [ "$GENERATE_DEVOPS" = true ]; then
+    echo -e "${BLUE}━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━${NC}"
+    echo -e "${BLUE}Phase 7: Generating DevOps Agent (Claude)${NC}"
+    echo -e "${BLUE}━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━${NC}"
+
+    echo -e "${CYAN}Running: claude --agent agent-author /creating-devops-agent...${NC}"
+    echo ""
+
+    claude --agent agent-author -p "/creating-devops-agent"
+
+    if [ $? -eq 0 ]; then
+        echo -e "${GREEN}✓${NC} .claude/agents/devops.md created"
+    else
+        echo -e "${YELLOW}⚠️  devops.md generation had issues. Review manually.${NC}"
+    fi
+    echo ""
+fi
+
 echo -e "${BLUE}━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━${NC}"
-echo -e "${BLUE}Phase 6: Validating Setup (Claude)${NC}"
+echo -e "${BLUE}Validating Setup (Claude)${NC}"
 echo -e "${BLUE}━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━${NC}"
 
 echo -e "${CYAN}Running: claude (validation check)...${NC}"
@@ -233,7 +307,13 @@ echo "     ├── backlog/"
 echo "     └── completed/"
 echo "  📁 .claude/agents/"
 echo "     ├── planner.md"
-echo "     └── builder.md"
+echo "     ├── builder.md"
+if [ "$GENERATE_SECURITY" = true ]; then
+echo "     ├── security.md"
+fi
+if [ "$GENERATE_DEVOPS" = true ]; then
+echo "     ├── devops.md"
+fi
 echo "  📄 CLAUDE.md"
 echo ""
 echo -e "${CYAN}Next steps:${NC}"
@@ -241,6 +321,12 @@ echo "  1. Review the generated files (especially validation report above)"
 echo "  2. Customize for project-specific needs if needed"
 echo "  3. Test planner: ${BLUE}claude --agent planner -p 'Create a task for <feature>'${NC}"
 echo "  4. Test builder: ${BLUE}claude --agent builder -p 'Implement task 001'${NC}"
+if [ "$GENERATE_SECURITY" = true ]; then
+echo "  5. Test security: ${BLUE}claude --agent security -p 'Audit authentication flow'${NC}"
+fi
+if [ "$GENERATE_DEVOPS" = true ]; then
+echo "  6. Test devops: ${BLUE}claude --agent devops -p 'Review CI/CD pipeline'${NC}"
+fi
 echo ""
 echo -e "${YELLOW}Tip:${NC} The validation report above will identify any gaps or improvements needed."
 echo ""

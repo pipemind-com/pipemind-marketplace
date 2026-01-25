@@ -19,6 +19,8 @@ This system has a **two-tier architecture**:
 - `agent-author.md` - Meta-agent that creates other agents
 - `creating-planner-agent/` - Skill to compile Planner agents
 - `creating-builder-agent/` - Skill to compile Builder agents
+- `creating-security-agent/` - Skill to compile Security auditor agents
+- `creating-devops-agent/` - Skill to compile DevOps/infrastructure agents
 - `verifying-implementation/` - Skill for adversarial testing
 - `conducting-post-mortem/` - Skill for extracting lessons
 
@@ -44,7 +46,7 @@ cp -r user_level_settings/skills ~/.claude/
 
 # Verify installation
 ls ~/.claude/agents/         # Should show: agent-author.md
-ls ~/.claude/skills/         # Should show: 5 skill directories
+ls ~/.claude/skills/         # Should show: 7 skill directories
 ```
 
 ### Windows (PowerShell)
@@ -59,7 +61,7 @@ Copy-Item -Recurse user_level_settings\skills $env:USERPROFILE\.claude\
 
 # Verify installation
 dir $env:USERPROFILE\.claude\agents\     # Should show: agent-author.md
-dir $env:USERPROFILE\.claude\skills\     # Should show: 5 skill directories
+dir $env:USERPROFILE\.claude\skills\     # Should show: 7 skill directories
 ```
 
 ### Alternative: Symlinks (Power Users)
@@ -98,6 +100,10 @@ New-Item -ItemType SymbolicLink -Path "$env:USERPROFILE\.claude\skills" -Target 
     │   └── SKILL.md
     ├── creating-builder-agent/      # Builder compiler
     │   └── SKILL.md
+    ├── creating-security-agent/     # Security agent compiler
+    │   └── SKILL.md
+    ├── creating-devops-agent/       # DevOps agent compiler
+    │   └── SKILL.md
     ├── conducting-post-mortem/      # Learning tool
     │   └── SKILL.md
     └── verifying-implementation/    # Adversarial testing
@@ -110,6 +116,8 @@ New-Item -ItemType SymbolicLink -Path "$env:USERPROFILE\.claude\skills" -Target 
 - **creating-claude-settings**: Analyzes your codebase and generates comprehensive `CLAUDE.md` documentation with architecture, patterns, and workflows
 - **creating-planner-agent**: Analyzes your codebase and generates a `planner.md` specialized for your task management workflow
 - **creating-builder-agent**: Analyzes your tech stack and generates a `builder.md` with language-specific patterns, testing frameworks, and coding standards
+- **creating-security-agent**: Analyzes your tech stack and generates a `security.md` adversarial security auditor with OWASP Top 10 checklists, attack scenarios, automated scanning tools (bandit, npm audit, gosec), and optional compliance standards (SOC2, HIPAA, PCI-DSS)
+- **creating-devops-agent**: Detects infrastructure toolchain and generates a `devops.md` Site Reliability Engineer (SRE) specialized for your CI/CD platform, container orchestration (Docker, K8s), IaC tools (Terraform, Pulumi), and cloud providers (AWS, GCP, Azure)
 - **conducting-post-mortem**: Reviews completed tasks and proposes updates to `CLAUDE.md` for continuous improvement
 - **verifying-implementation**: Generates property-based tests using `hypothesis` (Python), `fast-check` (JS), or `proptest` (Rust) to find edge cases
 
@@ -133,7 +141,8 @@ cp -r /path/to/agentic-setup/templates/ /path/to/your-project/
 cd /path/to/your-project/
 
 # 3. Run the compiler (bootstrap script)
-./bootstrap-agentic.sh
+./bootstrap-agentic.sh              # Core agents (planner + builder)
+./bootstrap-agentic.sh --full       # All agents (+ security + devops)
 ```
 
 ### What Happens: Two-Stage Compilation
@@ -171,6 +180,8 @@ These are the "tools that build tools":
     ├── creating-claude-settings/    # CLAUDE.md Generator
     ├── creating-planner-agent/      # Planner Generator
     ├── creating-builder-agent/      # Builder Generator
+    ├── creating-security-agent/     # Security Auditor Generator
+    ├── creating-devops-agent/       # DevOps Specialist Generator
     ├── conducting-post-mortem/      # Learning Tool
     └── verifying-implementation/    # Testing Tool
 ```
@@ -191,7 +202,9 @@ your-project/
 ├── .claude/
 │   └── agents/
 │       ├── planner.md             # Compiled Planner (Context-Aware)
-│       └── builder.md             # Compiled Builder (Stack-Aware)
+│       ├── builder.md             # Compiled Builder (Stack-Aware)
+│       ├── security.md            # (optional) Security Auditor
+│       └── devops.md              # (optional) DevOps/Infrastructure
 └── tasks/
     ├── TEMPLATE.md                # Task Definition Standard
     ├── README.md                  # Task System Documentation
@@ -303,6 +316,40 @@ Each task file has two main sections:
 - **Manual Verification**: Steps performed
 - **Deviations from Plan**: Changes and rationale
 
+### 4. Specialized Agents (Optional but Recommended)
+
+Beyond the core planner/builder workflow, the factory includes optional specialized agents:
+
+#### Security Agent (start with `claude --agent security`)
+- 🔴 **Adversarial Auditor**: Tries to break what builder creates
+- 🛡️ **Stack-Aware**: Knows your frameworks' vulnerabilities (FastAPI, Express, Django, etc.)
+- ✅ **Compliance-Ready**: SOC2, HIPAA, PCI-DSS checklists when specified
+- 🌐 **Current**: Fetches latest OWASP Top 10 and CVE databases
+- 🎯 **Goal**: Find vulnerabilities before attackers do
+- 💡 **Use interactively**: Review findings and prioritize fixes
+
+**Philosophy**: Security agent thinks adversarially, not constructively. While the builder creates features, the security agent tries to break them.
+
+#### DevOps Agent (start with `claude --agent devops`)
+- 🧰 **Infrastructure Specialist**: Only touches config files (never application code)
+- ☁️ **Multi-Cloud**: AWS, GCP, Azure patterns and best practices
+- 🔧 **Tool-Aware**: Docker, Terraform, Kubernetes, GitHub Actions, GitLab CI
+- 🔒 **Security-Focused**: Container hardening, IAM policies, secret management
+- 🎯 **Goal**: Reliable, secure, cost-optimized infrastructure
+- 💡 **Use interactively**: Review changes before applying
+
+**Philosophy**: DevOps agent focuses ONLY on infrastructure configuration, never application logic. Separation of concerns keeps infrastructure changes isolated from code changes.
+
+**When to Use:**
+- **Security**: Before deploying to production, after major features, periodically for audits
+- **DevOps**: Setting up infrastructure, optimizing deployments, debugging CI/CD pipelines, cost optimization
+
+**Complete Development Lifecycle:**
+```
+Planner → Builder → Security → DevOps
+(Design)  (Build)   (Audit)    (Deploy)
+```
+
 ## 🛠️ Usage
 
 **Interactive Mode Recommended**: Run planner and builder agents in interactive mode rather than one-shot (`-p`) mode. Interactive sessions allow agents to ask clarifying questions, and let you monitor progress and course-correct when needed.
@@ -402,6 +449,69 @@ Then in the interactive session:
 ```
 
 Builder can handle direct instructions for simple tasks that don't need planning.
+
+---
+
+### Security Audit
+
+Use the **Security** agent to find vulnerabilities in your implementation.
+
+```bash
+claude --agent security
+```
+
+Then in the interactive session:
+```
+> Audit the authentication system
+```
+
+**Process:**
+1. Reads `CLAUDE.md` to understand architecture and threat model
+2. Runs automated scanning tools (bandit, npm audit, gosec, cargo-audit)
+3. Manual code review focusing on auth, authorization, input validation
+4. Tests attack scenarios (BOLA, SQL injection, JWT tampering, XSS)
+5. Generates security report with severity levels (Critical/High/Medium/Low)
+
+**Output**: Security findings with proof-of-concept exploits and remediation steps
+
+**Example findings:**
+- Critical: JWT tokens not validating expiration
+- High: SQL injection in search endpoint
+- Medium: Missing rate limiting on login
+- Low: Information disclosure in error messages
+
+---
+
+### Infrastructure Optimization
+
+Use the **DevOps** agent for infrastructure concerns.
+
+```bash
+claude --agent devops
+```
+
+Then in the interactive session:
+```
+> Optimize the Dockerfile for production
+```
+
+**Process:**
+1. Reads infrastructure configs (Dockerfile, docker-compose.yml, terraform, etc.)
+2. Analyzes for security issues (exposed secrets, privileged containers)
+3. Identifies performance bottlenecks (large image sizes, unnecessary layers)
+4. Proposes improvements with rationale and best practices
+5. Validates syntax and configuration correctness
+6. Documents changes and their impact
+
+**Output**: Optimized infrastructure configurations with explanations
+
+**Example improvements:**
+- Multi-stage Docker builds (reduced image from 1.2GB to 150MB)
+- Security: Non-root user, read-only filesystem
+- Terraform: Refactored into reusable modules
+- CI/CD: Parallelized pipeline (reduced from 15min to 6min)
+
+---
 
 ## Architecture Overview (CLAUDE.md)
 
@@ -787,8 +897,11 @@ The agentic workflow is built on these principles:
 4. **Proactive Testing**: Tests are written alongside implementation
 5. **Mechanical Execution**: Builder never makes design decisions
 6. **Documentation Loop**: Builder records implementation reality
+7. **Specialized Expertise**: Security and infrastructure require distinct mindsets and tools
+8. **Adversarial Testing**: Security agent actively tries to break the system (not fix it)
+9. **Infrastructure Isolation**: DevOps never modifies application logic, only configuration
 
-**The magic**: Planner does heavy analytical lifting so builder can execute autonomously to completion.
+**The magic**: Planner does heavy analytical lifting so builder can execute autonomously to completion. Security and DevOps agents provide specialized oversight in their domains.
 
 ## Support
 
