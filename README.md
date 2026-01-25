@@ -62,6 +62,28 @@ dir $env:USERPROFILE\.claude\agents\     # Should show: agent-author.md
 dir $env:USERPROFILE\.claude\skills\     # Should show: 5 skill directories
 ```
 
+### Alternative: Symlinks (Power Users)
+
+Instead of copying, you can symlink to keep your global factory in sync with this git repo:
+
+```bash
+# Unix/Mac/Linux
+mkdir -p ~/.claude
+ln -sf "$(pwd)/user_level_settings/agents" ~/.claude/agents
+ln -sf "$(pwd)/user_level_settings/skills" ~/.claude/skills
+```
+
+```powershell
+# Windows (requires Administrator or Developer Mode)
+New-Item -ItemType SymbolicLink -Path "$env:USERPROFILE\.claude\agents" -Target "$(Get-Location)\user_level_settings\agents"
+New-Item -ItemType SymbolicLink -Path "$env:USERPROFILE\.claude\skills" -Target "$(Get-Location)\user_level_settings\skills"
+```
+
+**Benefits of symlinks:**
+- `git pull` automatically updates your global factory
+- Local edits can be committed back to the repo
+- No manual re-copying when you make changes
+
 ### What Gets Installed
 
 **Global Factory Structure:**
@@ -251,16 +273,18 @@ Planner Agent          Task File           Builder Agent
 
 ### 2. Agent Separation of Concerns
 
-**Planner Agent** (`claude --agent planner`):
+**Planner Agent** (start with `claude --agent planner`):
 - 🧠 **Thinks**: Analyzes problems, designs solutions
 - 📝 **Plans**: Creates detailed task files
 - 🎯 **Goal**: Builder can execute mechanically without decisions
+- 💡 **Use interactively**: Planner may ask clarifying questions
 
-**Builder Agent** (`claude --agent builder`):
+**Builder Agent** (start with `claude --agent builder`):
 - 🛠️ **Executes**: Implements according to task file
 - ✅ **Tests**: Writes and runs tests proactively
 - 📊 **Documents**: Records what was actually built
 - 🎯 **Goal**: Mechanical execution, no design decisions
+- 💡 **Use interactively**: Monitor progress and course-correct
 
 ### 3. Task File Anatomy
 
@@ -281,19 +305,27 @@ Each task file has two main sections:
 
 ## 🛠️ Usage
 
+**Interactive Mode Recommended**: Run planner and builder agents in interactive mode rather than one-shot (`-p`) mode. Interactive sessions allow agents to ask clarifying questions, and let you monitor progress and course-correct when needed.
+
 ### Planning a Feature
 
-The **Planner** reads your architecture and creates a detailed implementation plan.
+The **Planner** reads your architecture and creates a detailed implementation plan. Use **interactive mode** for best results—the planner may ask clarifying questions and you can guide the design.
 
 ```bash
-claude --agent planner -p "Create a task to add user authentication"
+claude --agent planner
+```
+
+Then in the interactive session:
+```
+> Create a task to add user authentication
 ```
 
 **Process:**
 1. Reads `CLAUDE.md` (understands your architecture)
 2. Explores codebase (finds existing auth patterns)
-3. Designs solution (proposes implementation)
-4. Writes task file with exact file paths and line numbers
+3. May ask clarifying questions (OAuth vs JWT? Session storage?)
+4. Designs solution (proposes implementation)
+5. Writes task file with exact file paths and line numbers
 
 **Output**: `tasks/001-add-user-authentication.md`
 
@@ -301,10 +333,15 @@ claude --agent planner -p "Create a task to add user authentication"
 
 ### Building the Feature
 
-The **Builder** executes the plan mechanically.
+The **Builder** executes the plan mechanically. Use **interactive mode** so you can monitor progress and course-correct if needed.
 
 ```bash
-claude --agent builder -p "Implement task 001"
+claude --agent builder
+```
+
+Then in the interactive session:
+```
+> Implement task 001
 ```
 
 **Process:**
@@ -356,7 +393,12 @@ claude -p "/conducting-post-mortem tasks/completed/001-add-user-authentication.m
 ### Ad-hoc Implementation (Without Task File)
 
 ```bash
-claude --agent builder -p "Fix the typo in README.md line 42"
+claude --agent builder
+```
+
+Then in the interactive session:
+```
+> Fix the typo in README.md line 42
 ```
 
 Builder can handle direct instructions for simple tasks that don't need planning.
@@ -387,9 +429,12 @@ The `CLAUDE.md` file is the **single source of truth** for project architecture.
 
 **Solution**:
 1. Check if `user_level_settings/` exists in agentic-setup repo
-2. Verify copy command completed without errors:
+2. Verify installation (check for symlinks or copies):
    ```bash
-   # Unix/Mac
+   # Unix/Mac - check if symlinks exist
+   ls -la ~/.claude/agents ~/.claude/skills
+
+   # If missing, re-install (copy method)
    cp -rv user_level_settings/agents ~/.claude/
    cp -rv user_level_settings/skills ~/.claude/
 
@@ -423,7 +468,7 @@ Verify with: `cat ~/.claude/skills/creating-planner-agent/SKILL.md | head -20`
 
 **Solution**:
 1. Complete Step 1 (Global Factory Installation) first
-2. Verify: `claude --agent agent-author -p "hello"`
+2. Verify: `claude --agent agent-author` then type "hello" to test
 3. If still fails: Restart Claude CLI or terminal session
 
 **Problem**: "Template directory not found"
@@ -479,7 +524,7 @@ git init
 **Solution**:
 1. Check if `CLAUDE.md` has comprehensive architecture section
 2. Add missing patterns with code examples
-3. Explicitly tell planner: `claude --agent planner -p "Read CLAUDE.md first, then create task for X"`
+3. Start an interactive session and explicitly tell planner: "Read CLAUDE.md first, then create task for X"
 
 **Problem**: Windows path issues (backslash vs forward slash)
 
@@ -494,9 +539,9 @@ git init
 
 **Check Global Factory:**
 ```bash
-# Unix/Mac
-ls ~/.claude/agents/agent-author.md
-ls ~/.claude/skills/creating-*/SKILL.md
+# Unix/Mac (works for both symlinks and copies)
+ls -la ~/.claude/agents/agent-author.md
+ls -la ~/.claude/skills/creating-*/SKILL.md
 
 # Windows PowerShell
 dir $env:USERPROFILE\.claude\agents\agent-author.md
@@ -513,14 +558,17 @@ cat CLAUDE.md | head -50  # Should show project-specific content
 
 **Test Agents:**
 ```bash
-# Test planner
-claude --agent planner -p "List available tasks"
+# Test planner (interactive)
+claude --agent planner
+# Then type: "List available tasks"
 
-# Test builder
-claude --agent builder -p "Show me the current tech stack"
+# Test builder (interactive)
+claude --agent builder
+# Then type: "Show me the current tech stack"
 
-# Test global skills
-claude --agent agent-author -p "Explain agent design principles"
+# Test global agent-author (interactive)
+claude --agent agent-author
+# Then type: "Explain agent design principles"
 ```
 
 ## Best Practices
@@ -561,7 +609,8 @@ Edit templates that affect ALL future projects:
 # Edit the skill that creates planners
 vim user_level_settings/skills/creating-planner-agent/SKILL.md
 
-# Re-install to global factory
+# If using symlinks: changes are live immediately!
+# If using copies: re-install to global factory
 cp -r user_level_settings/skills ~/.claude/
 
 # Re-compile planners in existing projects
@@ -574,7 +623,8 @@ cd /path/to/project
 # Edit the skill that creates builders
 vim user_level_settings/skills/creating-builder-agent/SKILL.md
 
-# Re-install to global factory
+# If using symlinks: changes are live immediately!
+# If using copies: re-install to global factory
 cp -r user_level_settings/skills ~/.claude/
 
 # Re-compile builders
@@ -710,16 +760,20 @@ git init  # If needed
 If you improve the global factory (e.g., better testing patterns):
 
 ```bash
-# 1. Update global factory
+# 1. Update global factory source
 vim user_level_settings/skills/creating-builder-agent/SKILL.md
+
+# If using copies (not symlinks), re-install:
 cp -r user_level_settings/skills ~/.claude/
 
-# 2. Re-compile each project
+# 2. Re-compile each project to regenerate agents
 cd ~/projects/api-service && ./bootstrap-agentic.sh
 cd ~/projects/frontend-app && ./bootstrap-agentic.sh
 cd ~/projects/data-pipeline && ./bootstrap-agentic.sh
 # ... etc
 ```
+
+**Note**: If using symlinks, step 1 is just editing—no copy needed. The global factory is already updated.
 
 **Result**: All projects now have improved agents!
 
