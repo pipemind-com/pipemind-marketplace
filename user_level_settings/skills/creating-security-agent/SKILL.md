@@ -65,10 +65,13 @@ This skill will:
    - Apply any compliance-specific checks if requested
 
 **6. ✅ Template Validation** (#3):
-   - Verify YAML frontmatter is valid
+   - Verify YAML frontmatter is valid (must include `color: red`)
    - Check all 7 required sections are present
    - Ensure security tools match detected stack
-   - Validate checklist completeness
+   - Validate checklist completeness (minimum 15 items)
+   - **Quality floor check**: Minimum 250 lines (comprehensive security agents are 300-400+)
+   - Verify attack scenarios have concrete PoC commands
+   - Check security report template exists
    - Report validation results
 
 **7. 📊 Report Results**:
@@ -341,6 +344,31 @@ The workflow:
   ↓
 Ready for secure development!
 ```
+
+## Quality Standards
+
+**Minimum Output Requirements**:
+- 250+ lines (comprehensive security agents are 300-400+)
+- All 7 sections populated with stack-specific content
+- Vulnerability checklist with 15+ items
+- Attack scenarios with concrete PoC commands (not just descriptions)
+- Security tools matched to detected stack
+- Security report template with severity levels
+
+**Red Flags (Output is incomplete if present)**:
+- Under 150 lines
+- Missing YAML frontmatter or missing `color: red`
+- Generic OWASP checklist not tailored to stack
+- No attack scenarios or scenarios without PoC
+- Missing security report template
+- Placeholder text like `[TECH_STACK]`
+
+**Gold Standard Characteristics**:
+- Stack-specific tools (bandit for Python, npm audit for Node, etc.)
+- OWASP checklist mapped to detected framework vulnerabilities
+- Concrete attack scenarios with curl/httpie/etc. commands
+- Compliance section if standard specified (SOC2, HIPAA, PCI-DSS)
+- Clear severity levels in output format
 
 ## Tips
 

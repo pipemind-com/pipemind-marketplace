@@ -52,10 +52,13 @@ This skill will:
    - Apply any user-provided customization notes
 
 **5. ✅ Template Validation** (#3):
-   - Verify YAML frontmatter is valid
+   - Verify YAML frontmatter is valid and complete
    - Check all 8 required sections are present
    - Ensure no placeholder text like `[PROJECT_NAME]` remains
-   - Validate section content is populated
+   - Validate section content is populated (not stub text)
+   - **Quality floor check**: Minimum 300 lines (comprehensive planners are 600-1000+)
+   - Verify code examples include imports
+   - Check anti-patterns table exists
    - Report validation results
 
 **6. 📊 Report Results**:
@@ -247,6 +250,30 @@ Please create CLAUDE.md with your project's:
 
 Run this skill again after creating CLAUDE.md.
 ```
+
+## Quality Standards
+
+**Minimum Output Requirements**:
+- 300+ lines (comprehensive planners typically 600-1000+ lines)
+- All 8 sections populated with project-specific content
+- Code examples with complete imports
+- Anti-patterns table with corrections
+- "Good vs Bad" detail level examples in Quality Standards section
+
+**Red Flags (Output is incomplete if present)**:
+- Under 150 lines
+- Missing YAML frontmatter
+- Placeholder text like `[TODO]`, `[PROJECT_NAME]`
+- No code examples
+- Generic instructions ("follow patterns", "add tests")
+- Missing Quality Standards section
+
+**Gold Standard Characteristics**:
+- "Model & Efficiency" section explaining when Sonnet vs Opus
+- "Before Creating Task" checklist (read CLAUDE.md, TEMPLATE.md, example tasks)
+- Task File Requirements with 10+ subsections
+- Quality Standards with "Too Little / Just Right / Too Much" examples
+- Project-specific patterns section with tech stack details
 
 ## Tips
 

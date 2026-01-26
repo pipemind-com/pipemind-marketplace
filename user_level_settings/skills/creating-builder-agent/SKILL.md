@@ -52,10 +52,14 @@ This skill will:
    - Apply any user-provided customization notes
 
 **5. ✅ Template Validation** (#3):
-   - Verify YAML frontmatter is valid
+   - Verify YAML frontmatter is valid and complete
    - Check all 8 required sections are present
    - Ensure no placeholder text like `[PROJECT_NAME]` remains
-   - Validate section content is populated
+   - Validate section content is populated (not stub text)
+   - **Quality floor check**: Minimum 300 lines (comprehensive builders are 500-900+)
+   - Verify code examples include imports
+   - Check anti-patterns table exists with "Bad → Good" examples
+   - Verify Testing Standards section has actual test code
    - Report validation results
 
 **6. 📊 Report Results**:
@@ -229,6 +233,33 @@ Please create CLAUDE.md with your project's:
 
 Run this skill again after creating CLAUDE.md.
 ```
+
+## Quality Standards
+
+**Minimum Output Requirements**:
+- 300+ lines (comprehensive builders typically 500-900+ lines)
+- All 8 sections populated with project-specific content
+- Multiple code examples with complete imports
+- Anti-patterns table with "Bad → Good" corrections
+- Testing Standards section with actual test code examples
+- Project commands section referencing CLAUDE.md
+
+**Red Flags (Output is incomplete if present)**:
+- Under 150 lines
+- Missing YAML frontmatter
+- Placeholder text like `[TODO]`, `[PROJECT_NAME]`
+- No code examples or code without imports
+- Generic instructions ("follow patterns", "add tests")
+- Missing Testing Standards section
+- No anti-patterns table
+
+**Gold Standard Characteristics**:
+- Anti-patterns table with concrete "❌ Bad → ✅ Good" transformations
+- Multiple complete code examples with full imports
+- Testing Standards section with actual test code (not just descriptions)
+- Framework-specific patterns tailored to detected stack
+- "When Invoked Workflow" with 8 explicit steps
+- Project commands section with actual commands from CLAUDE.md
 
 ## Tips
 

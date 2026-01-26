@@ -64,10 +64,13 @@ This skill will:
    - Apply any user-provided customization notes
 
 **6. ✅ Template Validation** (#3):
-   - Verify YAML frontmatter is valid
-   - Check all required sections are present
+   - Verify YAML frontmatter is valid and complete
+   - Check all required sections are present (Role, Toolchain, Workflow, Common Tasks)
    - Ensure no placeholder text like `[PROJECT_NAME]` remains
-   - Validate section content is populated
+   - Validate section content is populated (not stub text)
+   - **Quality floor check**: Minimum 200 lines (comprehensive devops agents are 250-350+)
+   - Verify toolchain commands are specific to detected stack
+   - Check role constraints section exists (never modify app code)
    - Report validation results
 
 **7. 📊 Report Results**:
@@ -306,6 +309,31 @@ If user specifies tool not detected in project:
 - Honor user specification
 - Add note: "Configured for [TOOL] (user-specified)"
 - Still include any auto-detected tools
+
+## Quality Standards
+
+**Minimum Output Requirements**:
+- 200+ lines (comprehensive devops agents are 250-350+)
+- All required sections populated with detected toolchain
+- Role constraints section (never modify application code)
+- Toolchain-specific commands with examples
+- Common tasks organized by detected tools
+
+**Red Flags (Output is incomplete if present)**:
+- Under 100 lines
+- Missing YAML frontmatter
+- Generic content not tailored to detected infrastructure
+- No role constraints section
+- Placeholder text like `[TOOL]`, `[CLOUD_PROVIDER]`
+- Commands that don't match detected stack
+
+**Gold Standard Characteristics**:
+- Clear role definition (SRE specializing in detected stack)
+- Strict constraint: "NEVER modify application source code"
+- Commands specific to detected tools (docker, terraform, k8s, etc.)
+- Best practices for detected cloud provider
+- Security scanning commands included
+- Common tasks with actual commands (not descriptions)
 
 ## Tips
 
