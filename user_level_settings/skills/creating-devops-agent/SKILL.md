@@ -1,6 +1,6 @@
 ---
 name: creating-devops-agent
-description: Creates project-specific DevOps agent for infrastructure and CI/CD
+description: Creates lean DevOps agent for infrastructure (50-80 lines)
 user-invocable: true
 argument-hint: "optional: cloud provider (AWS/GCP/Azure) or specific toolchain"
 allowed-tools:
@@ -8,17 +8,21 @@ allowed-tools:
   - Glob
   - Grep
   - Write
-  - WebFetch
-  - WebSearch
+  - Bash
 model: sonnet
 color: orange
 ---
 
 # Creating DevOps Agent
 
-Creates a project-specific `devops.md` agent file customized for your infrastructure toolchain, CI/CD platform, and deployment workflows.
+Creates an **ultra-lean** project-specific `devops.md` agent (50-80 lines) for infrastructure and CI/CD. References CLAUDE.md and docs/ instead of duplicating.
 
-**IMPORTANT**: This skill creates a **PROJECT-level** agent at `<project>/.claude/agents/devops.md` (relative to current working directory), NOT in user-level settings (`~/.claude/`). This agent is specific to the current project's infrastructure.
+**Core Philosophy**:
+- **Reference, don't duplicate** - CLAUDE.md has deployment context, docs/ has details
+- **80% rule** - Only commands for detected toolchain
+- **Mission-specific only** - Infrastructure config, never application code
+
+**IMPORTANT**: Generated agent at `<project>/.claude/agents/devops.md` should be ~50-80 lines with toolchain commands and references.
 
 ## When Invoked
 
@@ -65,12 +69,12 @@ This skill will:
 
 **6. ✅ Template Validation** (#3):
    - Verify YAML frontmatter is valid and complete
-   - Check all required sections are present (Role, Toolchain, Workflow, Common Tasks)
+   - Check ultra-lean structure (Mission, Constraint, Commands, Workflow, References)
    - Ensure no placeholder text like `[PROJECT_NAME]` remains
-   - Validate section content is populated (not stub text)
-   - **Quality floor check**: Minimum 200 lines (comprehensive devops agents are 250-350+)
-   - Verify toolchain commands are specific to detected stack
-   - Check role constraints section exists (never modify app code)
+   - **Target: 50-80 lines** (references, not exhaustive content)
+   - Verify toolchain commands are specific to detected stack only
+   - Check "never modify app code" constraint is included
+   - Ensure no duplicated content from CLAUDE.md or docs/
    - Report validation results
 
 **7. 📊 Report Results**:
@@ -104,38 +108,50 @@ This skill will:
 | GCP configs | Google Cloud | Cloud IAM, service accounts, security |
 | Azure configs | Microsoft Azure | Resource management, security best practices |
 
-## Agent Template Sections
+## Agent Template (Target: 50-80 lines)
 
-The generated `devops.md` agent will include:
+The generated `devops.md` agent will be **ultra-lean**:
 
-### 1. Role & Constraints
-- Site Reliability Engineer (SRE) role definition
-- **Critical constraint**: Never modify application source code
-- Only change configuration files (Dockerfiles, YAML, .tf files)
-- Always validate before suggesting changes
+```markdown
+# DevOps Agent
 
-### 2. Detected Toolchain
-For each detected tool, include:
-- **Commands**: Core commands with examples
-- **Best Practices**: Industry-standard patterns
-- **Security**: Scanning, credential management, hardening
-- **Optimization**: Performance and cost reduction
+## Mission
+Manage infrastructure and CI/CD. NEVER modify application source code.
 
-### 3. Workflow
-DevOps agent's process:
-1. Read relevant configuration files
-2. Analyze for issues (security, performance, best practices)
-3. Propose changes with rationale
-4. Validate syntax/configuration
-5. Test changes
-6. Document improvements
+## Constraint
+Only touch: Dockerfiles, YAML configs, .tf files, CI/CD workflows.
+Never touch: *.js, *.py, *.ts, *.go (application code)
 
-### 4. Common Tasks
-Organized by detected tools:
-- **Docker**: Optimize Dockerfile, fix build issues, add security scanning
-- **Terraform**: Refactor into modules, security hardening, cost optimization
-- **CI/CD**: Debug workflows, optimize build times, add missing steps
-- **Kubernetes**: Resource optimization, security policies, health checks
+## Before Any Task
+1. Read CLAUDE.md (deployment strategy)
+2. For architecture: see docs/architecture.md
+3. For deployment details: see docs/deployment.md
+
+## Detected Toolchain Commands
+```bash
+# Docker (if detected)
+docker build -t app .
+docker-compose up -d
+
+# Terraform (if detected)
+terraform plan
+terraform apply
+```
+
+## Workflow
+1. Read config files
+2. Identify issue
+3. Propose change with rationale
+4. Validate syntax
+5. Test
+
+## References
+- Deployment: docs/deployment.md
+- Architecture: docs/architecture.md
+- Commands: CLAUDE.md ## Commands
+```
+
+**That's it.** ~50-60 lines. Toolchain commands only.
 
 ## Critical Philosophy
 
@@ -184,22 +200,19 @@ Creates `.claude/agents/devops.md` with:
 
 📝 Generating DevOps Agent
    • Creating: .claude/agents/devops.md
-   • Role: SRE specializing in Docker + GitHub Actions
-   • Sections: 4/4 populated
-   • Lines: 243
+   • Detected: Docker, GitHub Actions
+   • Lines: 54 (within 50-80 target)
 
 ✅ Template Validation
    ✅ YAML frontmatter valid
-   ✅ All sections present
-   ✅ No placeholders remaining
-   ✅ Docker commands included
-   ✅ GitHub Actions patterns included
+   ✅ Ultra-lean structure (54 lines)
+   ✅ "Never touch app code" constraint included
+   ✅ Only detected tools (Docker, GH Actions)
 
 📊 Results
-   ✅ Created: .claude/agents/devops.md
-   🛠️  Tools: Docker, GitHub Actions
-   📝 Sections: Role & Constraints, Docker Toolchain,
-              GitHub Actions Toolchain, Workflow, Common Tasks
+   ✅ Created: .claude/agents/devops.md (54 lines)
+   🛠️ Tools: Docker, GitHub Actions (commands only)
+   🔗 References: docs/deployment.md, CLAUDE.md
 ```
 
 ### With Cloud Provider
@@ -215,27 +228,19 @@ Creates `.claude/agents/devops.md` with:
 
 🔍 Infrastructure Detection
    • Found: terraform/main.tf
-   • Found: terraform/variables.tf
-   • AWS provider detected in configs
+   • AWS provider detected
    • Detected: Terraform, AWS
 
-🌐 Smart Context Loading
-   • User specified: AWS (prioritizing AWS patterns)
-   • Fetching: Terraform AWS best practices
-   • Fetching: AWS security patterns (IAM, encryption)
-   • Fetching: AWS cost optimization strategies
-
-📝 Generating DevOps Agent (AWS-focused)
+📝 Generating DevOps Agent
    • Creating: .claude/agents/devops.md
-   • Role: SRE specializing in Terraform + AWS
-   • AWS sections: Security, Cost Optimization, HA patterns
-   • Lines: 287
+   • Detected tools: Terraform commands
+   • AWS reference added to References section
+   • Lines: 61
 
 ✅ Template Validation Passed
-📊 Created: .claude/agents/devops.md
-   🛠️  Tools: Terraform, AWS
-   ☁️  Cloud: Amazon Web Services
-   📝 Includes: IAM patterns, encryption at rest, multi-AZ HA
+📊 Created: .claude/agents/devops.md (61 lines)
+   🛠️ Tools: Terraform (commands only)
+   🔗 References: docs/deployment.md, AWS docs
 ```
 
 ### No Infrastructure Detected
@@ -251,23 +256,18 @@ Creates `.claude/agents/devops.md` with:
 
 🔍 Infrastructure Detection
    ⚠️  No infrastructure files detected
-   ℹ️  Will create generic DevOps agent
+   ℹ️  Will create minimal starter agent
 
-🌐 Smart Context Loading
-   • Fetching: General DevOps best practices
-   • Fetching: Infrastructure-as-Code overview
-   • Fetching: CI/CD platform comparison
-
-📝 Generating DevOps Agent (Generic)
+📝 Generating DevOps Agent (Starter)
    • Creating: .claude/agents/devops.md
-   • Role: General SRE for infrastructure setup
-   • Focus: Exploration and tooling recommendations
-   • Lines: 198
+   • Role: Infrastructure setup guidance
+   • Focus: Help identify appropriate tooling
+   • Lines: 45 (minimal starter)
 
 ✅ Template Validation Passed
-📊 Created: .claude/agents/devops.md (generic)
+📊 Created: .claude/agents/devops.md (starter)
    ℹ️  No infrastructure detected
-   💡 Agent will help identify and set up appropriate tooling
+   💡 Agent references docs/deployment.md for patterns
    💡 Consider adding: Dockerfile, CI/CD configs, or IaC files
 ```
 
@@ -312,28 +312,27 @@ If user specifies tool not detected in project:
 
 ## Quality Standards
 
-**Minimum Output Requirements**:
-- 200+ lines (comprehensive devops agents are 250-350+)
-- All required sections populated with detected toolchain
-- Role constraints section (never modify application code)
-- Toolchain-specific commands with examples
-- Common tasks organized by detected tools
+**Target Output: 50-80 lines** (ultra-lean, mostly references)
 
-**Red Flags (Output is incomplete if present)**:
-- Under 100 lines
-- Missing YAML frontmatter
-- Generic content not tailored to detected infrastructure
-- No role constraints section
-- Placeholder text like `[TOOL]`, `[CLOUD_PROVIDER]`
-- Commands that don't match detected stack
+**The Formula**:
+- 10% mission + constraint (never touch app code)
+- 30% detected toolchain commands
+- 20% workflow (5 steps)
+- 40% references to docs/deployment.md, CLAUDE.md
 
-**Gold Standard Characteristics**:
-- Clear role definition (SRE specializing in detected stack)
-- Strict constraint: "NEVER modify application source code"
-- Commands specific to detected tools (docker, terraform, k8s, etc.)
-- Best practices for detected cloud provider
-- Security scanning commands included
-- Common tasks with actual commands (not descriptions)
+**Required**:
+- Mission (infrastructure only)
+- Critical constraint: "NEVER modify application source code"
+- Commands for DETECTED tools only (not all possible tools)
+- References to docs/deployment.md
+
+**Red Flags (Output needs revision)**:
+- Over 100 lines → too much, reference docs/ instead
+- Contains tools not detected → remove them
+- Contains infrastructure best practices essay → reference docs/
+- Missing "never touch app code" constraint → critical omission
+
+**Validation Question**: "Does this agent have ONLY the commands for detected tools + references?"
 
 ## Tips
 

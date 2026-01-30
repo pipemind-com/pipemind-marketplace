@@ -1,6 +1,6 @@
 ---
 name: creating-security-agent
-description: Generates security auditor agent customized for project's tech stack
+description: Creates lean security auditor agent (50-100 lines)
 user-invocable: true
 argument-hint: "optional: compliance standard (e.g. OWASP, SOC2)"
 allowed-tools:
@@ -8,17 +8,21 @@ allowed-tools:
   - Glob
   - Grep
   - Write
-  - WebFetch
-  - WebSearch
+  - Bash
 model: sonnet
 color: red
 ---
 
 # Creating Security Agent
 
-Creates a project-specific `security.md` agent file customized for your tech stack, acting as an adversarial "Red Teamer" specialized for your codebase.
+Creates an **ultra-lean** project-specific `security.md` agent (50-100 lines) acting as an adversarial "Red Teamer". References CLAUDE.md and docs/ instead of duplicating.
 
-**IMPORTANT**: This skill creates a **PROJECT-level** agent at `<project>/.claude/agents/security.md` (relative to current working directory), NOT in user-level settings (`~/.claude/`). This agent is specific to the current project's security concerns.
+**Core Philosophy**:
+- **Reference, don't duplicate** - CLAUDE.md has architecture, docs/ has details
+- **80% rule** - Only top vulnerabilities that apply to this stack
+- **Mission-specific only** - Adversarial testing, not general security advice
+
+**IMPORTANT**: Generated agent at `<project>/.claude/agents/security.md` should be ~50-100 lines with top 5-10 checks and references to external checklists.
 
 ## When Invoked
 
@@ -43,12 +47,11 @@ This skill will:
    - Detect authentication mechanism (JWT, OAuth, session-based)
    - Find database/ORM (PostgreSQL, MySQL, Prisma, SQLAlchemy)
 
-**3. 🌐 Smart Context Loading** (#4):
-   - Search web for latest OWASP guidelines and Top 10 updates
-   - Fetch framework-specific security advisories
-   - Load compliance standard documentation (if specified: SOC2, HIPAA, PCI-DSS)
-   - Incorporate modern security testing methodologies
-   - Retrieve CVE databases for known vulnerabilities in detected stack
+**3. 🔍 Stack Analysis**:
+   - Detect language and framework from project files
+   - Identify authentication mechanism (JWT, OAuth, session)
+   - Map OWASP Top 10 to detected stack
+   - Apply compliance focus if specified (SOC2, HIPAA, PCI-DSS)
 
 **4. 🛡️ Build Vulnerability Matrix**:
    - Determine application type (Web App, API, CLI, Mobile)
@@ -65,13 +68,12 @@ This skill will:
    - Apply any compliance-specific checks if requested
 
 **6. ✅ Template Validation** (#3):
-   - Verify YAML frontmatter is valid (must include `color: red`)
-   - Check all 7 required sections are present
-   - Ensure security tools match detected stack
-   - Validate checklist completeness (minimum 15 items)
-   - **Quality floor check**: Minimum 250 lines (comprehensive security agents are 300-400+)
-   - Verify attack scenarios have concrete PoC commands
-   - Check security report template exists
+   - Verify YAML frontmatter valid (must include `color: red`)
+   - Check ultra-lean structure (Mission, Scanner, Top 5, PoC, References)
+   - **Target: 50-100 lines** (references, not exhaustive lists)
+   - Ensure no duplicated content from CLAUDE.md or docs/
+   - Verify top 5 checks are stack-specific (not generic OWASP copy)
+   - Verify PoC commands are included (not just descriptions)
    - Report validation results
 
 **7. 📊 Report Results**:
@@ -93,62 +95,48 @@ This skill will:
 /creating-security-agent OWASP
 ```
 
-## Agent Template Sections
+## Agent Template (Target: 50-100 lines)
 
-The generated `security.md` agent will include these 7 core sections:
+The generated `security.md` agent will be **ultra-lean** with mostly references:
 
-### 1. Mission & Tech Stack
-Adversarial security mindset and project-specific stack information:
-- Language and framework
-- Authentication mechanism
-- Database and ORM
-- Security focus areas
+```markdown
+# Security Agent
 
-### 2. Security Tools
-Stack-specific automated scanning tools:
-- **Python**: bandit, pip-audit, safety, trufflehog
-- **Node.js**: npm audit, snyk, eslint-plugin-security
-- **Rust**: cargo-audit, cargo-clippy
-- **Go**: gosec, nancy
-- Commands to run each tool
+## Mission
+Find vulnerabilities before attackers do. Think adversarially.
 
-### 3. Vulnerability Checklist
-Tailored checklist based on application type and framework:
-- OWASP Top 10 (API or Web)
-- Framework-specific vulnerabilities
-- Authentication/Authorization checks
-- Data protection requirements
-- Input validation patterns
+## Before Any Audit
+1. Read CLAUDE.md (architecture, auth mechanism)
+2. For detailed architecture: see docs/architecture.md
+3. For auth flow: see docs/authentication.md (if exists)
 
-### 4. Attack Scenarios
-Concrete security testing scenarios:
-- BOLA (Broken Object Level Authorization) tests
-- SQL injection attempts
-- JWT token tampering
-- XSS payload testing
-- Rate limiting verification
+## Quick Scan (run first)
+```bash
+bandit -r src/    # or npm audit, cargo-audit, etc.
+```
 
-### 5. Workflow
-Security audit process:
-1. Read CLAUDE.md (understand architecture)
-2. Scan with automated tools
-3. Manual code review (auth, authorization, input validation)
-4. Test attack scenarios
-5. Document findings with severity levels
+## Top 5 Checks for This Stack (80%+ of vulns)
+- [ ] BOLA: Can user A access user B's data?
+- [ ] Auth bypass: Token validation, expiration
+- [ ] Injection: SQL, command, path traversal
+- [ ] Data exposure: Sensitive fields in responses
+- [ ] Rate limiting: DOS protection
 
-### 6. Output Format
-Security report template:
-- Summary with severity counts
-- Critical/High/Medium/Low issues
-- Location, PoC, and recommendations for each
-- Compliance checklist (if applicable)
+## Attack Tests (with PoC)
+1. BOLA: `curl -H "Auth: user1" /api/users/2` → Expect 403
+2. SQLi: `/search?q=' OR 1=1--` → Expect sanitized
 
-### 7. Compliance Requirements
-If compliance standard specified (SOC2, HIPAA, PCI-DSS):
-- Standard-specific checklist items
-- Audit logging requirements
-- Data encryption requirements
-- Access control verification
+## Workflow
+1. Run scanner → 2. Top 5 checks → 3. Attack tests → 4. Report
+
+## References
+- Full OWASP checklist: https://owasp.org/API-Security/
+- Architecture: docs/architecture.md
+- Tech stack: docs/tech-stack.md (for security tools)
+- Auth details: CLAUDE.md ## Authentication
+```
+
+**That's it.** ~50-70 lines. Reference OWASP for comprehensive checklists.
 
 ## Critical Philosophy
 
@@ -162,13 +150,12 @@ If compliance standard specified (SOC2, HIPAA, PCI-DSS):
 ## Output
 
 Creates `.claude/agents/security.md` with:
-- Complete YAML frontmatter (name, description, tools, model, color)
-- All 7 core sections fully populated
-- Tech stack-specific security tools and commands
-- Vulnerability checklist customized for framework
-- Attack scenarios relevant to application type
-- Security report template
-- Compliance requirements (if specified)
+- YAML frontmatter (including `color: red`)
+- Ultra-lean structure (50-100 lines total)
+- One scanner command for detected stack
+- Top 5 vulnerability checks (not exhaustive)
+- 2-3 attack tests with PoC commands
+- References to OWASP and docs/
 
 ## Examples
 
@@ -205,23 +192,21 @@ Creates `.claude/agents/security.md` with:
 
 📝 Generating Security Agent
    • Creating: .claude/agents/security.md
-   • Security tools: bandit, pip-audit, trufflehog, safety
-   • Checklist: 23 items (OWASP + FastAPI-specific)
-   • Attack scenarios: 8 scenarios
-   • Sections: 7/7 populated
-   • Lines: 312
+   • Scanner: bandit (for Python stack)
+   • Top 5 checks: BOLA, Auth, Injection, Exposure, Rate Limit
+   • Attack tests: 3 with PoC commands
+   • Lines: 62 (within 50-100 target)
 
 ✅ Template Validation
-   ✅ YAML frontmatter valid
-   ✅ All 7 sections present
-   ✅ Security tools match Python stack
-   ✅ Checklist complete
+   ✅ YAML frontmatter valid (color: red)
+   ✅ Ultra-lean structure (62 lines)
+   ✅ Top 5 checks (not exhaustive list)
+   ✅ References OWASP for comprehensive audit
 
 📊 Results
-   ✅ Created: .claude/agents/security.md
-   🔴 Security Focus: OWASP API Top 10
-   🛠️ Tools: bandit, pip-audit, trufflehog, safety
-   ✅ Attack scenarios: BOLA, SQLi, JWT tampering, XSS
+   ✅ Created: .claude/agents/security.md (62 lines)
+   🔴 Focus: Top 5 vulnerabilities for Python/FastAPI
+   🔗 References: OWASP, docs/architecture.md, CLAUDE.md
 ```
 
 ### With Compliance Standard
@@ -234,21 +219,14 @@ Creates `.claude/agents/security.md` with:
 ```
 ✅ Pre-Flight Validation Passed
 📖 Reading Project Context
-🌐 Smart Context Loading
-   • Fetching: SOC2 Trust Service Criteria
-   • Fetching: Access control best practices
-   • Fetching: Audit logging patterns
-🛡️ Vulnerability Matrix
-   • Standard: SOC2 compliance
-   • Added: Access control audit
-   • Added: Audit logging verification
-   • Added: Data encryption checks
-📝 Generating Security Agent (with SOC2 requirements)
+📝 Generating Security Agent (with SOC2 focus)
+   • Added check: "Audit logging enabled?"
+   • Added check: "Data encryption at rest?"
+   • Added reference: SOC2 Trust Criteria link
 ✅ Template Validation Passed
-📊 Created: .claude/agents/security.md (347 lines)
-   • Added SOC2 section (access control, audit logs, encryption)
-   • Added compliance checklist (12 additional items)
-   • Sections: 7/7 populated
+📊 Created: .claude/agents/security.md (71 lines)
+   • SOC2 focus added as 2 checks + reference
+   • Still within 50-100 line target
 ```
 
 ### Error Case
@@ -347,36 +325,38 @@ Ready for secure development!
 
 ## Quality Standards
 
-**Minimum Output Requirements**:
-- 250+ lines (comprehensive security agents are 300-400+)
-- All 7 sections populated with stack-specific content
-- Vulnerability checklist with 15+ items
-- Attack scenarios with concrete PoC commands (not just descriptions)
-- Security tools matched to detected stack
-- Security report template with severity levels
+**Target Output: 50-100 lines** (ultra-lean, mostly references)
 
-**Red Flags (Output is incomplete if present)**:
-- Under 150 lines
-- Missing YAML frontmatter or missing `color: red`
-- Generic OWASP checklist not tailored to stack
-- No attack scenarios or scenarios without PoC
-- Missing security report template
-- Placeholder text like `[TECH_STACK]`
+**The Formula**:
+- 10% mission statement
+- 20% quick scan command
+- 30% top 5 checks (80%+ of vulnerabilities)
+- 20% attack tests with PoC
+- 20% references to OWASP, docs/, CLAUDE.md
 
-**Gold Standard Characteristics**:
-- Stack-specific tools (bandit for Python, npm audit for Node, etc.)
-- OWASP checklist mapped to detected framework vulnerabilities
-- Concrete attack scenarios with curl/httpie/etc. commands
-- Compliance section if standard specified (SOC2, HIPAA, PCI-DSS)
-- Clear severity levels in output format
+**Required**:
+- Mission (adversarial mindset)
+- One scanner command for detected stack
+- Top 5 vulnerability checks (not 30+)
+- 2-3 attack tests with actual PoC commands
+- References to comprehensive checklists
+
+**Red Flags (Output needs revision)**:
+- Over 100 lines → reference OWASP instead
+- 15+ checklist items → that's a reference doc, not an agent
+- Generic OWASP copy-paste → tailor to THIS stack
+- No PoC commands → useless without them
+- Contains architecture details → that's in docs/
+
+**Validation Question**: "Does this agent help find the TOP vulnerabilities fast, with references for deeper audits?"
 
 ## Tips
 
 - **First Time Setup**: Run this after creating `CLAUDE.md`
 - **Updates**: Re-run when tech stack changes or new security requirements emerge
-- **Compliance**: Use argument to add specific compliance standards
+- **Compliance**: Use argument to add specific compliance standards (SOC2, HIPAA, PCI-DSS)
 - **Integration**: Invoke security agent before deploying to production
 - **Regular Audits**: Run security agent periodically, not just once
 - **False Positives**: Security agent may be overly cautious - review findings carefully
-- **Web Access**: Skill fetches latest OWASP guidelines and CVE databases
+- **Condensed Checklist**: Agent has 10-15 items, not exhaustive - reference OWASP for full lists
 - **Stack-Specific**: Generated agent includes tools for your exact tech stack

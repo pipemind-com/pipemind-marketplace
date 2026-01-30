@@ -1,15 +1,13 @@
 ---
 name: creating-claude-settings
-description: Generates comprehensive CLAUDE.md with architecture, patterns, and workflows
+description: Generates lean CLAUDE.md (~50-100 lines) with progressive disclosure
 user-invocable: true
-argument-hint: "optional: focus areas or additional sections to include"
+argument-hint: "optional: --focus 'area' to emphasize specific patterns"
 allowed-tools:
   - Read
   - Glob
   - Grep
   - Write
-  - WebFetch
-  - WebSearch
   - Bash
 model: sonnet
 color: green
@@ -17,153 +15,136 @@ color: green
 
 # Creating Claude Settings
 
-Analyzes your codebase and generates a comprehensive `CLAUDE.md` file documenting architecture, development workflows, coding patterns, testing strategies, and deployment procedures.
+Analyzes your codebase and generates a **lean** `CLAUDE.md` file following the "less is more" principle. Uses progressive disclosure by referencing `docs/` for detailed content.
+
+## Critical Principle: The 150 Instruction Limit
+
+Claude can reliably follow ~150-200 instructions. Claude Code's system prompt uses ~50, leaving **~100-150 for your CLAUDE.md**.
+
+**If you stuff CLAUDE.md with too much, Claude ignores it.**
+
+This skill generates:
+- **Lean CLAUDE.md**: 50-100 lines (core context only)
+- References `docs/` for detailed content (use `/creating-project-docs` to generate)
 
 ## When Invoked
 
-This skill will:
-
-**1. ✅ Pre-Flight Validation** (#1):
-   - Check if in a git repository (FAIL if not)
-   - Check if `CLAUDE.md` already exists (WARN but allow override)
-   - Verify codebase has sufficient files to analyze
+**1. Pre-Flight Validation**:
+   - Check if in a git repository
+   - Check if `CLAUDE.md` already exists (warn, allow override)
    - Report validation status
 
-**2. 🔍 Codebase Analysis**:
-   - Detect tech stack from project files:
-     - `package.json` → Node.js/JavaScript/TypeScript
-     - `requirements.txt`, `pyproject.toml` → Python
-     - `Cargo.toml` → Rust
-     - `go.mod` → Go
-     - `pom.xml`, `build.gradle` → Java
-   - Identify framework (React, Next.js, FastAPI, Django, etc.)
-   - Discover architecture patterns (monolith, microservices, layered, etc.)
-   - Map directory structure
-   - Find configuration files
+**2. Codebase Analysis**:
+   - Detect tech stack from project files
+   - Identify framework and architecture pattern
+   - Map key directory structure
+   - Find essential configuration files
 
-**3. 🌐 Smart Context Loading** (#4):
-   - Search web for framework-specific best practices
-   - Fetch official documentation for detected frameworks
-   - Load modern architectural patterns
-   - Gather testing conventions
-
-**4. 📖 Code Exploration**:
+**3. Code Exploration**:
    - Read key configuration files
-   - Sample implementation files from each layer
-   - Identify existing patterns and conventions
-   - Extract environment variables and integration points
+   - Sample 2-3 implementation files to detect patterns
+   - Identify essential commands (build, test, run)
 
-**5. 📝 Generate CLAUDE.md**:
-   Create comprehensive documentation with all 9 core sections:
-   1. Development Commands
-   2. Architecture Overview
-   3. Data Flow
-   4. Key Integration Points
-   5. Important Patterns and Constraints
-   6. Architecture Patterns (detailed)
-   7. Deployment Strategy
-   8. Testing Strategy
-   9. Common Gotchas
+**4. Generate Lean CLAUDE.md** (~50-100 lines):
+   Six core sections following WHAT/WHY/HOW framework:
+   1. **Project Context** (2-3 sentences) - WHAT this is
+   2. **About This Project** (tech stack, 2-3 sentences)
+   3. **Key Directories** (5-8 items max)
+   4. **Commands** (essential only)
+   5. **Standards** (critical conventions only)
+   6. **Notes** (gotchas, warnings)
 
-**6. ✅ Content Validation** (#3):
-   - Verify all 9 sections are present and populated
-   - Check for placeholder text
-   - Ensure code examples are included
-   - Validate architecture diagram syntax
-   - Report validation results
+**5. Reference docs/** (for progressive disclosure):
+   CLAUDE.md will reference `docs/` for detailed content.
+   Run `/creating-project-docs` to generate comprehensive documentation:
+   - `docs/architecture.md` - detailed architecture
+   - `docs/testing.md` - testing strategy
+   - `docs/deployment.md` - deployment procedures
+   - `docs/getting-started.md` - setup guide
 
-**7. 📊 Report Results**:
-   - Confirm file creation location
-   - List detected tech stack
-   - Summarize included sections
-   - Report any warnings or gaps
+**6. Validation**:
+   - Verify CLAUDE.md is under 100 lines
+   - Check 80% rule: content relevant to most sessions
+   - Confirm no bloat or linting instructions
 
 ## Arguments
 
-**Optional**: Focus areas or additional sections
-- Example: `"Focus on microservices communication patterns"`
-- Example: `"Include detailed Docker deployment workflow"`
-- Example: `"Add Redis caching architecture"`
-- Default: Generates all standard sections based on auto-detected stack
+**Optional flags:**
+- `--focus "area"`: Emphasize specific patterns (e.g., "caching", "auth")
+- Default: Lean CLAUDE.md only
 
-## CLAUDE.md Sections
+**For detailed documentation:** Run `/creating-project-docs` after this skill.
 
-### 1. Development Commands
-Commands for each layer/stack:
-- `npm run dev`, `python manage.py runserver`, etc.
-- Build commands
-- Test commands
-- Deployment commands
-- Database migration commands
+## CLAUDE.md Template (Target: 50-100 lines)
 
-### 2. Architecture Overview
-- **Tech stack diagram** showing all layers and communication
-- Key components in each layer
-- Clear explanation of architecture pattern (e.g., layered, microservices)
-- **NOT** MVVM unless actually used
+```markdown
+# Project Context
 
-### 3. Data Flow
-- **Diagram** key workflows with actual file paths
-- Show how data moves through layers
-- Include concrete examples:
-  - User input → API → database → response
-  - Background job processing
-  - Real-time updates
+Brief philosophy (1-2 sentences about working approach).
 
-### 4. Key Integration Points
-- External services (authentication providers, payment gateways, etc.)
-- Database configuration
-- API integrations
-- Environment variables required
-- Configuration files and their purpose
+## About This Project
 
-### 5. Important Patterns and Constraints
-- Core patterns used (cache-aside, repository pattern, etc.)
-- Algorithm constraints or business rules
-- Database schema considerations
-- Performance requirements
-- Security constraints
+[Tech stack, 2-3 sentences max]
 
-### 6. Architecture Patterns (Detailed)
-- **Explain primary pattern** with clear rules
-- **Code examples** showing correct vs incorrect usage
-- **Table of Anti-Patterns** to avoid:
+## Key Directories
 
-  | ❌ Anti-Pattern | ✅ Correct Pattern |
-  |----------------|-------------------|
-  | Business logic in controllers | Move to service layer |
-  | Direct database access from UI | Use repository pattern |
+- `src/` - Source code
+- `tests/` - Test files
+- [5-8 items max, most important only]
 
-### 7. Deployment Strategy
-- **Critical deployment order** with rationale
-- Rollback considerations
-- Environment-specific concerns (dev, staging, prod)
-- Database migration timing
-- Feature flag usage
+## Commands
 
-### 8. Testing Strategy
-- **Test pyramid** showing layers
-- What to test at each layer (unit, integration, E2E)
-- Testing frameworks for each stack
-- Code coverage requirements
-- Test organization patterns
+```bash
+[command]  # Dev server
+[command]  # Run tests
+[command]  # Build
+```
 
-### 9. Common Gotchas
-- Framework-specific pitfalls with examples
-- State management confusion
-- Deployment/configuration issues
-- Algorithm/business logic edge cases
-- Performance bottlenecks
+## Standards
 
-## Output
+- [Critical convention 1]
+- [Critical convention 2]
+- [3-5 items max, only what causes bugs if missed]
 
-Creates `CLAUDE.md` with:
-- All 9 core sections fully populated
-- Tech-stack-specific patterns and examples
-- Concrete code examples for critical patterns
-- Architecture diagrams using ASCII/mermaid
-- Actionable guidance (developers know WHAT and HOW)
-- Cross-file concerns requiring system understanding
+## Notes
+
+- [Gotcha 1]
+- [Gotcha 2]
+- [Only critical warnings]
+
+## Additional Documentation
+
+Before specific tasks, read relevant documentation:
+- Architecture: `docs/architecture.md`
+- Tech stack: `docs/tech-stack.md`
+- Testing: `docs/testing.md`
+- Getting Started: `docs/getting-started.md`
+Read only what's relevant to your current task.
+
+Generate docs with: `/creating-project-docs`
+```
+
+## The 80% Rule
+
+**Only include instructions relevant to 80%+ of Claude Code sessions.**
+
+| Include in CLAUDE.md | Move to docs/ |
+|---------------------|---------------|
+| Essential commands | Detailed deployment steps |
+| Critical conventions | Comprehensive code style |
+| Key directory structure | Full architecture diagrams |
+| Gotchas that cause bugs | Edge case handling |
+| Tech stack overview | Database schema details |
+
+Use `/creating-project-docs` to generate the `docs/` content.
+
+## What NOT to Include in CLAUDE.md
+
+- **Linting rules**: Use actual linters (ESLint, Black, etc.)
+- **Everything Claude can infer**: File contents, obvious patterns
+- **Task-specific instructions**: Belong in agent files
+- **Sensitive information**: API keys, credentials
+- **Detailed code style**: Use proper tools
 
 ## Examples
 
@@ -172,77 +153,46 @@ Creates `CLAUDE.md` with:
 /creating-claude-settings
 ```
 
-**Expected Output:**
+**Output:**
 ```
-✅ Pre-Flight Validation
-   ✅ Git repository detected
-   ⚠️  CLAUDE.md already exists - will override
-   ✅ Codebase has 127 files to analyze
+Pre-Flight Validation
+   Git repository detected
+   No existing CLAUDE.md
 
-🔍 Codebase Analysis
-   • Detected: Python 3.12, FastAPI 0.109
-   • Framework: FastAPI with Supabase backend
-   • Architecture: API-first, layered architecture
-   • Database: PostgreSQL via Supabase
-   • Directory structure: src/, tests/, migrations/
+Codebase Analysis
+   Detected: Python 3.12, FastAPI 0.109
+   Framework: FastAPI with PostgreSQL
+   Architecture: Layered (routes > services > models)
 
-🌐 Smart Context Loading
-   • Fetching: FastAPI best practices
-   • Fetching: Supabase Python patterns
-   • Fetching: PostgreSQL schema design
+Generating Lean CLAUDE.md
+   Project Context (3 lines)
+   About This Project (4 lines)
+   Key Directories (6 items)
+   Commands (4 commands)
+   Standards (4 items)
+   Notes (3 items)
 
-📖 Code Exploration
-   • Config: pyproject.toml, .env.example
-   • API routes: src/api/v1/
-   • Services: src/services/
-   • Models: src/models/
-   • Tests: tests/ (pytest)
+Validation
+   Total: 67 lines (under 100 limit)
+   80% rule: All content universally applicable
 
-📝 Generating CLAUDE.md
-   • Section 1: Development Commands ✓
-   • Section 2: Architecture Overview ✓
-   • Section 3: Data Flow ✓
-   • Section 4: Integration Points ✓
-   • Section 5: Patterns & Constraints ✓
-   • Section 6: Architecture Patterns ✓
-   • Section 7: Deployment Strategy ✓
-   • Section 8: Testing Strategy ✓
-   • Section 9: Common Gotchas ✓
-
-✅ Content Validation
-   ✅ All 9 sections present
-   ✅ Code examples included (12 snippets)
-   ✅ Architecture diagrams present (3)
-   ✅ No placeholders remaining
-   ✅ Anti-patterns table populated
-
-📊 Results
-   ✅ Created: CLAUDE.md (487 lines)
-   📦 Tech Stack: Python, FastAPI, PostgreSQL, Supabase
-   📐 Architecture: API-first, layered (routes → services → models)
-   📝 Sections: 9/9 complete with examples
+Created: CLAUDE.md (67 lines)
 ```
 
-### With Customization
+### With Focus Area
 ```
-/creating-claude-settings "Focus on Redis caching patterns and background job processing"
+/creating-claude-settings --focus "authentication and Redis caching"
 ```
 
-**Expected Output:**
+**Output:**
 ```
-✅ Pre-Flight Validation Passed
-🔍 Codebase Analysis
-   • Additional detection: Redis, Celery
-🌐 Smart Context Loading
-   • Added: Redis caching patterns
-   • Added: Celery best practices
-📝 Generating CLAUDE.md (with custom sections)
-   • Added: Redis cache-aside pattern examples
-   • Added: Background job workflow diagrams
-✅ Content Validation Passed
-📊 Created: CLAUDE.md (523 lines)
-   • Added Redis architecture section
-   • Added Celery job patterns
+[...standard generation...]
+
+Focus Areas Added:
+   Standards: JWT token handling note
+   Notes: Redis cache invalidation gotcha
+
+Next step: Run /creating-project-docs to generate detailed docs/
 ```
 
 ### Error Case
@@ -250,46 +200,22 @@ Creates `CLAUDE.md` with:
 /creating-claude-settings
 ```
 
-**Output when not in git repo:**
+**When not in git repo:**
 ```
-❌ Pre-Flight Validation Failed
-   ❌ Not in a git repository
+Pre-Flight Validation FAILED
+   Not in a git repository
 
-ERROR: Cannot create CLAUDE.md outside a git repository
 Run 'git init' first, then try again.
 ```
 
-## Critical Philosophy
-
-**CLAUDE.md is the single source of truth for project architecture.**
-
-All agents (planner, builder, etc.) reference CLAUDE.md to understand:
-- How the system works
-- What patterns to follow
-- How to test correctly
-- How to deploy safely
-
-Keep it updated as the project evolves.
-
-## Tips
-
-- **First Time Setup**: Run this before creating planner/builder agents
-- **Updates**: Re-run when architecture changes significantly
-- **Customization**: Use arguments to emphasize specific patterns
-- **Review Generated File**: Always validate accuracy for your specific project
-- **Keep Current**: Update CLAUDE.md manually as patterns evolve
-- **Code Examples**: Ensure examples match actual codebase conventions
-
 ## Integration
 
-This skill is designed to be:
-1. **First step** in `bootstrap-agentic.sh`
-2. **Prerequisite** for `/creating-planner-agent` and `/creating-builder-agent`
-3. **Referenced** by all project-specific agents
+This skill is the **first step** in the agentic workflow:
 
-The workflow:
 ```
-/creating-claude-settings
+/creating-claude-settings     ← Lean CLAUDE.md (50-100 lines)
+  ↓
+/creating-project-docs        ← Detailed docs/ for progressive disclosure
   ↓
 /creating-planner-agent
   ↓
@@ -297,3 +223,19 @@ The workflow:
   ↓
 Ready for agentic workflow!
 ```
+
+## Tips
+
+- **Start lean**: You can always add more later
+- **Run /creating-project-docs next**: Generates detailed `docs/` for progressive disclosure
+- **Review the output**: Validate accuracy for your project
+- **Update iteratively**: Use `#` shortcut to add instructions as you discover them
+- **Don't duplicate**: Reference CLAUDE.md from agents, don't copy
+
+## Philosophy
+
+**CLAUDE.md is the single source of truth for project context—but only the essential context.**
+
+All agents reference CLAUDE.md. If it's bloated, every agent suffers from instruction limit degradation.
+
+Keep it lean. Use progressive disclosure. Let Claude focus on what matters.

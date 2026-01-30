@@ -1,6 +1,6 @@
 ---
 name: creating-project-docs
-description: Generates multi-file project documentation in /docs/ for humans and AI agents
+description: Generates docs/ for progressive disclosure from CLAUDE.md
 user-invocable: true
 argument-hint: "optional: 'include: topic1, topic2; skip: topic3' or 'full' for all topics"
 allowed-tools:
@@ -8,17 +8,22 @@ allowed-tools:
   - Glob
   - Grep
   - Write
-  - WebFetch
-  - WebSearch
+  - Bash
 model: sonnet
 color: cyan
 ---
 
 # Creating Project Documentation
 
-Generates comprehensive, multi-file project documentation in `/docs/**/*.md` with auto-detection of relevant topics, compact formatting, and AI context summaries optimized for dual human/AI consumption.
+Generates `docs/` directory with detailed documentation files that serve as **progressive disclosure** from your lean CLAUDE.md. These files are referenced by CLAUDE.md for detailed content that doesn't belong in the main file (following the 80% rule).
 
-**IMPORTANT**: This skill creates documentation at `<project>/docs/*.md` (relative to current working directory). Each document includes an AI Context Summary header optimized for LLM context injection.
+**Purpose**: CLAUDE.md stays lean (50-100 lines) while `docs/` holds the detailed content:
+- Architecture deep-dives
+- Testing strategies
+- Deployment procedures
+- API documentation
+
+**IMPORTANT**: Run `/creating-claude-settings` first to create CLAUDE.md, then run this skill to generate the `docs/` it references.
 
 ## When Invoked
 
@@ -26,7 +31,8 @@ This skill will:
 
 **1. Pre-Flight Validation**:
    - Check if current directory is a git repository (FAIL if not)
-   - Check if `CLAUDE.md` exists (WARN if missing, proceed with degraded context)
+   - Check if `CLAUDE.md` exists (WARN if missing - suggest running `/creating-claude-settings` first)
+   - Check if CLAUDE.md has "Additional Documentation" section referencing `docs/`
    - Create `docs/` directory if it doesn't exist
    - Parse user arguments for include/skip overrides
    - Report validation status
@@ -95,6 +101,8 @@ The following topics are auto-detected based on codebase signals:
 | backend | Express/FastAPI/Django/Rails/NestJS detected, server configs | `docs/backend.md` |
 | deployment | Dockerfile, K8s manifests, Terraform, CI/CD configs, PM2, systemd | `docs/deployment.md` |
 | security | CORS, CSP, rate limiting, security headers, helmet, sanitization | `docs/security.md` |
+| tech-stack | `package.json`, `requirements.txt`, `Cargo.toml`, `go.mod`, framework configs | `docs/tech-stack.md` |
+| workflow | `tasks/`, `TEMPLATE.md`, task management patterns, planner/builder workflow | `docs/workflow.md` |
 
 **Confidence threshold**: Topics with >30% confidence are included by default.
 
@@ -110,6 +118,16 @@ Each generated document follows this structure:
 
 ## Overview
 [High-level explanation - 3-5 paragraphs maximum]
+```
+
+**AI Context Summary Guidelines** (critical for agent consumption):
+- This header is specifically for AI agents that reference the doc
+- Include: What this system/component does, key patterns to follow, critical constraints
+- Format: 2-3 sentences, dense with actionable information
+- Agents read this first to understand if they need the full document
+- Example: "Authentication uses JWT with 15-min access tokens and 7-day refresh tokens. All protected routes require the `authMiddleware` at `src/middleware/auth.ts`. Never store tokens in localStorage—use httpOnly cookies."
+
+```markdown
 
 ## Key Concepts
 | Concept | Description | Location |
@@ -137,6 +155,8 @@ Each generated document follows this structure:
 | `frontend.md` | 120-200 | Components, state, routing |
 | `backend.md` | 120-200 | Server architecture, middleware |
 | `security.md` | 120-200 | Security measures, configurations |
+| `tech-stack.md` | 100-150 | Language, framework, libraries, tools |
+| `workflow.md` | 80-120 | Task patterns, planner/builder workflow |
 | `index.md` | 50-80 | Navigation, document overview |
 
 ## Prompting Strategy for Accuracy + Compactness
@@ -375,20 +395,25 @@ Please initialize git with: git init
  Topic Discovery
    ...
 
-Note: Documentation quality may be reduced without CLAUDE.md context.
-Consider creating CLAUDE.md first for better results.
+ RECOMMENDATION:
+Run /creating-claude-settings first to create a lean CLAUDE.md.
+Then re-run this skill. CLAUDE.md will reference the generated docs/
+for progressive disclosure.
 ```
 
 ## Document Content Guidelines
 
 ### architecture.md
 
+**Critical**: Referenced by ALL agents (planner, builder, security, devops).
+
 Must include:
 - System overview diagram (ASCII or description)
-- Component breakdown with responsibilities
-- Data flow between components
+- Component breakdown with responsibilities (planner needs this for task scoping)
+- Data flow between components (builder needs this for implementation)
 - Technology stack summary
 - Directory structure explanation
+- Layer boundaries (what code belongs where)
 
 ```markdown
 # Architecture
@@ -461,21 +486,28 @@ Must include:
 
 ### testing.md
 
+**Critical**: Referenced by builder agent for test implementation.
+
 Must include:
 - Test framework and configuration
-- Running tests commands
-- Test file organization
+- Running tests commands (builder needs exact commands)
+- Test file organization (where to add new tests)
 - Coverage requirements
 - Writing new tests guide
+- Test patterns used in this project (mocking, fixtures, etc.)
 
 ### deployment.md
+
+**Critical**: Referenced by devops agent for infrastructure tasks.
 
 Must include:
 - Build process
 - Environment configurations
-- Deployment commands/workflow
+- Deployment commands/workflow (devops needs exact commands)
+- Infrastructure tool commands (Docker, Terraform, kubectl, etc.)
 - Infrastructure requirements
 - Monitoring and logging setup
+- CI/CD pipeline overview
 
 ### authentication.md
 
@@ -513,6 +545,30 @@ Must include:
 - Data protection
 - Security headers/CORS
 
+### tech-stack.md
+
+**Critical**: Referenced by builder (for patterns), security (for tools), planner (for constraints).
+
+Must include:
+- Language version and configuration (e.g., Python 3.12, TypeScript 5.0)
+- Framework and version with key configuration
+- Key libraries with versions and usage patterns
+- Development tools (linters, formatters, bundlers)
+- Build system and commands
+- Package manager conventions
+- Common idioms specific to this stack
+
+### workflow.md
+
+**Optional**: Generated if task management patterns detected. Referenced by planner agent.
+
+Must include:
+- Task file format and structure
+- Task lifecycle (pending → active → completed)
+- How planner creates tasks, builder implements them
+- Task file location (`tasks/` directory structure)
+- Example task file template
+
 ### index.md
 
 Must include:
@@ -542,9 +598,19 @@ Must include:
 3. [Topic-specific based on your role]
 ```
 
+## Why This Exists: The 150 Instruction Limit
+
+Claude can reliably follow ~150-200 instructions. If CLAUDE.md is bloated, Claude ignores it.
+
+**Solution**: Keep CLAUDE.md lean (50-100 lines) and put detailed content in `docs/`:
+- CLAUDE.md says: "See `docs/architecture.md` for details"
+- Claude loads the file only when working on architecture
+- This is **progressive disclosure** - detail on demand
+
 ## Tips
 
 - **Run after CLAUDE.md**: Best results when `CLAUDE.md` exists with project context
+- **Check CLAUDE.md references docs/**: Ensure CLAUDE.md has "Additional Documentation" section
 - **Use include/skip**: Customize output for your needs
 - **Regenerate periodically**: Re-run when codebase changes significantly
 - **Review and edit**: Generated docs are a starting point - refine as needed
@@ -552,27 +618,52 @@ Must include:
 - **AI summaries**: The AI Context Summary headers are specifically for LLM consumption
 - **Compact format**: Documents are intentionally concise - expand specific sections as needed
 
-## Integration
+## Integration: Progressive Disclosure Pattern
 
-This skill complements other project setup skills:
+This skill implements **progressive disclosure** for CLAUDE.md:
 
 ```
-/creating-claude-settings
-  |
-/creating-planner-agent
-  |
-/creating-builder-agent
-  |
-/creating-security-agent
-  |
-/creating-project-docs  <-- Generates documentation
-  |
-Ready for development!
+/creating-claude-settings     ← Creates lean CLAUDE.md (50-100 lines)
+  ↓
+/creating-project-docs        ← Creates docs/ with detailed content
+  ↓
+CLAUDE.md references docs/ → Claude loads details only when needed
 ```
 
-The generated documentation serves both:
-1. **Human developers**: Onboarding, reference, troubleshooting
-2. **AI agents**: Context injection via AI Context Summary headers
+**How it works:**
+1. CLAUDE.md contains: `## Additional Documentation → docs/architecture.md`
+2. Claude sees the reference but doesn't load it immediately
+3. When Claude works on architecture, it reads `docs/architecture.md`
+4. This keeps Claude's context lean until detail is needed
+
+**The generated documentation serves:**
+1. **Progressive disclosure**: CLAUDE.md stays lean, details on-demand
+2. **Human developers**: Onboarding, reference, troubleshooting
+3. **AI agents**: Context injection via AI Context Summary headers
+
+## Agent Integration
+
+The ultra-lean agents (50-100 lines) generated by `/creating-*-agent` skills **reference these docs** instead of duplicating content:
+
+| Agent | Primary Docs Referenced | What Agent Needs |
+|-------|------------------------|------------------|
+| **Planner** | `docs/architecture.md`, `docs/workflow.md`, `docs/tech-stack.md` | Component responsibilities, task patterns, tech constraints |
+| **Builder** | `docs/architecture.md`, `docs/testing.md`, `docs/tech-stack.md` | Data flow, test commands, framework patterns |
+| **Security** | `docs/architecture.md`, `docs/tech-stack.md` | Attack surface, auth flow, security tools for stack |
+| **DevOps** | `docs/architecture.md`, `docs/deployment.md` | Infrastructure commands, deployment workflow |
+
+**Critical Document**: `docs/architecture.md` is referenced by ALL agents. Ensure it includes:
+- Component breakdown with clear responsibilities
+- Data flow between components
+- Directory structure and layer boundaries
+
+**How Agents Use Docs**:
+1. Agent's "Before Any Task" section says: `For architecture: see docs/architecture.md`
+2. Agent reads the **AI Context Summary** first (2-3 sentences)
+3. If relevant, agent reads the full document for details
+4. Agent applies patterns from docs to current task
+
+This keeps agents lean while giving them access to comprehensive project knowledge.
 
 ## Quality Standards
 

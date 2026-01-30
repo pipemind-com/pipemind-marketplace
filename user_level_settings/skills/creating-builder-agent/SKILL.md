@@ -1,6 +1,6 @@
 ---
 name: creating-builder-agent
-description: Creates project-specific builder agent with coding standards and workflows
+description: Creates lean project-specific builder agent (50-100 lines)
 user-invocable: true
 argument-hint: "optional: customization notes or tech stack details"
 allowed-tools:
@@ -8,17 +8,21 @@ allowed-tools:
   - Glob
   - Grep
   - Write
-  - WebFetch
-  - WebSearch
+  - Bash
 model: sonnet
 color: blue
 ---
 
 # Creating Builder Agent
 
-Creates a project-specific `builder.md` agent file customized for your tech stack, including coding standards, task workflows, and testing patterns.
+Creates an **ultra-lean** project-specific `builder.md` agent (50-100 lines) that references CLAUDE.md and `docs/` instead of duplicating content.
 
-**IMPORTANT**: This skill creates a **PROJECT-level** agent at `<project>/.claude/agents/builder.md` (relative to current working directory), NOT in user-level settings (`~/.claude/`). This agent is specific to the current project's coding standards and tech stack.
+**Core Philosophy**:
+- **Reference, don't duplicate** - CLAUDE.md has context, docs/ has patterns
+- **80% rule** - Only include instructions that apply to 80%+ of builder tasks
+- **Mission-specific only** - No general coding advice (that's in CLAUDE.md)
+
+**IMPORTANT**: Generated agent at `<project>/.claude/agents/builder.md` should be ~50-100 lines of mission-specific instructions with references to existing documentation.
 
 ## When Invoked
 
@@ -35,31 +39,27 @@ This skill will:
    - Extract tech stack details
    - Identify framework-specific requirements
 
-**3. 🌐 Smart Context Loading** (#4):
-   - Auto-detect tech stack from project files:
-     - `package.json` → Node.js/JavaScript/TypeScript frameworks
-     - `requirements.txt`, `pyproject.toml` → Python frameworks
-     - `Cargo.toml` → Rust frameworks
-     - `go.mod` → Go frameworks
-   - Search web for framework-specific best practices
-   - Fetch official documentation patterns
-   - Incorporate modern idioms and conventions
+**3. 🔍 Tech Stack Detection**:
+   - Auto-detect from project files:
+     - `package.json` → Node.js/TypeScript
+     - `requirements.txt`, `pyproject.toml` → Python
+     - `Cargo.toml` → Rust
+     - `go.mod` → Go
+   - Use patterns from existing codebase (no web fetching needed)
 
-**4. 📝 Generate Builder Agent**:
+**4. 📝 Generate Lean Builder Agent**:
    - Create `.claude/agents/builder.md` with all required sections
    - Customize content based on project's tech stack
    - Include project-specific patterns from `CLAUDE.md`
    - Apply any user-provided customization notes
 
 **5. ✅ Template Validation** (#3):
-   - Verify YAML frontmatter is valid and complete
-   - Check all 8 required sections are present
-   - Ensure no placeholder text like `[PROJECT_NAME]` remains
-   - Validate section content is populated (not stub text)
-   - **Quality floor check**: Minimum 300 lines (comprehensive builders are 500-900+)
-   - Verify code examples include imports
-   - Check anti-patterns table exists with "Bad → Good" examples
-   - Verify Testing Standards section has actual test code
+   - Verify YAML frontmatter is valid
+   - Check ultra-lean structure (Mission, Workflow, Rules, References)
+   - **Target: 50-100 lines** (references, not content)
+   - Ensure no duplicated content from CLAUDE.md or docs/
+   - Verify each rule is 80%+ applicable to builder tasks
+   - Check anti-patterns table (5 items max)
    - Report validation results
 
 **6. 📊 Report Results**:
@@ -75,66 +75,52 @@ This skill will:
 - Example: `"Add Docker deployment workflow"`
 - Default: Uses only what's in `CLAUDE.md` and auto-detected context
 
-## Agent Template Sections
+## Agent Template (Target: 50-100 lines)
 
-The generated `builder.md` agent will include these 8 core sections:
+The generated `builder.md` agent will be **ultra-lean** with mostly references:
 
-### 1. Scope
-What the builder is responsible for across all layers/stacks of the project.
+```markdown
+# Builder Agent
 
-### 2. Coding Guidelines
-References from `CLAUDE.md`:
-- Core principles (Human-Centric, Least Surprise, Strict Typing, etc.)
-- Architecture patterns
-- Key implementation patterns with code examples
-- Anti-patterns to avoid (table format)
+## Mission
+Implement task files mechanically. Never make design decisions.
 
-### 3. Language/Framework Patterns
-- Modern language features (e.g., Python 3.12+, TypeScript 5.0+ patterns)
-- Component structure examples
-- Data fetching patterns
-- Form handling
-- State management
+## Before Any Task
+1. Read CLAUDE.md (project context, commands, standards)
+2. Read the task file from tasks/
+3. For architecture questions: see docs/architecture.md
+4. For testing patterns: see docs/testing.md
+5. For framework patterns: see docs/tech-stack.md
 
-### 4. Framework-Specific Patterns
-Customized for your stack (e.g., Supabase, FastAPI, Next.js, Django):
-- Edge Function structure
-- Database queries and ORM patterns
-- Migration format
-- Service integration
-- API route patterns
+## Workflow
+1. Read task file completely
+2. Implement exactly what's specified
+3. Write tests (see CLAUDE.md for test command)
+4. Run tests, fix failures
+5. Mark task complete
 
-### 5. Task File System
-- How to read task files from `tasks/` directory
-- Task workflow: read → implement → complete → move to `completed/`
-- Task completion checklist
-- How to update task status
+## Builder-Specific Rules (80%+ applicable)
+- Implement exactly what task specifies - no more, no less
+- Write tests before marking complete
+- Never refactor beyond task scope
+- Ask planner if requirements unclear
+- [2-3 more project-specific rules]
 
-### 6. When Invoked Workflow
-Builder's step-by-step process:
-1. Read task file (if applicable)
-2. Understand context and requirements
-3. Implement incrementally
-4. Write tests proactively (critical!)
-5. Run tests and verify passing
-6. Lint and format code
-7. Integration verification
-8. Document changes and mark task complete
+## Anti-Patterns (5 max)
+| Don't | Do |
+|-------|-----|
+| Make design decisions | Follow task file exactly |
+| Skip tests | Always test before complete |
+| Refactor unrelated code | Stay in task scope |
 
-### 7. Testing Standards
-- Test framework patterns for each layer
-- Code examples for unit/integration/E2E tests
-- How to run tests (`npm test`, `pytest`, etc.)
-- Coverage requirements
-- Test organization patterns
+## References
+- Commands: CLAUDE.md ## Commands
+- Patterns: docs/architecture.md
+- Testing: docs/testing.md
+- Tech stack: docs/tech-stack.md
+```
 
-### 8. Project Commands
-References `CLAUDE.md` for:
-- Development server commands
-- Build commands
-- Test commands
-- Deployment commands
-- Database migration commands
+**That's it.** ~50-80 lines. No duplicated content.
 
 ## Critical Philosophy
 
@@ -171,28 +157,25 @@ Creates `.claude/agents/builder.md` with:
    • Coding standards: Type hints, async/await
    • Testing: pytest with 80% coverage
 
-🌐 Smart Context Loading
+🔍 Tech Stack Detection
    • Detected: Python 3.12, FastAPI 0.109
-   • Fetching: FastAPI best practices
-   • Fetching: Supabase Python client patterns
+   • Patterns from: existing codebase + CLAUDE.md
 
 📝 Generating Builder Agent
    • Creating: .claude/agents/builder.md
-   • Sections: 8/8 populated
-   • Lines: 287
+   • Structure: Mission + Workflow + Rules + References
+   • Lines: 67 (within 50-100 target)
 
 ✅ Template Validation
    ✅ YAML frontmatter valid
-   ✅ All 8 sections present
-   ✅ No placeholders remaining
-   ✅ Content validated
+   ✅ Ultra-lean structure (67 lines)
+   ✅ No duplicated content from CLAUDE.md
+   ✅ References docs/ for patterns
 
 📊 Results
-   ✅ Created: .claude/agents/builder.md
-   📦 Tech Stack: Python, FastAPI, Supabase
-   📝 Sections: Scope, Coding Guidelines, Language Patterns,
-              Framework Patterns, Task System, Workflow,
-              Testing Standards, Project Commands
+   ✅ Created: .claude/agents/builder.md (67 lines)
+   📝 Structure: Mission, Before Task, Workflow, Rules, Anti-patterns, References
+   🔗 References: CLAUDE.md, docs/architecture.md, docs/testing.md
 ```
 
 ### With Customization
@@ -204,14 +187,12 @@ Creates `.claude/agents/builder.md` with:
 ```
 ✅ Pre-Flight Validation Passed
 📖 Reading Project Context
-🌐 Smart Context Loading
-   • Added: Docker best practices
-   • Added: Redis Python patterns
-📝 Generating Builder Agent (with custom sections)
+📝 Generating Builder Agent
+   • Added rule: "For Docker builds, see docs/deployment.md"
+   • Added rule: "For Redis, see docs/architecture.md#caching"
 ✅ Template Validation Passed
-📊 Created: .claude/agents/builder.md (312 lines)
-   • Added Docker deployment section
-   • Added Redis caching patterns
+📊 Created: .claude/agents/builder.md (72 lines)
+   • Focus areas added as REFERENCES, not content
 ```
 
 ### Error Case
@@ -236,30 +217,30 @@ Run this skill again after creating CLAUDE.md.
 
 ## Quality Standards
 
-**Minimum Output Requirements**:
-- 300+ lines (comprehensive builders typically 500-900+ lines)
-- All 8 sections populated with project-specific content
-- Multiple code examples with complete imports
-- Anti-patterns table with "Bad → Good" corrections
-- Testing Standards section with actual test code examples
-- Project commands section referencing CLAUDE.md
+**Target Output: 50-100 lines** (ultra-lean, mostly references)
 
-**Red Flags (Output is incomplete if present)**:
-- Under 150 lines
-- Missing YAML frontmatter
-- Placeholder text like `[TODO]`, `[PROJECT_NAME]`
-- No code examples or code without imports
-- Generic instructions ("follow patterns", "add tests")
-- Missing Testing Standards section
-- No anti-patterns table
+**The Formula**:
+- 10% mission statement
+- 20% workflow steps
+- 30% mission-specific rules (80%+ applicable only)
+- 40% references to CLAUDE.md and docs/
 
-**Gold Standard Characteristics**:
-- Anti-patterns table with concrete "❌ Bad → ✅ Good" transformations
-- Multiple complete code examples with full imports
-- Testing Standards section with actual test code (not just descriptions)
-- Framework-specific patterns tailored to detected stack
-- "When Invoked Workflow" with 8 explicit steps
-- Project commands section with actual commands from CLAUDE.md
+**Required**:
+- Mission statement (2-3 lines)
+- "Before Any Task" checklist with references
+- Workflow (5 steps max)
+- Builder-specific rules (5-8 items, 80%+ applicable)
+- Anti-patterns table (5 items max)
+- References section
+
+**Red Flags (Output needs revision)**:
+- Over 100 lines → too much duplication
+- Contains coding standards → that's in CLAUDE.md
+- Contains framework patterns → that's in docs/
+- Contains tech stack details → that's in CLAUDE.md
+- Generic advice that applies to any agent → remove it
+
+**Validation Question**: For each line, ask "Is this builder-specific AND 80%+ applicable?" If no, delete it or move to reference.
 
 ## Tips
 

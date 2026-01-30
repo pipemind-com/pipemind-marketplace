@@ -1,6 +1,6 @@
 ---
 name: creating-planner-agent
-description: Creates project-specific planner agent with task file creation standards
+description: Creates lean project-specific planner agent (50-100 lines)
 user-invocable: true
 argument-hint: "optional: customization notes or task template preferences"
 allowed-tools:
@@ -8,17 +8,21 @@ allowed-tools:
   - Glob
   - Grep
   - Write
-  - WebFetch
-  - WebSearch
+  - Bash
 model: sonnet
 color: purple
 ---
 
 # Creating Planner Agent
 
-Creates a project-specific `planner.md` agent file customized for your tech stack and task management workflow, focused on creating detailed, actionable task files.
+Creates an **ultra-lean** project-specific `planner.md` agent (50-100 lines) that references CLAUDE.md and `docs/` instead of duplicating content.
 
-**IMPORTANT**: This skill creates a **PROJECT-level** agent at `<project>/.claude/agents/planner.md` (relative to current working directory), NOT in user-level settings (`~/.claude/`). This agent is specific to the current project's planning workflow.
+**Core Philosophy**:
+- **Reference, don't duplicate** - CLAUDE.md has context, docs/ has patterns
+- **80% rule** - Only include instructions that apply to 80%+ of planning tasks
+- **Mission-specific only** - No general advice (that's in CLAUDE.md)
+
+**IMPORTANT**: Generated agent at `<project>/.claude/agents/planner.md` should be ~50-100 lines of mission-specific instructions with references to existing documentation.
 
 ## When Invoked
 
@@ -35,15 +39,13 @@ This skill will:
    - Extract task management workflow (if documented)
    - Identify project structure and conventions
 
-**3. 🌐 Smart Context Loading** (#4):
-   - Auto-detect tech stack from project files:
-     - `package.json` → Node.js/JavaScript/TypeScript frameworks
-     - `requirements.txt`, `pyproject.toml` → Python frameworks
-     - `Cargo.toml` → Rust frameworks
-     - `go.mod` → Go frameworks
-   - Search web for framework architecture patterns
-   - Fetch task management and planning best practices
-   - Incorporate modern planning methodologies
+**3. 🔍 Tech Stack Detection**:
+   - Auto-detect from project files:
+     - `package.json` → Node.js/TypeScript
+     - `requirements.txt`, `pyproject.toml` → Python
+     - `Cargo.toml` → Rust
+     - `go.mod` → Go
+   - Use patterns from existing codebase (no web fetching needed)
 
 **4. 📝 Generate Planner Agent**:
    - Create `.claude/agents/planner.md` with all required sections
@@ -52,13 +54,11 @@ This skill will:
    - Apply any user-provided customization notes
 
 **5. ✅ Template Validation** (#3):
-   - Verify YAML frontmatter is valid and complete
-   - Check all 8 required sections are present
-   - Ensure no placeholder text like `[PROJECT_NAME]` remains
-   - Validate section content is populated (not stub text)
-   - **Quality floor check**: Minimum 300 lines (comprehensive planners are 600-1000+)
-   - Verify code examples include imports
-   - Check anti-patterns table exists
+   - Verify YAML frontmatter is valid
+   - Check ultra-lean structure (Mission, Workflow, Requirements, References)
+   - **Target: 50-100 lines** (references, not content)
+   - Ensure no duplicated content from CLAUDE.md or docs/
+   - Verify each instruction is 80%+ applicable to planning tasks
    - Report validation results
 
 **6. 📊 Report Results**:
@@ -74,80 +74,48 @@ This skill will:
 - Example: `"Add database migration planning patterns"`
 - Default: Uses only what's in `CLAUDE.md` and auto-detected context
 
-## Agent Template Sections
+## Agent Template (Target: 50-100 lines)
 
-The generated `planner.md` agent will include these 8 core sections:
+The generated `planner.md` agent will be **ultra-lean** with mostly references:
 
-### 1. Model & Efficiency
-When Sonnet is sufficient vs when to request elevated reasoning:
-- Sonnet: Standard tasks, well-understood patterns
-- Opus: Complex architecture decisions, novel problems, multi-system integration
+```markdown
+# Planner Agent
 
-### 2. Mission Statement
-Creating builder-ready task files with optimal detail balance.
+## Mission
+Create task files that builders execute without questions. All design decisions made here.
 
-**Core Principle**: The planner's PRIMARY OUTPUT is task files (`tasks/XXX-name.md`) that enable builders to execute mechanically without making design decisions.
+## Before Any Task
+1. Read CLAUDE.md (architecture, tech stack, patterns)
+2. For architecture details: see docs/architecture.md
+3. For tech constraints: see docs/tech-stack.md
+4. Check tasks/TEMPLATE.md if exists
+5. Review 1-2 completed tasks for format
 
-### 3. Project Context
-Reference `CLAUDE.md` for architecture, always read it first:
-- Architecture overview
-- Tech stack details
-- Coding standards
-- Testing requirements
-- Deployment workflows
+## Workflow
+1. Analyze problem (which layers affected?)
+2. Explore codebase (find similar patterns)
+3. Design solution (data flow, API contracts)
+4. Write task file with exact file paths
+5. Verify: "Can builder execute without questions?"
 
-### 4. Workflow
-Planner's complete process:
-1. **Read CLAUDE.md** - Understand project context
-2. **Analyze Problem** - Which layers affected, root cause identification
-3. **Explore Codebase** - Find patterns, similar implementations, existing solutions
-4. **Design Solution** - Data flow, API contracts, component interactions
-5. **Write Task File** - Detailed, actionable specifications
-6. **Update PLAN.md** - If project uses planning document
+## Task File Must Include (80%+ of tasks)
+- Scope: what's in/out
+- File paths with line numbers
+- Code snippets with imports
+- Test requirements
 
-### 5. Before Creating Task (REQUIRED Preparation)
-Never create a task file without:
-- Reading `tasks/TEMPLATE.md` (if exists)
-- Reading `tasks/README.md` (if exists)
-- Reviewing 2-3 example completed tasks
-- Using `TEMPLATE.md` as base structure
+## Quality Check
+❌ "Add authentication" → Too vague
+✅ "Add JWT middleware at `src/auth/middleware.ts:15`" → Actionable
 
-### 6. Task File Requirements
-Every task file must include:
-- **Scope Boundaries**: What's in scope, what's explicitly out of scope
-- **Testable Requirements**: Checkboxes for verification
-- **Root Cause Analysis**: Diagrams showing problem and solution
-- **Exact File Paths**: With line numbers for modifications
-- **Complete Code Snippets**: With all necessary imports
-- **Context**: Patterns to follow, gotchas to avoid, constraints to respect
-- **Test Requirements**: Unit/integration/E2E test specifications
-- **Deployment Order**: If multi-layer changes required
+## References
+- Architecture: docs/architecture.md
+- Tech stack: docs/tech-stack.md
+- Patterns: CLAUDE.md ## Patterns
+- Task template: tasks/TEMPLATE.md
+```
 
-### 7. Quality Standards
-Task files must be "just right":
-- **Not Too Little**: Builder shouldn't need to make design decisions
-- **Not Too Much**: Avoid overwhelming with unnecessary details
-- **Builder Can Execute Without Questions**: The ultimate test
-
-**Examples of Good vs Bad Detail Levels**:
-
-❌ **Too Little**: "Add authentication to the API"
-✅ **Just Right**: "Add JWT authentication middleware at `src/middleware/auth.ts` using the existing `verifyToken` helper from `src/utils/jwt.ts`. Apply to routes listed in section 3. See code example below."
-
-❌ **Too Much**: 500 lines explaining JWT theory and 15 alternative approaches
-✅ **Just Right**: Brief context on why JWT chosen (reference `CLAUDE.md`), then implementation details
-
-### 8. After Creating Task
-Completion checklist:
-1. **Verify Task Quality**:
-   - [ ] All required sections present
-   - [ ] Code snippets are complete and runnable
-   - [ ] File paths are exact with line numbers
-   - [ ] Requirements are testable (checkboxes)
-   - [ ] Builder can execute without questions
-2. **Update PLAN.md** (if exists): Add task to roadmap
-3. **Announce Creation**: Confirm task file location
-4. **File Appropriately**: `tasks/active/` vs `tasks/backlog/`
+**That's it.** ~50-80 lines. No duplicated content.
 
 ## Critical Philosophy
 
@@ -161,12 +129,11 @@ Completion checklist:
 ## Output
 
 Creates `.claude/agents/planner.md` with:
-- Complete YAML frontmatter (name, description, tools, model)
-- All 8 core sections fully populated
-- Project-specific planning patterns
-- Task file creation standards
-- Quality guidelines and examples
-- Workflow integration
+- YAML frontmatter (name, description, model, tools)
+- Ultra-lean structure (50-100 lines total)
+- References to CLAUDE.md, docs/, tasks/TEMPLATE.md
+- Mission-specific workflow and requirements only
+- One quality example (not comprehensive guidelines)
 
 ## Examples
 
@@ -187,29 +154,25 @@ Creates `.claude/agents/planner.md` with:
    • Tech stack: Node.js, TypeScript, PostgreSQL
    • Task workflow: tasks/active/ → completed/
 
-🌐 Smart Context Loading
+🔍 Tech Stack Detection
    • Detected: TypeScript 5.0, Node.js 20
-   • Fetching: Microservices planning patterns
-   • Fetching: API-first design methodologies
+   • Patterns from: existing codebase + CLAUDE.md
 
 📝 Generating Planner Agent
    • Creating: .claude/agents/planner.md
-   • Sections: 8/8 populated
-   • Lines: 294
+   • Structure: Mission + Workflow + Requirements + References
+   • Lines: 58 (within 50-100 target)
 
 ✅ Template Validation
    ✅ YAML frontmatter valid
-   ✅ All 8 sections present
-   ✅ No placeholders remaining
-   ✅ Content validated
+   ✅ Ultra-lean structure (58 lines)
+   ✅ No duplicated content from CLAUDE.md
+   ✅ References docs/ and tasks/TEMPLATE.md
 
 📊 Results
-   ✅ Created: .claude/agents/planner.md
-   📦 Tech Stack: TypeScript, Node.js, PostgreSQL
-   📝 Sections: Model & Efficiency, Mission Statement,
-              Project Context, Workflow, Before Creating Task,
-              Task File Requirements, Quality Standards,
-              After Creating Task
+   ✅ Created: .claude/agents/planner.md (58 lines)
+   📝 Structure: Mission, Before Task, Workflow, Requirements, Quality, References
+   🔗 References: CLAUDE.md, docs/architecture.md, tasks/TEMPLATE.md
 ```
 
 ### With Customization
@@ -221,14 +184,12 @@ Creates `.claude/agents/planner.md` with:
 ```
 ✅ Pre-Flight Validation Passed
 📖 Reading Project Context
-🌐 Smart Context Loading
-   • Added: Database migration planning patterns
-   • Added: Async job queue design patterns (Bull, BullMQ)
-📝 Generating Planner Agent (with custom sections)
+📝 Generating Planner Agent
+   • Added reference: "For migrations, see docs/database.md"
+   • Added reference: "For job queues, see docs/architecture.md#jobs"
 ✅ Template Validation Passed
-📊 Created: .claude/agents/planner.md (318 lines)
-   • Added database migration workflow section
-   • Added async job queue planning patterns
+📊 Created: .claude/agents/planner.md (63 lines)
+   • Focus areas added as REFERENCES, not content
 ```
 
 ### Error Case
@@ -253,27 +214,30 @@ Run this skill again after creating CLAUDE.md.
 
 ## Quality Standards
 
-**Minimum Output Requirements**:
-- 300+ lines (comprehensive planners typically 600-1000+ lines)
-- All 8 sections populated with project-specific content
-- Code examples with complete imports
-- Anti-patterns table with corrections
-- "Good vs Bad" detail level examples in Quality Standards section
+**Target Output: 50-100 lines** (ultra-lean, mostly references)
 
-**Red Flags (Output is incomplete if present)**:
-- Under 150 lines
-- Missing YAML frontmatter
-- Placeholder text like `[TODO]`, `[PROJECT_NAME]`
-- No code examples
-- Generic instructions ("follow patterns", "add tests")
-- Missing Quality Standards section
+**The Formula**:
+- 10% mission statement
+- 20% workflow steps
+- 30% task file requirements (80%+ applicable only)
+- 40% references to CLAUDE.md, docs/, and tasks/TEMPLATE.md
 
-**Gold Standard Characteristics**:
-- "Model & Efficiency" section explaining when Sonnet vs Opus
-- "Before Creating Task" checklist (read CLAUDE.md, TEMPLATE.md, example tasks)
-- Task File Requirements with 10+ subsections
-- Quality Standards with "Too Little / Just Right / Too Much" examples
-- Project-specific patterns section with tech stack details
+**Required**:
+- Mission statement (2-3 lines)
+- "Before Any Task" checklist with references
+- Workflow (5 steps max)
+- Task file requirements (essential only)
+- One quality example (Too Little vs Just Right)
+- References section
+
+**Red Flags (Output needs revision)**:
+- Over 100 lines → too much duplication
+- Lists all possible task file sections → reference TEMPLATE.md instead
+- Contains architecture details → that's in docs/architecture.md
+- Contains coding standards → that's in CLAUDE.md
+- Generic planning advice → remove it
+
+**Validation Question**: For each line, ask "Is this planner-specific AND 80%+ applicable?" If no, delete it or move to reference.
 
 ## Tips
 
