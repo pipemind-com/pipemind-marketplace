@@ -21,6 +21,7 @@ Creates an **ultra-lean** project-specific `builder.md` agent (50-100 lines) tha
 - **Reference, don't duplicate** - CLAUDE.md has context, docs/ has patterns
 - **80% rule** - Only include instructions that apply to 80%+ of builder tasks
 - **Mission-specific only** - No general coding advice (that's in CLAUDE.md)
+- **Clean I/O** - Receive task description via prompt, return completion status
 
 **IMPORTANT**: Generated agent at `<project>/.claude/agents/builder.md` should be ~50-100 lines of mission-specific instructions with references to existing documentation.
 
@@ -59,6 +60,7 @@ This skill will:
    - **Target: 50-100 lines** (references, not content)
    - Ensure no duplicated content from CLAUDE.md or docs/
    - Verify each rule is 80%+ applicable to builder tasks
+   - Verify output format section is included
    - Check anti-patterns table (5 items max)
    - Report validation results
 
@@ -83,33 +85,44 @@ The generated `builder.md` agent will be **ultra-lean** with mostly references:
 # Builder Agent
 
 ## Mission
-Implement task files mechanically. Never make design decisions.
+Receive task description via prompt, implement exactly as specified, return completion status.
 
 ## Before Any Task
 1. Read CLAUDE.md (project context, commands, standards)
-2. Read the task file from tasks/
+2. Read the task description from prompt completely
 3. For architecture questions: see docs/architecture.md
 4. For testing patterns: see docs/testing.md
 5. For framework patterns: see docs/tech-stack.md
 
 ## Workflow
-1. Read task file completely
+1. Parse task description from prompt
 2. Implement exactly what's specified
 3. Write tests (see CLAUDE.md for test command)
 4. Run tests, fix failures
-5. Mark task complete
+5. Return completion status
 
 ## Builder-Specific Rules (80%+ applicable)
 - Implement exactly what task specifies - no more, no less
-- Write tests before marking complete
+- Write tests before reporting complete
 - Never refactor beyond task scope
-- Ask planner if requirements unclear
+- If requirements unclear, report blocker in output
 - [2-3 more project-specific rules]
+
+## Output Format
+Return completion status:
+'''
+## Status: [completed|blocked|failed]
+## Summary: [what was done]
+## Files modified:
+- path/file.ts - description
+## Tests: [passed/failed with details]
+## Issues: [any blockers or concerns]
+'''
 
 ## Anti-Patterns (5 max)
 | Don't | Do |
 |-------|-----|
-| Make design decisions | Follow task file exactly |
+| Make design decisions | Follow task description exactly |
 | Skip tests | Always test before complete |
 | Refactor unrelated code | Stay in task scope |
 
@@ -126,16 +139,16 @@ Implement task files mechanically. Never make design decisions.
 
 **Builder executes mechanically, never analyzes or makes design decisions.**
 
-All architectural thinking, planning, and design decisions are the planner's job. The builder implements exactly what's specified in task files without deviation or interpretation.
+All architectural thinking, planning, and design decisions are the planner's job. The builder implements exactly what's specified in the prompt without deviation or interpretation.
 
 ## Output
 
 Creates `.claude/agents/builder.md` with:
-- Complete YAML frontmatter (name, description, tools, model)
-- All 8 core sections fully populated
+- Complete YAML frontmatter (name, description, tools: Read/Write/Edit/Glob/Grep/Bash, model)
+- All core sections fully populated
 - Project-specific patterns and examples
 - Framework-specific best practices
-- Task file system integration
+- Clean prompt→output workflow (receives task, returns status)
 - Testing standards and commands
 
 ## Examples
@@ -163,14 +176,15 @@ Creates `.claude/agents/builder.md` with:
 
 📝 Generating Builder Agent
    • Creating: .claude/agents/builder.md
-   • Structure: Mission + Workflow + Rules + References
-   • Lines: 67 (within 50-100 target)
+   • Structure: Mission + Workflow + Rules + Output Format + References
+   • Tools: Read, Write, Edit, Glob, Grep, Bash
+   • Lines: 72 (within 50-100 target)
 
 ✅ Template Validation
    ✅ YAML frontmatter valid
-   ✅ Ultra-lean structure (67 lines)
+   ✅ Ultra-lean structure (72 lines)
    ✅ No duplicated content from CLAUDE.md
-   ✅ References docs/ for patterns
+   ✅ Output format section included
 
 📊 Results
    ✅ Created: .claude/agents/builder.md (67 lines)
@@ -190,6 +204,7 @@ Creates `.claude/agents/builder.md` with:
 📝 Generating Builder Agent
    • Added rule: "For Docker builds, see docs/deployment.md"
    • Added rule: "For Redis, see docs/architecture.md#caching"
+   • Output format configured
 ✅ Template Validation Passed
 📊 Created: .claude/agents/builder.md (72 lines)
    • Focus areas added as REFERENCES, not content
@@ -223,13 +238,15 @@ Run this skill again after creating CLAUDE.md.
 - 10% mission statement
 - 20% workflow steps
 - 30% mission-specific rules (80%+ applicable only)
-- 40% references to CLAUDE.md and docs/
+- 20% output format
+- 20% references to CLAUDE.md and docs/
 
 **Required**:
 - Mission statement (2-3 lines)
 - "Before Any Task" checklist with references
 - Workflow (5 steps max)
 - Builder-specific rules (5-8 items, 80%+ applicable)
+- Output format section
 - Anti-patterns table (5 items max)
 - References section
 
@@ -239,6 +256,7 @@ Run this skill again after creating CLAUDE.md.
 - Contains framework patterns → that's in docs/
 - Contains tech stack details → that's in CLAUDE.md
 - Generic advice that applies to any agent → remove it
+- Missing output format → critical omission
 
 **Validation Question**: For each line, ask "Is this builder-specific AND 80%+ applicable?" If no, delete it or move to reference.
 
@@ -264,5 +282,5 @@ The factory pattern workflow:
   ↓ invoked in project directory
 <project>/.claude/agents/builder.md       ← Generated agent (project-level)
   ↓ used for building in this project
-Builder implements code following project-specific standards
+Builder implements tasks from prompt, returns completion status to main thread
 ```

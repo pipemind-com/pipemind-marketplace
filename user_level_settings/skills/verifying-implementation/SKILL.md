@@ -25,11 +25,11 @@ This skill will generate and execute comprehensive adversarial tests to find edg
 
 **Optional**: Specific function or module to test
 - If provided: Focus testing on the specified component
-- If omitted: Analyze current task file to identify the function-under-test
+- If omitted: Analyze current context to identify the function-under-test
 
 ## Process
 
-**1. Analyze**: Look at the "Requirements" and "Algorithm Constraints" in the current task file or specified function.
+**1. Analyze**: Look at the "Requirements" and "Algorithm Constraints" in the current task or specified function.
 
 **2. Identify Invariants**: Determine what mathematical or logical properties must *always* hold true:
    - Examples: "Output length == Input length", "Transaction sum == 0", "Result is sorted"
@@ -109,4 +109,4 @@ RECOMMENDATIONS:
 ```
 /verifying-implementation
 ```
-Analyzes current task file to identify function-under-test automatically.
+Analyzes current context to identify function-under-test automatically.

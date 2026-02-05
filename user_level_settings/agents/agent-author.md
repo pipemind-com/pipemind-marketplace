@@ -68,7 +68,7 @@ Before finalizing, verify:
 name: kebab-case-noun        # Required
 description: Under 100 chars # Required
 model: sonnet                # haiku | sonnet | opus
-tools: [Read, Glob, Grep]    # Minimal set
+tools: [Read, Write, Glob, Grep, Task]    # Minimal set
 color: blue                  # Optional (purple=planner, blue=builder, red=security, orange=devops)
 ---
 ```
@@ -79,10 +79,16 @@ color: blue                  # Optional (purple=planner, blue=builder, red=secur
 name: gerund-form            # Required (e.g., reviewing-code)
 description: What it does    # Required, under 100 chars
 argument-hint: User input    # Optional help text
-allowed-tools: [Read, Glob, Grep]
+allowed-tools: [Read, Glob, Grep, Write, Task]
 model: sonnet                # Optional override
 ---
 ```
+
+### Subagent I/O Pattern
+Subagents spawned via Task tool receive instructions via **prompt** and return results via **output**:
+- **Planner agents**: Receive feature/bug → Return task description
+- **Builder agents**: Receive task description → Return completion status
+- Main thread manages task tracking (TaskCreate/TaskUpdate/TaskList/TaskGet)
 
 ## Critical Rules
 
