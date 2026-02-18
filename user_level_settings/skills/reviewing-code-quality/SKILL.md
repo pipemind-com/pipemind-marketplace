@@ -31,7 +31,7 @@ This skill reviews code files and produces a structured quality report with spec
 
 ## The 10 Golden Rules
 
-Score each rule 0-2: **0** = violations found, **1** = minor issues, **2** = solid
+Score each rule 0-10: **0-3** = significant violations, **4-6** = issues present, **7-8** = minor issues only, **9-10** = solid
 
 ### 1. Readability First
 Is the code easily understood? No "magic" one-liners or obscure tricks.
@@ -74,7 +74,7 @@ Is there nearby technical debt that should be cleaned up? Any quick wins visible
 - **Major**: DRY violations, SRP violations, untested critical paths
 - **Minor**: Naming issues, comment quality, style inconsistencies, small readability improvements
 
-**4. Score**: Rate each rule 0-2 and compute a total score out of 20.
+**4. Score**: Rate each rule 0-10 and compute a total score out of 100.
 
 **5. Produce Report**: Output the structured review (see format below).
 
@@ -84,23 +84,23 @@ Is there nearby technical debt that should be cleaned up? Any quick wins visible
 ## Code Quality Review: [target]
 
 ### Summary
-- **Score: X/20** ([Excellent 18-20 | Good 14-17 | Needs Work 10-13 | Poor <10])
+- **Score: X/100** ([Excellent 90-100 | Good 70-89 | Needs Work 50-69 | Poor <50])
 - **Files reviewed**: N
 - **Findings**: X critical, Y major, Z minor
 
 ### Scorecard
 | # | Rule | Score | Notes |
 |---|------|-------|-------|
-| 1 | Readability | 0-2 | Brief note |
-| 2 | KISS | 0-2 | Brief note |
-| 3 | DRY | 0-2 | Brief note |
-| 4 | SRP | 0-2 | Brief note |
-| 5 | Naming | 0-2 | Brief note |
-| 6 | Testing | 0-2 | Brief note |
-| 7 | Error Handling | 0-2 | Brief note |
-| 8 | Comments | 0-2 | Brief note |
-| 9 | Consistency | 0-2 | Brief note |
-| 10 | Boy Scout | 0-2 | Brief note |
+| 1 | Readability | 0-10 | Brief note |
+| 2 | KISS | 0-10 | Brief note |
+| 3 | DRY | 0-10 | Brief note |
+| 4 | SRP | 0-10 | Brief note |
+| 5 | Naming | 0-10 | Brief note |
+| 6 | Testing | 0-10 | Brief note |
+| 7 | Error Handling | 0-10 | Brief note |
+| 8 | Comments | 0-10 | Brief note |
+| 9 | Consistency | 0-10 | Brief note |
+| 10 | Boy Scout | 0-10 | Brief note |
 
 ### Critical Findings
 [file:line] Description of issue and suggested fix
@@ -111,10 +111,13 @@ Is there nearby technical debt that should be cleaned up? Any quick wins visible
 ### Minor Findings
 [file:line] Description of issue and suggested fix
 
-### Top 3 Recommendations
-1. Highest-impact improvement
-2. Second priority
-3. Third priority
+### Top 5 Maximum-Impact Recommendations
+Ranked by: (severity of issue) x (frequency across codebase) x (ease of fix)
+1. [Impact: High/Med] What to change, why it matters, and estimated effort
+2. [Impact: High/Med] ...
+3. [Impact: High/Med] ...
+4. [Impact: Med] ...
+5. [Impact: Med] ...
 ```
 
 ## Rules for Reviewing
