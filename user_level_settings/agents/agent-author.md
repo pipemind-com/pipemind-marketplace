@@ -38,18 +38,32 @@ Based on answers, determine configuration:
 | **Lines** | Project agents: 50-100, Skills: 100-200 |
 
 ### 3. Generate
-For project-specific agents, invoke the appropriate skill:
+Invoke the appropriate skill, or create directly for custom needs.
+
+**Setup & documentation skills:**
 
 | Skill | Purpose |
 |-------|---------|
 | `/creating-claude-settings` | Generate lean CLAUDE.md (50-100 lines) |
 | `/creating-project-docs` | Generate docs/ for progressive disclosure |
+
+**Agent factory skills (create project-level agents):**
+
+| Skill | Purpose |
+|-------|---------|
 | `/creating-planner-agent` | Task planning agent |
 | `/creating-builder-agent` | Implementation agent |
 | `/creating-security-agent` | Security auditor (red team) |
 | `/creating-devops-agent` | Infrastructure specialist |
 
-For custom agents/skills not covered by existing skills, create directly following the principles below.
+**Utility skills (invoke directly):**
+
+| Skill | Purpose |
+|-------|---------|
+| `/reviewing-code-quality` | Score code against 10 Golden Rules |
+| `/verifying-implementation` | Adversarial property-based tests |
+| `/committing-changes` | Split git changes into atomic commits |
+| `/conducting-post-mortem` | Extract lessons, propose CLAUDE.md updates |
 
 ### 4. Validate
 Before finalizing, verify:
@@ -68,8 +82,8 @@ Before finalizing, verify:
 name: kebab-case-noun        # Required
 description: Under 100 chars # Required
 model: sonnet                # haiku | sonnet | opus
-tools: [Read, Write, Glob, Grep, Task]    # Minimal set
-color: blue                  # Optional (purple=planner, blue=builder, red=security, orange=devops)
+tools: [Read, Edit, Glob, Grep, Bash, Task]  # Minimal set
+color: blue                  # purple|blue|red|orange|green|yellow|cyan
 ---
 ```
 
@@ -78,17 +92,21 @@ color: blue                  # Optional (purple=planner, blue=builder, red=secur
 ---
 name: gerund-form            # Required (e.g., reviewing-code)
 description: What it does    # Required, under 100 chars
+user-invocable: true         # Makes it available as /command
 argument-hint: User input    # Optional help text
-allowed-tools: [Read, Glob, Grep, Write, Task]
+allowed-tools: [Read, Glob, Grep, Write, Bash, Agent]  # Minimal set
 model: sonnet                # Optional override
+color: green                 # Optional UI color
 ---
 ```
 
+### Available Tools
+Read, Write, Edit, Glob, Grep, Bash (core) + Task, Agent (subagent spawning)
+
 ### Subagent I/O Pattern
-Subagents spawned via Task tool receive instructions via **prompt** and return results via **output**:
+Subagents spawned via Task/Agent tools receive instructions via **prompt** and return results via **output**:
 - **Planner agents**: Receive feature/bug → Return task description
 - **Builder agents**: Receive task description → Return completion status
-- Main thread manages task tracking (TaskCreate/TaskUpdate/TaskList/TaskGet)
 
 ## Critical Rules
 
@@ -111,31 +129,10 @@ Project agents should say `"For architecture: see docs/architecture.md"` not con
 - Agents reference both, duplicate neither
 
 ## Anti-Patterns
-
-| Don't | Do |
-|-------|-----|
-| 200+ line agents | Under 100 lines, reference docs/ |
-| Embed linting rules | Use actual linters (ESLint, Black, Prettier) |
-| Vague descriptions | Specific: "Analyzes Python dependencies" |
-| Over-permission tools | Start with Read/Glob/Grep only |
-| Windows backslashes | Always forward slashes in paths |
-| Generic advice | Mission-specific instructions only |
-
-## Agent Structure (Lean Template)
-
-```markdown
-# [Role] Agent
-## Mission
-[2-3 sentences]
-## Before Any Task
-1. Read CLAUDE.md  2. See docs/[relevant].md  3. [Prep]
-## Workflow
-[3-5 steps max]
-## [Role]-Specific Rules
-[3-5 rules, 80%+ applicable]
-## References
-- CLAUDE.md, docs/architecture.md
-```
+- Don't write 200+ line agents → under 100, reference docs/
+- Don't embed linting rules → use actual linters
+- Don't over-permission tools → start Read/Glob/Grep only
+- Don't include generic advice → mission-specific instructions only
 
 ## When Users Ask for Help
 
