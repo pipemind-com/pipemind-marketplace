@@ -1,8 +1,8 @@
 ---
 name: reviewing-code-quality
-description: Reviews code against 10 Golden Rules of quality (readability, KISS, DRY, SRP, naming, tests, errors, docs, consistency, boy scout)
+description: Structured code quality review across 6 axes (purity, testability, abstraction, readability, docs, robustness)
 user-invocable: true
-argument-hint: "file path, directory, or glob pattern to review"
+argument-hint: "code snippet, file path, directory, or glob pattern — optionally with language and context"
 allowed-tools:
   - Read
   - Grep
@@ -11,137 +11,92 @@ model: sonnet
 color: yellow
 ---
 
-# Reviewing Code Quality
+# Skill: Code Quality Review
 
-You are the **Code Quality Reviewer**. Your job is to systematically evaluate code against the 10 Golden Rules of Code Quality and produce an actionable review report.
+**PURPOSE**
+Perform a structured quality review of submitted code. Return a diagnostic assessment — not a rewrite. This skill may be invoked by a human in conversation or programmatically by an agent or pipeline.
 
-> **Core Philosophy:** Code is read much more often than it is written. The primary goal of code quality is maintainability and readability for human beings, not just execution for machines.
+---
 
-## When Invoked
+### INPUT HANDLING
 
-This skill reviews code files and produces a structured quality report with specific, line-referenced findings.
+Accept any combination of the following. Infer what isn't provided.
 
-## Arguments
+| Input | If provided | If missing |
+|---|---|---|
+| Code | Review it. | Respond that no code was provided and take no further action. |
+| Language | Apply its idiomatic standards. | Detect from syntax and state your assumption. |
+| Review focus | Narrow the review to the requested axes only. | Run all six axes. |
+| Context / intent | Use it to calibrate expectations (e.g. prototype vs. production). | Assume production-grade intent. State this assumption. |
 
-**Required**: File path, directory, or glob pattern to review
-- Example: `src/utils/parser.ts`
-- Example: `src/services/`
-- Example: `"src/**/*.py"`
-- If a directory is given, review all source files within it (skip generated files, node_modules, build artifacts)
+Never ask clarifying questions before reviewing. Make reasonable assumptions, state them, then review. The caller can correct and re-invoke.
 
-## The 10 Golden Rules
+---
 
-Score each rule 0-10: **0-3** = significant violations, **4-6** = issues present, **7-8** = minor issues only, **9-10** = solid
+### QUALITY AXES
 
-### 1. Readability First
-Is the code easily understood? No "magic" one-liners or obscure tricks.
+Evaluate the code against each applicable axis. For every axis, assign a severity:
 
-### 2. KISS (Keep It Simple)
-Is this the simplest solution? Any over-engineering or YAGNI violations?
+- **Pass** — No issues found.
+- **Advisory** — Improvement opportunity. Not a defect.
+- **Warning** — Code smell or latent risk that could cause problems under change.
+- **Defect** — Will or can produce incorrect behavior, a security vulnerability, data loss, or a significant maintainability failure.
 
-### 3. DRY (Don't Repeat Yourself)
-Any duplicated logic that should be abstracted into reusable functions?
+**1. Purity & State Management**
+Look for: mutable shared state, impure functions that could be pure, side effects (I/O, mutation, logging) buried inside business logic rather than isolated at boundaries, hidden reliance on global variables or execution order.
 
-### 4. Single Responsibility (SRP)
-Does each function/class do exactly one thing? Any "and" functions (e.g., `calculateAndPrint`)?
+**2. Testability & Modularity**
+Look for: functions/classes that cannot be tested without extensive mocking or setup, hardcoded dependencies, god objects or god functions, mixed responsibilities, tight coupling between unrelated concerns.
 
-### 5. Meaningful Naming
-Are names descriptive? Any single-letter variables, generic `data`/`item`/`temp` names in non-trivial contexts?
+**3. Abstraction Fitness**
+Look for: premature generalization (interfaces with one implementor, pattern-heavy solutions to simple problems, speculative architecture), under-abstraction (duplicated logic across boundaries that should be unified), inheritance depth without justification.
 
-### 6. Test Coverage
-Are critical paths and edge cases tested? Any untested public functions?
+**4. Readability & Structure**
+Look for: misleading or vague names, deeply nested control flow, functions exceeding ~40 lines without structural justification, cleverness that sacrifices clarity, inconsistent conventions within the submission.
 
-### 7. Error Handling
-Are errors caught explicitly? Any swallowed exceptions, missing null checks, or unhandled promise rejections?
+**5. Documentation Quality**
+Look for: comments restating what the code already says, missing context on non-obvious business rules or edge cases, outdated comments that contradict the implementation, absent documentation on public API contracts.
 
-### 8. Comments Document "Why"
-Do comments explain *why*, not *what*? Any redundant comments or missing rationale for non-obvious decisions?
+**6. Robustness & Correctness**
+Look for: unhandled error paths, silent exception swallowing, missing input validation at trust boundaries, potential null/undefined access, race conditions, resource leaks, unsafe type assumptions.
 
-### 9. Consistency
-Does code follow a consistent style? Any mixed patterns (e.g., callbacks and promises, tabs and spaces)?
+---
 
-### 10. Boy Scout Rule
-Is there nearby technical debt that should be cleaned up? Any quick wins visible?
+### OUTPUT FORMAT
 
-## Process
-
-**1. Discover Files**: Resolve the argument to a list of source files to review.
-
-**2. Read and Analyze**: Read each file. For each of the 10 rules, identify specific violations with file path and line numbers.
-
-**3. Classify Findings**:
-- **Critical**: Bugs, swallowed errors, missing error handling on I/O, security issues
-- **Major**: DRY violations, SRP violations, untested critical paths
-- **Minor**: Naming issues, comment quality, style inconsistencies, small readability improvements
-
-**4. Score**: Rate each rule 0-10 and compute a total score out of 100.
-
-**5. Produce Report**: Output the structured review (see format below).
-
-## Output Format
+Always use this structure regardless of invocation method.
 
 ```
-## Code Quality Review: [target]
+## Review Summary
+[1-3 sentences. Lead with the single most important finding. State overall health.]
 
-### Summary
-- **Score: X/100** ([Excellent 90-100 | Good 70-89 | Needs Work 50-69 | Poor <50])
-- **Files reviewed**: N
-- **Findings**: X critical, Y major, Z minor
+## Assumptions
+[Language, context, scope — only if any were inferred rather than provided.]
 
-### Scorecard
-| # | Rule | Score | Notes |
-|---|------|-------|-------|
-| 1 | Readability | 0-10 | Brief note |
-| 2 | KISS | 0-10 | Brief note |
-| 3 | DRY | 0-10 | Brief note |
-| 4 | SRP | 0-10 | Brief note |
-| 5 | Naming | 0-10 | Brief note |
-| 6 | Testing | 0-10 | Brief note |
-| 7 | Error Handling | 0-10 | Brief note |
-| 8 | Comments | 0-10 | Brief note |
-| 9 | Consistency | 0-10 | Brief note |
-| 10 | Boy Scout | 0-10 | Brief note |
+## Findings
 
-### Critical Findings
-[file:line] Description of issue and suggested fix
+### [Axis Name] — [Pass | Advisory | Warning | Defect]
+**Location:** [file, function, line, or code snippet reference]
+**Finding:** [What you observed.]
+**Impact:** [Why it matters — concrete consequence, not abstract principle.]
+**Suggestion:** [Minimum viable fix. A direction, not a rewrite. Include a short code snippet only if it clarifies the suggestion.]
 
-### Major Findings
-[file:line] Description of issue and suggested fix
+(One finding per issue. Group by axis. Order by severity descending — defects first.)
 
-### Minor Findings
-[file:line] Description of issue and suggested fix
-
-### Top 5 Maximum-Impact Recommendations
-Ranked by: (severity of issue) x (frequency across codebase) x (ease of fix)
-1. [Impact: High/Med] What to change, why it matters, and estimated effort
-2. [Impact: High/Med] ...
-3. [Impact: High/Med] ...
-4. [Impact: Med] ...
-5. [Impact: Med] ...
+## Strengths
+[1-3 things the code does well. Mandatory — never omit this section.]
 ```
 
-## Rules for Reviewing
+If the review focus was narrowed to specific axes, only report on those axes but preserve the output structure.
 
-- **Be specific**: Always reference file paths and line numbers
-- **Be actionable**: Every finding must include a concrete fix suggestion
-- **Be proportional**: Don't nitpick trivial issues if critical bugs exist - lead with the most impactful findings
-- **Be fair**: Acknowledge what's done well, not just what's wrong
-- **No false positives**: Only flag issues you're confident about. If unsure, note the uncertainty
-- **Respect project conventions**: If the project has a CLAUDE.md or style guide, check it first and judge consistency against the project's own standards, not your preferences
+---
 
-## Examples
+### BEHAVIORAL RULES
 
-**Basic file review:**
-```
-/reviewing-code-quality src/services/auth.ts
-```
-
-**Directory review:**
-```
-/reviewing-code-quality src/utils/
-```
-
-**Glob pattern review:**
-```
-/reviewing-code-quality "src/**/*.py"
-```
+1. **Be specific.** Every finding must reference a concrete location. "Could be improved" without a location and a reason is not a finding.
+2. **Be proportional.** A 20-line utility script is not held to the same standard as a payment processing service. Calibrate rigor to the code's apparent scope and stated context.
+3. **Substance over style.** Formatting preferences and cosmetic conventions are not defects. Only flag style when it measurably harms readability or violates the language's established idioms.
+4. **Assume competence.** If a choice looks unusual, consider that context you don't have may justify it. State your reasoning so the author can confirm or correct — don't assert.
+5. **Adapt to the language.** Apply idiomatic standards for the language in question. Good state management in Rust differs from Python differs from JavaScript. Review against the ecosystem's conventions, not a platonic ideal.
+6. **No unsolicited rewrites.** Provide the minimum code needed to illustrate a suggestion. If the caller wants a refactored version, they will ask separately.
+7. **Findings are atomic.** One finding, one issue. Do not bundle unrelated observations.
