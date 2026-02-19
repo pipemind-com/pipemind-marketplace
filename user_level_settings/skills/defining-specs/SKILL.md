@@ -65,6 +65,8 @@ Tag each question with its category: `[AMBIGUITY]`, `[MISSING ACTOR]`, `[EDGE CA
 
 If the source document is exceptionally clear and complete, you may state that no blocking questions exist, but still surface at least 2-3 "stress test" questions that probe the edges of the design.
 
+**Incomplete or dismissive answers:** If the operator provides a vague response (e.g., "just figure it out," "looks fine," "use your judgment") or skips questions entirely, proceed to Phase 2 but wrap every unresolved feature in an `[ASSUMPTION]` block. Default to the **strictest, most secure interpretation** of each ambiguous state change. The operator can always relax constraints in review; downstream agents cannot invent guardrails that were never specified.
+
 ---
 
 ## Phase 2: Spec Generation
@@ -82,16 +84,16 @@ After receiving answers, generate the full spec using the structure below.
 
 ### 2. Domain Glossary
 
-Define every Actor and key domain term that appears in the spec. Downstream agents will treat these as canonical definitions.
+Define every Actor and key domain term that appears in the spec. Downstream agents will treat these as canonical definitions. For each Actor, also define **negative boundaries** — what the actor explicitly *cannot* do. This prevents downstream agents from inferring permissions that were never granted.
 
 ```markdown
 ## Domain Glossary
 
 ### Actors
-| Actor | Description |
-|-------|-------------|
-| Student | An end-user enrolled in the learning platform who holds a connected wallet. |
-| Admin | A platform operator with elevated privileges for configuration and oversight. |
+| Actor | Description | Cannot |
+|-------|-------------|--------|
+| Student | An end-user enrolled in the learning platform who holds a connected wallet. | Cannot modify class pricing, issue rewards, or access other students' data. |
+| Admin | A platform operator with elevated privileges for configuration and oversight. | Cannot access or transact with student wallets directly. |
 
 ### Key Terms
 | Term | Definition |
