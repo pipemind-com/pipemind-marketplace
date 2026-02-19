@@ -15,266 +15,165 @@ color: purple
 
 # Creating Planner Agent
 
-Creates an **ultra-lean** project-specific `planner.md` agent (50-100 lines) that references CLAUDE.md and `docs/` instead of duplicating content.
+Creates a project-specific `planner.md` agent at `.claude/agents/planner.md`.
 
-**Core Philosophy**:
-- **Reference, don't duplicate** - CLAUDE.md has context, docs/ has patterns
-- **80% rule** - Only include instructions that apply to 80%+ of planning tasks
-- **Mission-specific only** - No general advice (that's in CLAUDE.md)
-- **Clean I/O** - Receive feature/bug via prompt, return task description as output
+**Core philosophy**: Reference, don't duplicate. CLAUDE.md has project context, `docs/` has patterns. The planner agent should be 50-100 lines of mission-specific instructions with pointers to existing documentation.
 
-**IMPORTANT**: Generated agent at `<project>/.claude/agents/planner.md` should be ~50-100 lines of mission-specific instructions with references to existing documentation.
-
-## When Invoked
-
-This skill will:
-
-**1. ✅ Pre-Flight Validation** (#1):
-   - Check if `CLAUDE.md` exists (FAIL if missing - required for context)
-   - Check if `.claude/agents/planner.md` already exists (WARN but allow override)
-   - Verify `CLAUDE.md` contains architecture and project context
-   - Report validation status
-
-**2. 📖 Read Project Context**:
-   - Read `CLAUDE.md` to understand architecture and patterns
-   - Identify project structure and conventions
-
-**3. 🔍 Tech Stack Detection**:
-   - Auto-detect from project files:
-     - `package.json` → Node.js/TypeScript
-     - `requirements.txt`, `pyproject.toml` → Python
-     - `Cargo.toml` → Rust
-     - `go.mod` → Go
-   - Use patterns from existing codebase (no web fetching needed)
-
-**4. 📝 Generate Planner Agent**:
-   - Create `.claude/agents/planner.md` with all required sections
-   - Customize content based on project's architecture
-   - Include clean input/output workflow (prompt → task description)
-   - Apply any user-provided customization notes
-
-**5. ✅ Template Validation** (#3):
-   - Verify YAML frontmatter is valid
-   - Check ultra-lean structure (Mission, Workflow, Requirements, References)
-   - **Target: 50-100 lines** (references, not content)
-   - Ensure no duplicated content from CLAUDE.md or docs/
-   - Verify each instruction is 80%+ applicable to planning tasks
-   - Verify output format section is included
-   - Report validation results
-
-**6. 📊 Report Results**:
-   - Confirm file creation location
-   - List included sections
-   - Report any warnings or issues
-
-## Arguments
-
-**Optional**: Customization notes or task template preferences
+**Arguments** (optional): Customization notes or task template preferences.
 - Example: `"Focus on microservices architecture planning"`
-- Example: `"Include API-first design methodology"`
 - Example: `"Add database migration planning patterns"`
-- Default: Uses only what's in `CLAUDE.md` and auto-detected context
+- Default: Uses only CLAUDE.md and auto-detected context.
 
-## Agent Template (Target: 50-100 lines)
+---
 
-The generated `planner.md` agent will be **ultra-lean** with mostly references:
+## Execution Steps
+
+### 1. Pre-Flight Validation
+- **CLAUDE.md must exist.** If missing, report the error below and stop:
+  ```
+  ❌ Cannot create planner agent without CLAUDE.md
+  Please create CLAUDE.md with: architecture overview, tech stack, project structure, coding standards.
+  ```
+- **Check `.claude/agents/planner.md`** — warn if it exists, but allow override.
+- **Verify CLAUDE.md contains architecture and project context.**
+
+### 2. Read Project Context
+- Read `CLAUDE.md` for architecture, patterns, conventions.
+- Identify project structure and architectural style.
+
+### 3. Tech Stack Detection
+Auto-detect from project files (no web fetching):
+- `package.json` → Node.js/TypeScript
+- `requirements.txt` / `pyproject.toml` → Python
+- `Cargo.toml` → Rust
+- `go.mod` → Go
+
+Cross-reference with CLAUDE.md. Detection supplements what's documented — doesn't override it.
+
+### 4. Check for `docs/` References
+Scan for available documentation files (`docs/architecture.md`, `docs/tech-stack.md`, `docs/database.md`, etc.). Only include references to files that actually exist. If `docs/` is empty or absent, omit the references — don't point the planner at files that aren't there.
+
+### 5. Generate Planner Agent
+Create `.claude/agents/planner.md` using the template below. Customize based on:
+- Detected tech stack and architecture
+- Patterns found in CLAUDE.md
+- User-provided customization notes (if any)
+- Available `docs/` files
+
+Model selection: Default to `sonnet`. Note in output if the project's architectural complexity might warrant a different choice.
+
+### 6. Validate Output
+Before writing the file, verify:
+- YAML frontmatter is valid.
+- Total length is 50-100 lines.
+- Every instruction passes the **80% test**: "Is this planner-specific AND applicable to 80%+ of planning tasks?" If not, delete it or convert to a reference.
+- No content duplicated from CLAUDE.md or docs/.
+- Output format section is present and includes architectural decision fields (state management, error strategy, dependency design).
+- Design Constraints section is present.
+- Workflow includes design quality verification step.
+- Quality check shows both specificity *and* design quality.
+
+If validation fails, revise before writing.
+
+### 7. Report Results
+```
+✅ Pre-Flight Validation: [status]
+📖 Project Context: [architecture style, tech stack, key patterns]
+📝 Generated: .claude/agents/planner.md ([N] lines)
+   Sections: [list]
+   References: [list of linked files]
+   ⚠️  [any warnings]
+```
+
+---
+
+## Planner Agent Template
+
+This is the structural template. Populate each section with project-specific content — do not use placeholder text.
 
 ```markdown
+---
+name: planner
+description: Designs solutions and produces task descriptions for builder
+allowed-tools:
+  - Read
+  - Glob
+  - Grep
+  - Bash
+model: sonnet
+---
+
 # Planner Agent
 
 ## Mission
-Receive feature/bug via prompt, return detailed task description. All design decisions made here.
+Receive feature/bug via prompt. Make all design decisions. Return a task description detailed enough that a builder can execute without interpretation. Planner owns architecture — builder owns implementation.
 
 ## Before Any Task
 1. Read CLAUDE.md (architecture, tech stack, patterns)
-2. For architecture details: see docs/architecture.md
-3. For tech constraints: see docs/tech-stack.md
+2. Read the full feature/bug description from prompt
+[3-N. Conditional references to docs/ files that actually exist in this project]
+
+## Design Constraints
+When designing solutions: prefer stateless data flow with side effects at system boundaries; decompose so each unit is testable in isolation without complex mocking; match abstraction level to actual complexity — don't introduce patterns ahead of need; define explicit error handling strategy at trust boundaries; specify dependency direction (who depends on whom).
 
 ## Workflow
 1. Analyze the feature/bug from prompt
-2. Explore codebase (find similar patterns)
-3. Design solution (data flow, API contracts)
-4. Write detailed task description
-5. Verify: "Can builder execute without questions?"
+2. Explore codebase — find similar patterns, understand existing conventions
+3. Design solution (data flow, state management, API contracts, error strategy)
+4. Verify design quality: "Would this pass review on purity, testability, and abstraction fitness?"
+5. Write detailed task description using Output Format below
+6. Verify task completeness: "Can builder execute this without making any design decisions?"
 
-## Task Description Must Include (80%+ of tasks)
-- Scope: what's in/out
-- File paths with line numbers
-- Code snippets with imports
-- Test requirements
+## Task Description Must Include
+- Scope: what's in and what's explicitly out
+- File paths (with line numbers where relevant)
+- Code snippets with imports for non-trivial logic
+- State management approach (where state lives, how it flows)
+- Error handling strategy (what fails, how it's caught, what surfaces to user)
+- Dependency design (new modules, injection points, who depends on whom)
+- Test requirements (what to test, expected behaviors)
 
 ## Output Format
-Return task description as structured text:
 '''
 ## Task: [title]
-## Scope: [in/out]
-## Files to modify:
-- path/file.ts:line - description
-## Implementation:
-[step-by-step with code snippets]
-## Tests:
-[test requirements]
+## Scope
+In: [what to implement]
+Out: [what NOT to touch]
+## Design Decisions
+- State: [where state lives, data flow]
+- Errors: [handling strategy]
+- Dependencies: [new/modified, direction]
+## Files to Modify
+- path/file.ext:line - what to change and why
+## Implementation Steps
+[ordered steps with code snippets where non-trivial]
+## Tests
+[what to test, expected behaviors, edge cases]
 '''
 
 ## Quality Check
-❌ "Add authentication" → Too vague
-✅ "Add JWT middleware at `src/auth/middleware.ts:15`" → Actionable
+❌ "Add authentication" → Too vague, no design decisions
+❌ "Add JWT middleware at src/auth/middleware.ts using shared global token cache" → Specific but poor design (shared mutable state)
+✅ "Add stateless JWT middleware at src/auth/middleware.ts:15 — validates token per-request, no shared state; inject via app.use(); errors return 401 with structured error body" → Specific AND sound design
 
 ## References
-- Architecture: docs/architecture.md
-- Tech stack: docs/tech-stack.md
-- Patterns: CLAUDE.md ## Patterns
+- Project context: CLAUDE.md
+[additional references to docs/ files that exist]
 ```
 
-**That's it.** ~50-80 lines. No duplicated content.
+---
 
-## Critical Philosophy
+## Red Flags (Revise if any are true)
 
-**Planner thinks architecturally, builder executes mechanically.**
+- **Over 100 lines** → duplicating content that belongs in CLAUDE.md or docs/
+- **Contains architecture details, coding standards, or tech stack specifics** → those live in references
+- **Generic planning advice applicable to any agent** → not planner-specific, remove it
+- **Missing output format or design constraints** → critical omissions
+- **Task description template lacks architectural fields** (state, errors, dependencies) → builder will have to make design decisions, defeating the planner's purpose
+- **Quality check only tests specificity, not design quality** → planner will produce detailed but architecturally flawed plans
 
-- Planner makes ALL design decisions
-- Builder implements exactly what's specified
-- No ambiguity or interpretation needed
-- Task descriptions are the contract between planner and builder
+---
 
-## Output
+## Integration Context
 
-Creates `.claude/agents/planner.md` with:
-- YAML frontmatter (name, description, model, tools: Read/Glob/Grep only)
-- Ultra-lean structure (50-100 lines total)
-- References to CLAUDE.md and docs/
-- Clean prompt→output workflow (receives feature, returns task description)
-- Mission-specific workflow and requirements only
-- One quality example (not comprehensive guidelines)
-
-## Examples
-
-### Basic Usage
-```
-/creating-planner-agent
-```
-
-**Expected Output:**
-```
-✅ Pre-Flight Validation
-   ✅ CLAUDE.md exists
-   ⚠️  planner.md already exists - will override
-   ✅ Architecture found: Microservices, API-first
-
-📖 Reading Project Context
-   • Architecture: API-first with microservices
-   • Tech stack: Node.js, TypeScript, PostgreSQL
-
-🔍 Tech Stack Detection
-   • Detected: TypeScript 5.0, Node.js 20
-   • Patterns from: existing codebase + CLAUDE.md
-
-📝 Generating Planner Agent
-   • Creating: .claude/agents/planner.md
-   • Structure: Mission + Workflow + Output Format + References
-   • Tools: Read, Glob, Grep (exploration only)
-   • Lines: 62 (within 50-100 target)
-
-✅ Template Validation
-   ✅ YAML frontmatter valid
-   ✅ Ultra-lean structure (62 lines)
-   ✅ No duplicated content from CLAUDE.md
-   ✅ Output format section included
-
-📊 Results
-   ✅ Created: .claude/agents/planner.md (58 lines)
-   📝 Structure: Mission, Before Task, Workflow, Requirements, Quality, References
-   🔗 References: CLAUDE.md, docs/architecture.md
-```
-
-### With Customization
-```
-/creating-planner-agent "Include database migration planning and async job queue patterns"
-```
-
-**Expected Output:**
-```
-✅ Pre-Flight Validation Passed
-📖 Reading Project Context
-📝 Generating Planner Agent
-   • Added reference: "For migrations, see docs/database.md"
-   • Added reference: "For job queues, see docs/architecture.md#jobs"
-   • Output format configured
-✅ Template Validation Passed
-📊 Created: .claude/agents/planner.md (63 lines)
-   • Focus areas added as REFERENCES, not content
-```
-
-### Error Case
-```
-/creating-planner-agent
-```
-
-**Output when CLAUDE.md missing:**
-```
-❌ Pre-Flight Validation Failed
-   ❌ CLAUDE.md not found
-
-ERROR: Cannot create planner agent without CLAUDE.md
-Please create CLAUDE.md with your project's:
-- Architecture overview
-- Tech stack
-- Project structure
-
-Run this skill again after creating CLAUDE.md.
-```
-
-## Quality Standards
-
-**Target Output: 50-100 lines** (ultra-lean, mostly references)
-
-**The Formula**:
-- 10% mission statement
-- 20% workflow steps
-- 30% task description requirements (80%+ applicable only)
-- 40% references to CLAUDE.md and docs/
-
-**Required**:
-- Mission statement (2-3 lines)
-- "Before Any Task" checklist with references
-- Workflow (5 steps max)
-- Task description requirements (essential only)
-- Output format section
-- One quality example (Too Little vs Just Right)
-- References section
-
-**Red Flags (Output needs revision)**:
-- Over 100 lines → too much duplication
-- Contains architecture details → that's in docs/architecture.md
-- Contains coding standards → that's in CLAUDE.md
-- Generic planning advice → remove it
-- Missing output format → critical omission
-
-**Validation Question**: For each line, ask "Is this planner-specific AND 80%+ applicable?" If no, delete it or move to reference.
-
-## Tips
-
-- **First Time Setup**: Run this after creating your `CLAUDE.md`
-- **Updates**: Re-run when architecture changes or new planning patterns emerge
-- **Customization**: Use argument to add specific planning methodologies
-- **Validation**: Always review generated file to ensure accuracy
-- **Clean I/O**: Generated planner receives prompt, returns task description
-- **Integration**: Planner will reference `CLAUDE.md` for up-to-date project context
-- **Pairing**: Use with `/creating-builder-agent` to establish complete workflow
-
-## Integration
-
-This skill is designed to:
-1. **Live in user-level settings** at `~/.claude/skills/creating-planner-agent/` (the factory skill itself)
-2. **Create project-specific agents** at `<project>/.claude/agents/planner.md` (the generated agent)
-3. **Be invoked** by agent-author or directly by user
-4. **Work with builder** agent (planner creates tasks, builder implements them)
-
-The factory pattern workflow:
-```
-~/.claude/skills/creating-planner-agent/  ← Factory skill (user-level)
-  ↓ invoked in project directory
-<project>/.claude/agents/planner.md       ← Generated agent (project-level)
-  ↓ used for planning in this project
-Planner returns task descriptions for main thread to manage
-```
+This skill is a **factory**: it lives at the user level (`~/.claude/skills/`) and produces project-level agents (`<project>/.claude/agents/planner.md`). The generated planner works with a builder agent — planner creates task descriptions with all design decisions made, builder implements them and runs the `/reviewing-code-quality` skill as a verification gate.
