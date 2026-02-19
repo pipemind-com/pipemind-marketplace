@@ -40,6 +40,7 @@ Write each scenario so precisely that the downstream agent has **zero behavioral
 3. **NO ARCHITECTURE ASSUMPTIONS**: Do not assume how features are implemented. Say "the system displays an error" not "the API returns a 400." Say "the student gains access to the class" not "a row is inserted in the enrollments table."
 4. **OBSERVABLE OUTCOMES ONLY**: Every THEN clause must describe something a user can see or a state change that can be verified from outside the system. No internal side-effects.
 5. **ONE BEHAVIOR PER SCENARIO**: Each scenario tests exactly one thing. If you find yourself writing "AND" in a THEN clause, consider whether it should be two scenarios. Exception: closely coupled state changes that are meaningless in isolation (e.g., "access is granted AND confirmation is displayed" — these are one observable outcome).
+6. **DETERMINISTIC ENTITY LABELS**: Use bracketed placeholders for every distinct test entity (e.g., `[Student_A]`, `[Student_B]`, `[Class_Alpha]`, `[Wallet_Insufficient]`) rather than generic nouns like "a student" or "the class." When a scenario involves multiple instances of the same type, ambiguous references become silent bugs in the downstream test code.
 
 ---
 
@@ -112,15 +113,15 @@ Each scenario follows this format:
 **Criticality:** {one of: BLOCKING | HIGH | MEDIUM | LOW}
 
 **GIVEN:**
-- {Precondition 1 — specific and concrete}
-- {Precondition 2}
+- [Student_A] is enrolled and has completed [Class_Alpha]
+- [Student_B] is enrolled but has not started [Class_Alpha]
 
 **WHEN:**
-- {Single, specific user action or system event}
+- [Student_A] requests their completion reward for [Class_Alpha]
 
 **THEN:**
-- {Observable outcome 1}
-- {Observable outcome 2, if tightly coupled to outcome 1}
+- [Student_A] receives the reward and sees a confirmation
+- [Student_B]'s enrollment state and reward balance are unchanged
 
 **NOTES:** {Optional. Flag assumptions, call out dependencies on other scenarios, or clarify intent.}
 ```
