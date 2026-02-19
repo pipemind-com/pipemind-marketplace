@@ -1,0 +1,150 @@
+# Workflow
+
+> **AI Context Summary**: The core pattern is Planner → Builder separation of concerns: planner
+> designs and writes task files, builder reads task files and implements mechanically. The main
+> thread orchestrates by spawning agents via `claude --agent <name>` interactively, or via the
+> Task tool in automated pipelines. Task tracking uses Claude Code's native TaskCreate/TaskUpdate/
+> TaskList/TaskGet tools in the main thread.
+
+## Planner → Builder Pattern
+
+```
+Main Thread / User
+       │
+       ├─► claude --agent planner
+       │         ↓
+       │   Reads CLAUDE.md + docs/
+       │   Analyzes codebase
+       │   Writes tasks/NNN-name.md (full spec)
+       │         ↓
+       ├─► claude --agent builder
+       │         ↓
+       │   Reads tasks/NNN-name.md
+       │   Implements mechanically
+       │   Writes tests, marks complete
+       │   Moves to tasks/completed/
+       │
+       ├─► (optional) claude --agent security
+       └─► (optional) claude --agent devops
+```
+
+## Separation of Concerns
+
+| Agent | Mindset | Does | Never Does |
+|-------|---------|------|-----------|
+| **Planner** | Analytical | Designs, plans, writes task files | Write production code |
+| **Builder** | Mechanical | Implements, tests, documents | Make design decisions |
+| **Security** | Adversarial | Audits, finds vulnerabilities | Fix application logic |
+| **DevOps** | Operational | Infrastructure, CI/CD, containers | Modify app code |
+
+## Task File Structure
+
+Task files live at `tasks/NNN-description.md` and are the contract between planner and builder.
+
+```markdown
+# Task: Add User Authentication
+
+## Requirements
+- [ ] JWT tokens with 15-minute expiry
+- [ ] Refresh token rotation on use
+
+## Problem Analysis
+Current state: no auth middleware
+Proposed: auth.ts middleware + /auth routes
+
+## Files to Modify
+- `src/routes/auth.ts` (create)
+- `src/middleware/auth.ts` (create)
+- `src/app.ts:42` (register middleware)
+
+## Implementation Steps
+### Phase 1: Auth middleware
+```typescript
+// src/middleware/auth.ts
+export const authMiddleware = ...
+```
+
+## Builder Section
+<!-- Builder fills this in during implementation -->
+- Implementation notes
+- Test results
+- Deviations from plan
+```
+
+## Skill Invocation
+
+Skills are invoked as slash commands in the main Claude Code session:
+
+```bash
+# Setup skills
+/creating-claude-settings
+/creating-project-docs
+
+# Agent factory skills
+/creating-planner-agent
+/creating-builder-agent
+/creating-security-agent
+/creating-devops-agent
+
+# Utility skills (can pass arguments)
+/committing-changes
+/conducting-post-mortem tasks/completed/001-auth.md
+/verifying-implementation src/auth/login.ts
+/reviewing-code-quality
+/defining-specs
+/defining-test-scenarios
+```
+
+Skills listed in `system-reminder` are live—changes to SKILL.md take effect without restart.
+
+## Main Thread Task Tracking
+
+When orchestrating multiple agents, use native task tools in the main thread:
+
+```
+TaskCreate  → register a new feature/bug to implement
+TaskUpdate  → mark in_progress when spawning builder, completed when done
+TaskList    → see all pending/in-progress/completed work
+TaskGet     → fetch full task description before delegating
+```
+
+**Example orchestration sequence:**
+1. `TaskCreate` with feature description
+2. Spawn planner agent → receives task description via prompt
+3. Planner returns task file path
+4. `TaskUpdate` status to `in_progress`
+5. Spawn builder agent → receives task file path
+6. Builder returns completion status
+7. `TaskUpdate` status to `completed`
+
+## Post-Task Learning Loop
+
+```bash
+# After completing major tasks, extract lessons
+/conducting-post-mortem tasks/completed/NNN-name.md
+
+# This proposes updates to CLAUDE.md
+# Review and apply updates to improve future agent performance
+```
+
+## Complete Development Lifecycle
+
+```
+/creating-claude-settings    ← Define project context
+/creating-project-docs       ← Generate docs/ reference
+/creating-planner-agent      ← Compile planner for this stack
+/creating-builder-agent      ← Compile builder for this stack
+        ↓
+claude --agent planner       ← Design: write task files
+claude --agent builder       ← Build: implement + test
+/committing-changes          ← Commit: atomic git commits
+claude --agent security      ← Audit: find vulnerabilities
+claude --agent devops        ← Deploy: infra configuration
+/conducting-post-mortem      ← Learn: improve CLAUDE.md
+```
+
+## Cross-References
+
+- Architecture overview: [architecture.md](./architecture.md)
+- Agent/skill format: [tech-stack.md](./tech-stack.md)
+- Installation: [getting-started.md](./getting-started.md)
