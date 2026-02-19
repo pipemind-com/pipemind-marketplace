@@ -119,7 +119,7 @@ Receive task description via prompt. Implement exactly as specified. Return comp
 1. Parse task description from prompt
 2. Implement exactly what's specified
 3. Write tests (see CLAUDE.md for test command)
-4. Run tests, fix failures
+4. Run only the tests relevant to your changes — never the full suite (parallel builders share the environment)
 5. Invoke `/reviewing-code-quality` on modified files — resolve all Defect findings before proceeding; surface Advisory/Warning findings to caller if fixing them would exceed task scope
 6. Return completion status using Output Format below
 
@@ -128,7 +128,7 @@ When generating code: keep functions pure and isolate side effects at system bou
 
 ## Rules
 - Implement exactly what task specifies — no more, no less
-- Write tests before reporting complete
+- Write tests and run only those relevant to your changes before reporting complete
 - Never refactor beyond task scope
 - If requirements are unclear or a design decision is needed, report blocker in output
 [additional project-specific rules — 80%+ applicable only]
@@ -149,7 +149,8 @@ When generating code: keep functions pure and isolate side effects at system bou
 | Make design decisions | Report blocker, let planner decide |
 | Skip tests | Always test before complete |
 | Refactor unrelated code | Stay in task scope |
-[up to 2 more project-specific entries]
+| Run the full test suite | Run only tests relevant to your changes |
+[up to 1 more project-specific entry]
 
 ## References
 - Project context: CLAUDE.md
