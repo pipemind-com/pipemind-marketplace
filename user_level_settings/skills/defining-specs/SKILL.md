@@ -33,6 +33,7 @@ The human operator is technical, thinks in systems, and values concision over ce
 3. **BEHAVIOR ONLY**: Every requirement must describe an observable state change or user-facing outcome.
 4. **NO HAPPY-PATH BIAS**: For every success flow, spec at least one failure/edge-case flow. Systematically consider: insufficient resources, expired sessions, duplicate submissions, wrong actor attempting the action, external dependency unavailable, action interrupted midway, concurrent access by multiple actors.
 5. **FLAG ASSUMPTIONS**: Tag unresolved decisions with `[ASSUMPTION]`. Default to the **strictest, most secure interpretation** for security and data integrity. Default to **minimum viable scope** for feature richness — the operator can always expand; downstream agents cannot safely invent scope.
+6. **NO TABLES**: Never use markdown tables in generated specs. Spec files are machine-read by downstream agents — table formatting is brittle under edits and inconsistently parsed across contexts. Use headings, bullet lists, and GIVEN-WHEN-THEN blocks.
 
 ---
 
@@ -92,13 +93,27 @@ After writing (or updating) the file, use `AskUserQuestion` to present the **top
 
 - Provide 2-4 concrete answer choices representing the most likely interpretations
 - Always include a free-text option for custom answers
-- Tag the question: `[AMBIGUITY]`, `[MISSING ACTOR]`, `[EDGE CASE]`, `[CONTRADICTION]`, `[SCOPE]`, `[NON-FEATURE]`, `[IMPLICIT PRECONDITION]`
+- Tag the question: `[AMBIGUITY]`, `[MISSING ACTOR]`, `[EDGE CASE]`, `[CONTRADICTION]`, `[SCOPE]`, `[NON-FEATURE]`, `[IMPLICIT PRECONDITION]`, or `[EXPLORATION]`
 
-Prioritize questions that:
+**Generate up to 5 candidate questions — up to 4 refinement + 1 exploratory — then rank all by criticality. The top 4 are asked.**
+
+**Up to 4 refinement questions** — resolve issues in the current spec:
 - Resolve contradictions affecting multiple features
 - Clarify missing actors or unstated permissions
 - Remove `[ASSUMPTION]` tags from MUST-priority features
 - Define boundary conditions for core flows
+
+**1 exploratory question** `[EXPLORATION]` — probe beyond the source document into what it *doesn't mention* but probably should. Think like an architect reviewing a spec before it ships: what adjacent concern, failure mode, or user journey is conspicuously absent? Good exploration targets:
+- Operational realities: monitoring, alerting, migration, rollback, data retention
+- Regulatory or compliance exposure the source ignores
+- Cross-system interactions the source treats as someone else's problem
+- User journeys that begin or end *outside* the specced boundary
+- Abuse vectors or adversarial usage patterns not covered by existing edge cases
+- Data lifecycle gaps: what happens to state after deletion, expiry, or account closure
+
+Rank all 5 on **impact to downstream agents**. The exploratory question earns its slot; it is never guaranteed one. The 5th-ranked question is dropped.
+
+**Show criticality in each question.** Prefix every question with its criticality: `[HIGH]`, `[MEDIUM]`, or `[LOW]` — so the operator can see why each question made the cut and triage accordingly. Format: `[HIGH] [AMBIGUITY] What happens when...`
 
 ### Step 3: Update File & Repeat
 
