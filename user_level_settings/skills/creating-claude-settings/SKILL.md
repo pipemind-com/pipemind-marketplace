@@ -39,6 +39,7 @@ This skill generates:
    - Identify framework and architecture pattern
    - Map key directory structure
    - Find essential configuration files
+   - Check for `.claude/agents/planner.md` and `builder.md` (triggers Workflow section)
 
 **3. Code Exploration**:
    - Read key configuration files
@@ -53,6 +54,7 @@ This skill generates:
    4. **Commands** (essential only)
    5. **Standards** (critical conventions only)
    6. **Notes** (gotchas, warnings)
+   7. **Workflow** (conditional — only if `.claude/agents/planner.md` and `builder.md` exist) - parallel orchestration via Task tool
 
 **5. Reference docs/** (for progressive disclosure):
    CLAUDE.md will reference `docs/` for detailed content.
@@ -111,6 +113,16 @@ Brief philosophy (1-2 sentences about working approach).
 - [Gotcha 1]
 - [Gotcha 2]
 - [Only critical warnings]
+
+## Workflow
+<!-- Only include this section if .claude/agents/planner.md and builder.md exist -->
+
+When implementing multi-part features:
+1. Decompose the problem into independent subproblems with shared architectural constraints
+2. Spawn parallel planner agents (one per subproblem) via Task tool
+3. Collect plans, resolve file-overlap conflicts, produce unified task list
+4. Spawn parallel builder agents for independent tasks via Task tool
+5. Sequence tasks that touch shared files; parallelize the rest
 
 ## Additional Documentation
 
@@ -171,9 +183,10 @@ Generating Lean CLAUDE.md
    Commands (4 commands)
    Standards (4 items)
    Notes (3 items)
+   Workflow (included — planner/builder agents detected)
 
 Validation
-   Total: 67 lines (under 100 limit)
+   Total: 76 lines (under 100 limit)
    80% rule: All content universally applicable
 
 Created: CLAUDE.md (67 lines)
