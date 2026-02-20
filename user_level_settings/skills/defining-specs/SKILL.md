@@ -47,37 +47,16 @@ Read the entire source document. Identify all distinct functional areas. If the 
 
 **If splitting is needed:**
 
-Write a short epic index to `specs/{name}.epics.md`:
-
-```markdown
-# Epic Index: {Source Name}
-**Source:** {filename}
-**Generated:** {date}
-
-## Epics
-
-### E-01: {Epic Name}
-{1-2 sentence scope summary}
-**Estimated features:** {count}
-
-### E-02: {Epic Name}
-{1-2 sentence scope summary}
-**Estimated features:** {count}
-
-...
-```
-
-Then use `AskUserQuestion` to present the epics as a **single-select choice**. Ask the operator which epic to spec now. Include a "Spec all — I'll wait" option for smaller splits.
+Do NOT write an epic index file. Instead, use `AskUserQuestion` directly to present the epics as a **single-select choice**. For each epic, show: ID, name, 1-sentence scope, and estimated feature count. Ask which epic to spec now. Include a "Spec all — I'll wait" option for smaller splits.
 
 After selection, proceed to Step 1 scoped to that epic only. The output file becomes `specs/{name}.{epic-slug}.md` (e.g., `specs/milestone-4.payments.md`, `specs/milestone-4.rewards.md`).
 
 **If splitting is NOT needed** (12 or fewer features): skip straight to Step 1. Output file is `specs/{name}.md`.
 
 **Epic splitting principles:**
-- Epics should be **independently specifiable** — an epic's features should make sense without reading other epics, even if there are cross-references.
+- **Fully self-contained** — each epic includes its own complete Domain Glossary (actors, key terms) and System Constraints. Duplicate freely across epics; self-containment beats DRY for specs. A downstream agent reading one epic file must never need to open another.
 - Group by **user journey or domain**, not by technical system. "Payments" (ADA + Stripe + pricing) is a good epic. "Frontend stuff" is not.
-- Shared concerns (actors, glossary terms, system constraints) that span multiple epics go into a shared preamble file: `specs/{name}.shared.md`. This file contains the Domain Glossary and System Constraints. Each epic spec references it rather than duplicating it.
-- Cross-epic dependencies should be noted as: `**Depends on:** E-XX ({Epic Name}) for {specific capability}` in the epic's header.
+- **Cross-references go in a dedicated file**: when epics share boundaries (e.g., epic A produces state that epic B consumes), write `specs/{name}.xrefs.md`. This file maps each interface: which epic owns it, what the contract is, and which features on each side depend on it. Individual epic specs then note `**See also:** specs/{name}.xrefs.md` in their header but carry no dependency on other epic files to be understood.
 
 ### Step 1: Read & Write Draft (or Resume)
 
@@ -133,7 +112,7 @@ If the operator gives a vague answer ("just figure it out"), keep the `[ASSUMPTI
 # Spec: {Milestone or Feature Name} — {Epic Name if applicable}
 **Source:** {filename or description of input}
 **Epic:** {E-XX if applicable, otherwise "N/A — single spec"}
-**Depends on:** {other epic IDs, or "None"}
+**See also:** specs/{name}.xrefs.md (if cross-epic boundaries exist, otherwise omit)
 **Generated:** {date}
 **Status:** DRAFT — requires operator review
 ```
@@ -142,11 +121,7 @@ If the operator gives a vague answer ("just figure it out"), keep the `[ASSUMPTI
 
 Define every Actor and key domain term. For each Actor, define **negative boundaries** — what the actor explicitly *cannot* do. This prevents downstream agents from inferring permissions that were never granted.
 
-If a shared preamble exists (`specs/{name}.shared.md`), reference it:
-```markdown
-## Domain Glossary
-See `specs/{name}.shared.md` for full glossary. Epic-specific additions below:
-```
+Every epic includes a **complete** glossary — never reference another epic's glossary.
 
 ```markdown
 ## Domain Glossary
@@ -229,7 +204,7 @@ Source Document
       ▼
 ┌─────────────┐
 │  STEP 0     │──── Scope Assessment
-│  (Scope)    │──── If >12 features: write epic index, AskUserQuestion to select
+│  (Scope)    │──── If >12 features: AskUserQuestion to select epic
 │             │──── If ≤12 features: proceed directly
 └─────┬───────┘
       │
