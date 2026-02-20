@@ -54,9 +54,10 @@ After selection, proceed to Step 1 scoped to that epic only. The output file bec
 **If splitting is NOT needed** (12 or fewer features): skip straight to Step 1. Output file is `specs/{name}.md`.
 
 **Epic splitting principles:**
-- **Fully self-contained** — each epic includes its own complete Domain Glossary (actors, key terms) and System Constraints. Duplicate freely across epics; self-containment beats DRY for specs. A downstream agent reading one epic file must never need to open another.
+- **Shared glossary** — the Domain Glossary (actors, key terms, negative boundaries) lives in `specs/glossary.md`. All specs and epics reference this single file. When refinement changes a term or actor, update it there so the change propagates everywhere.
+- **Self-contained constraints** — each epic includes its own System Constraints. These are legitimately per-epic and don't need sharing.
 - Group by **user journey or domain**, not by technical system. "Payments" (ADA + Stripe + pricing) is a good epic. "Frontend stuff" is not.
-- **Cross-references go in a dedicated file**: when epics share boundaries (e.g., epic A produces state that epic B consumes), write `specs/{name}.xrefs.md`. This file maps each interface: which epic owns it, what the contract is, and which features on each side depend on it. Individual epic specs then note `**See also:** specs/{name}.xrefs.md` in their header but carry no dependency on other epic files to be understood.
+- **Cross-references go in a dedicated file**: when epics share boundaries (e.g., epic A produces state that epic B consumes), write `specs/{name}.xrefs.md`. This file maps each interface: which epic owns it, what the contract is, and which features on each side depend on it. Individual epic specs note `**See also:** specs/{name}.xrefs.md` in their header but carry no dependency on other epic files to be understood.
 
 ### Step 1: Read & Write Draft (or Resume)
 
@@ -64,7 +65,7 @@ Check if the target spec file already exists. If it does, **skip drafting** — 
 
 If no file exists, read the source document (scoped to the selected epic if applicable) and immediately generate a **complete first-draft spec** using the structure below. Where information is missing or ambiguous, use your best judgment and tag every uncertain decision `[ASSUMPTION]`. Do not wait for clarification — write everything you can infer now.
 
-Write the draft to the appropriate path.
+Write the draft to the appropriate path. If `specs/glossary.md` does not exist yet, create it now with the Domain Glossary extracted from the source document. If it already exists, read it first and align the new spec's vocabulary to it — adding any new actors or terms discovered in this source.
 
 ### Step 2: Ask Questions
 
@@ -96,7 +97,7 @@ Rank all 5 on **impact to downstream agents**. The exploratory question earns it
 
 ### Step 3: Update File & Repeat
 
-After receiving answers, **re-read the entire spec file**. Before updating, identify **all sections** affected by the new information — an answer about one feature often changes the glossary, system constraints, or other features. Update accordingly, then return to Step 2 with the next most important questions.
+After receiving answers, **re-read the entire spec file**. Before updating, identify **all sections** affected by the new information — an answer about one feature often changes the glossary, system constraints, or other features. **If a glossary term or actor definition changes, update `specs/glossary.md`** — it is the single source of truth for vocabulary. Update the spec file accordingly, then return to Step 2 with the next most important questions.
 
 **Never self-terminate.** Keep iterating until the operator stops the loop.
 
@@ -112,6 +113,7 @@ If the operator gives a vague answer ("just figure it out"), keep the `[ASSUMPTI
 # Spec: {Milestone or Feature Name} — {Epic Name if applicable}
 **Source:** {filename or description of input}
 **Epic:** {E-XX if applicable, otherwise "N/A — single spec"}
+**Glossary:** specs/glossary.md
 **See also:** specs/{name}.xrefs.md (if cross-epic boundaries exist, otherwise omit)
 **Generated:** {date}
 **Status:** DRAFT — requires operator review
@@ -119,14 +121,14 @@ If the operator gives a vague answer ("just figure it out"), keep the `[ASSUMPTI
 
 ### Domain Glossary
 
-Define every Actor and key domain term. For each Actor, define **negative boundaries** — what the actor explicitly *cannot* do. This prevents downstream agents from inferring permissions that were never granted.
+The Domain Glossary always lives in `specs/glossary.md` — never inline in spec files. Define every Actor and key domain term there. For each Actor, define **negative boundaries** — what the actor explicitly *cannot* do. This prevents downstream agents from inferring permissions that were never granted.
 
-Every epic includes a **complete** glossary — never reference another epic's glossary.
+Spec files reference it in their header and do not duplicate glossary content. The glossary format:
 
 ```markdown
-## Domain Glossary
+# Domain Glossary
 
-### Actors
+## Actors
 
 **Student**
 End-user enrolled in the platform with a connected wallet.
@@ -136,7 +138,7 @@ End-user enrolled in the platform with a connected wallet.
 Platform operator with elevated privileges for configuration and oversight.
 *Cannot:* access or transact with student wallets directly.
 
-### Key Terms
+## Key Terms
 
 **Enrollment**
 The state transition when a student...

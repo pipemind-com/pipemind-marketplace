@@ -50,7 +50,7 @@ Write each scenario so precisely that the downstream agent has **zero behavioral
 ## Reading Order
 
 Before generating, read in this order:
-1. **Domain Glossary** — internalize all actor definitions and terms. Use them exactly. Each epic is fully self-contained; never look for a separate shared glossary file.
+1. **Domain Glossary** (`specs/glossary.md`) — read this first. It is the canonical source for actor definitions and domain terms across all specs. Use all terms exactly as defined.
 2. **System Constraints** — these generate their own constraint validation scenarios.
 3. **The scoped Feature** — spec scenarios are your starting point, not your finish line.
 4. **Cross-feature dependencies** — check the feature's `**Requires:**` field and read any referenced features. You will not generate scenarios for those features, but you need to understand the interface. If `specs/{name}.xrefs.md` exists, read it for cross-epic boundary contracts.
