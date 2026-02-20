@@ -43,6 +43,7 @@ Write each scenario so precisely that the downstream agent has **zero behavioral
 5. **ONE BEHAVIOR PER SCENARIO**: Each scenario tests exactly one thing. Exception: closely coupled state changes meaningless in isolation.
 6. **DETERMINISTIC ENTITY LABELS**: Use bracketed placeholders (`[Student_A]`, `[Class_Alpha]`, `[Wallet_Insufficient]`) for every distinct test entity. Entity labels are **scoped per scenario** unless explicitly stated otherwise in Prerequisites. `[Student_A]` in TS-05.01 and `[Student_A]` in TS-05.07 are independent test entities with independent state. If a scenario depends on state created by a prior scenario, it must say so explicitly in GIVEN.
 7. **USE SPEC VOCABULARY EXACTLY**: Every actor name, domain term, and state name must match the Domain Glossary spelling exactly. Do not paraphrase defined terms. If the glossary says "Course Completion," write "Course Completion" — not "finishing the class" or "completing the course." If you need a term that isn't in the glossary, flag it in the Coverage Summary as a potential glossary gap.
+8. **NO TABLES**: Never use markdown tables in generated scenario files. Use headings, bullet lists, and structured text. Tables degrade under edits and are hard for downstream agents to parse reliably.
 
 ---
 
@@ -97,12 +98,27 @@ After writing (or updating) the file, use `AskUserQuestion` to present the **top
 
 - Provide 2-4 concrete answer choices representing likely interpretations
 - Always include a free-text option for custom answers
+- Tag the question type: `[SCOPE]`, `[AMBIGUITY]`, `[EDGE CASE]`, `[ASSUMPTION]`, `[CROSS-FEATURE]`, or `[EXPLORATION]`
 
-Focus on test-level ambiguities:
+**Generate up to 5 candidate questions — up to 4 refinement + 1 exploratory — then rank all by criticality. The top 4 are asked.**
+
+**Up to 4 refinement questions** — resolve issues in the current scenarios. Prioritize questions that resolve ambiguity in BLOCKING or HIGH criticality scenarios first:
 - Should cross-feature interactions be covered here or separately?
 - Are certain edge cases in scope or out of scope?
 - Should assumption-dependent scenarios use the assumed behavior or an alternative?
 - Where expansion produces many scenarios, which categories matter most?
+
+**1 exploratory question** `[EXPLORATION]` — probe beyond the current scenarios into test coverage the spec *doesn't directly suggest* but a QA architect would insist on. Good exploration targets:
+- Destructive or adversarial user behavior not covered by existing failure scenarios
+- State corruption or data integrity risks when flows are interrupted or retried
+- Timing-sensitive behavior: race conditions, stale data, session expiry mid-flow
+- Interactions with features outside the current scope that could cause silent failures
+- Recovery paths: what the user sees after a system failure, and whether state is consistent afterward
+- Scale-sensitive behavior: does the scenario hold with 1 entity? 1,000? What breaks?
+
+Rank all 5 on **impact to downstream test coverage**. The exploratory question earns its slot; it is never guaranteed one. The 5th-ranked question is dropped.
+
+**Show criticality in each question.** Prefix every question with its criticality: `[HIGH]`, `[MEDIUM]`, or `[LOW]` — so the operator can see why each question made the cut and triage accordingly. Format: `[HIGH] [SCOPE] Should the concurrent-edit scenario...`
 
 ### Step 3: Update File & Repeat
 
@@ -196,17 +212,15 @@ If a constraint spans multiple features equally, place it in the feature file wh
 
 ## Coverage Summary
 
-End every draft (and update) with a traceability matrix:
+End every draft (and update) with a traceability list:
 
 ```markdown
 ## Coverage Summary
 
-| Spec Scenario | Test Scenarios | Categories Covered |
-|---------------|----------------|--------------------|
-| F-05.1 | TS-05.01, TS-05.02, TS-05.03 | Happy Path, Boundary, Edge Case |
-| F-05.2 | TS-05.04 | Happy Path |
-| (implicit) | TS-05.05 | Constraint Validation |
-| F-05.1 × F-07.1 | TS-05.06 | Cross-Feature, Edge Case |
+- **F-05.1** → TS-05.01, TS-05.02, TS-05.03 — Happy Path, Boundary, Edge Case
+- **F-05.2** → TS-05.04 — Happy Path
+- **(implicit)** → TS-05.05 — Constraint Validation
+- **F-05.1 × F-07.1** → TS-05.06 — Cross-Feature, Edge Case
 
 **Total spec scenarios in scope:** X
 **Total test scenarios generated:** Y
