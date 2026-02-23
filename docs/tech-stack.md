@@ -43,7 +43,7 @@ color: blue                  # purple|blue|red|orange|green|yellow|cyan
 
 ```yaml
 ---
-name: gerund-form            # Required: e.g., reviewing-code, creating-planner-agent
+name: gerund-form            # Required: e.g., reviewing-code, compiling-planner-agent
 description: What it does    # Required: under 100 chars
 user-invocable: true         # Makes available as /command in Claude Code
 argument-hint: "path/to/file"# Optional: shown as hint in UI
@@ -88,7 +88,7 @@ code-reviewer.md
 task-planner.md
 
 # Skills (gerunds, kebab-case, in subdirectory)
-creating-planner-agent/SKILL.md
+compiling-planner-agent/SKILL.md
 reviewing-code-quality/SKILL.md
 conducting-post-mortem/SKILL.md
 

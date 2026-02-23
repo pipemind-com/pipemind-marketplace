@@ -44,17 +44,17 @@ Invoke the appropriate skill, or create directly for custom needs.
 
 | Skill | Purpose |
 |-------|---------|
-| `/creating-project-settings` | Generate lean CLAUDE.md (50-100 lines) |
-| `/creating-project-docs` | Generate docs/ for progressive disclosure |
+| `/initializing-project-settings` | Generate lean CLAUDE.md (50-100 lines) |
+| `/initializing-project-docs` | Generate docs/ for progressive disclosure |
 
 **Agent factory skills (create project-level agents):**
 
 | Skill | Purpose |
 |-------|---------|
-| `/creating-planner-agent` | Task planning agent |
-| `/creating-builder-agent` | Implementation agent |
-| `/creating-security-agent` | Security auditor (red team) |
-| `/creating-devops-agent` | Infrastructure specialist |
+| `/compiling-planner-agent` | Task planning agent |
+| `/compiling-builder-agent` | Implementation agent |
+| `/compiling-security-agent` | Security auditor (red team) |
+| `/compiling-devops-agent` | Infrastructure specialist |
 
 **Utility skills (invoke directly):**
 

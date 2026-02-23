@@ -77,14 +77,14 @@ Skills are invoked as slash commands in the main Claude Code session:
 
 ```bash
 # Setup skills
-/creating-project-settings
-/creating-project-docs
+/initializing-project-settings
+/initializing-project-docs
 
 # Agent factory skills
-/creating-planner-agent
-/creating-builder-agent
-/creating-security-agent
-/creating-devops-agent
+/compiling-planner-agent
+/compiling-builder-agent
+/compiling-security-agent
+/compiling-devops-agent
 
 # Utility skills (can pass arguments)
 /committing-changes
@@ -130,10 +130,10 @@ TaskGet     → fetch full task description before delegating
 ## Complete Development Lifecycle
 
 ```
-/creating-project-settings    ← Define project context
-/creating-project-docs       ← Generate docs/ reference
-/creating-planner-agent      ← Compile planner for this stack
-/creating-builder-agent      ← Compile builder for this stack
+/initializing-project-settings    ← Define project context
+/initializing-project-docs       ← Generate docs/ reference
+/compiling-planner-agent      ← Compile planner for this stack
+/compiling-builder-agent      ← Compile builder for this stack
         ↓
 claude --agent planner       ← Design: write task files
 claude --agent builder       ← Build: implement + test
@@ -142,6 +142,24 @@ claude --agent security      ← Audit: find vulnerabilities
 claude --agent devops        ← Deploy: infra configuration
 /conducting-post-mortem      ← Learn: improve CLAUDE.md
 ```
+
+## Automated Orchestration via `/orchestrating-workflow`
+
+For multi-part features, the `/orchestrating-workflow` skill automates the full planner-to-builder pipeline:
+
+```
+/orchestrating-workflow "Add user authentication with JWT, refresh tokens, and role-based access"
+```
+
+This replaces the manual sequence of spawning individual planner and builder agents. The skill:
+
+1. **Decomposes** the feature into 2-6 independent sub-tasks
+2. **Plans** each sub-task via parallel planner subagents
+3. **Reconciles** plans for file conflicts and interface dependencies
+4. **Builds** via parallel builder subagents (respecting dependency order)
+5. **Reports** completion status with files modified and test results
+
+Use `/orchestrating-workflow` when a feature spans multiple files or components and benefits from parallel execution. For single-file changes, the manual planner → builder pattern above is simpler.
 
 ## Cross-References
 

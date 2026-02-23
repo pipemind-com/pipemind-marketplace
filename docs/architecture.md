@@ -1,7 +1,7 @@
 # Architecture
 
 > **AI Context Summary**: Two-tier markdown/YAML system with no runtime dependencies. **Factory tier**
-> (`user_level_settings/` → `~/.claude/`) holds the meta-agent and 12 skills installed once per machine.
+> (`user_level_settings/` → `~/.claude/`) holds the meta-agent and 13 skills installed once per machine.
 > **Product tier** (`.claude/agents/`) holds project-specific agents compiled by the factory for each
 > codebase. Agents reference CLAUDE.md and `docs/` for project context—never duplicate content across files.
 
@@ -14,9 +14,9 @@ Global Factory (~/.claude/)          Local Products (.claude/agents/)
 │   agent-author.md          │ compile│ builder.md  (implementation) │
 │                            │       │ security.md (red team audit) │
 │ skills/                    │       │ devops.md   (infra/CI/CD)    │
-│   creating-*-agent/ ×4     │       └──────────────────────────────┘
-│   creating-project-settings/│
-│   creating-project-docs/   │              ↑ references
+│   compiling-*-agent/ ×4    │       └──────────────────────────────┘
+│   initializing-project-settings/│
+│   initializing-project-docs/   │              ↑ references
 │   defining-specs/          │       ┌──────────────────────────────┐
 │   defining-test-scenarios/ │       │ CLAUDE.md  (project context) │
 │   reviewing-code-quality/  │       │ docs/      (progressive detail│
@@ -31,9 +31,10 @@ Global Factory (~/.claude/)          Local Products (.claude/agents/)
 | Component | Responsibility | Location |
 |-----------|---------------|----------|
 | `agent-author` | Meta-agent; guides creation of all other agents and skills | `user_level_settings/agents/agent-author.md` |
-| Setup skills | Generate CLAUDE.md and docs/ for any project | `creating-project-settings/`, `creating-project-docs/` |
-| Agent factory skills | Compile project-specific planner/builder/security/devops agents | `creating-*-agent/` ×4 |
-| Utility skills | Code quality, property tests, atomic commits, post-mortem | remaining 5 skills |
+| Setup skills | Generate CLAUDE.md and docs/ for any project | `initializing-project-settings/`, `initializing-project-docs/` |
+| Agent factory skills | Compile project-specific planner/builder/security/devops agents | `compiling-*-agent/` ×4 |
+| Orchestration skill | Multi-task planner/builder pipeline | `orchestrating-workflow/` |
+| Utility skills | Code quality, property tests, atomic commits, post-mortem | remaining 4 skills |
 | CLAUDE.md | Single source of truth for a project's architecture and patterns | project root |
 | `docs/` | Progressive disclosure: detailed content referenced from CLAUDE.md | `docs/*.md` |
 
@@ -53,18 +54,19 @@ Global Factory (~/.claude/)          Local Products (.claude/agents/)
 
 ```
 user_level_settings/skills/
-├── creating-project-settings/    # Setup: generate lean CLAUDE.md
-├── creating-project-docs/       # Setup: generate docs/ with progressive disclosure
-├── creating-planner-agent/      # Factory: task planning agent
-├── creating-builder-agent/      # Factory: implementation agent
-├── creating-security-agent/     # Factory: red-team security auditor
-├── creating-devops-agent/       # Factory: infrastructure/CI-CD specialist
-├── defining-specs/              # Utility: behavioral specs from PRDs
-├── defining-test-scenarios/     # Utility: granular test scenarios from specs
-├── reviewing-code-quality/      # Utility: 6-axis code quality review
-├── stress-testing/              # Utility: adversarial property-based tests
-├── committing-changes/          # Utility: split git changes into atomic commits
-└── conducting-post-mortem/      # Utility: extract lessons, update CLAUDE.md
+├── initializing-project-settings/    # Setup: generate lean CLAUDE.md
+├── initializing-project-docs/       # Setup: generate docs/ with progressive disclosure
+├── compiling-planner-agent/         # Factory: task planning agent
+├── compiling-builder-agent/         # Factory: implementation agent
+├── compiling-security-agent/        # Factory: red-team security auditor
+├── compiling-devops-agent/          # Factory: infrastructure/CI-CD specialist
+├── defining-specs/                  # Spec: behavioral specs from PRDs
+├── defining-test-scenarios/         # Spec: granular test scenarios from specs
+├── orchestrating-workflow/          # Orchestration: multi-task planner/builder pipeline
+├── reviewing-code-quality/          # Utility: 6-axis code quality review
+├── stress-testing/                  # Utility: adversarial property-based tests
+├── committing-changes/              # Utility: split git changes into atomic commits
+└── conducting-post-mortem/          # Utility: extract lessons, update CLAUDE.md
 ```
 
 ## Data Flow
@@ -74,10 +76,10 @@ User installs factory:
   user_level_settings/ ──symlink/copy──► ~/.claude/
 
 User bootstraps a project:
-  /creating-project-settings  → CLAUDE.md
-  /creating-project-docs     → docs/
-  /creating-planner-agent    → .claude/agents/planner.md
-  /creating-builder-agent    → .claude/agents/builder.md
+  /initializing-project-settings  → CLAUDE.md
+  /initializing-project-docs     → docs/
+  /compiling-planner-agent    → .claude/agents/planner.md
+  /compiling-builder-agent    → .claude/agents/builder.md
 
 User runs workflow:
   claude --agent planner  → reads CLAUDE.md → writes task file

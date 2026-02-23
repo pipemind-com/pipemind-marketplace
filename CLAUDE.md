@@ -9,7 +9,7 @@ Pure markdown/YAML system—no build pipeline, no runtime dependencies. Two tier
 ## Key Directories
 
 - `user_level_settings/agents/` - Meta-agent (`agent-author.md`) that guides agent creation
-- `user_level_settings/skills/` - 12 factory skills (installed to `~/.claude/skills/`)
+- `user_level_settings/skills/` - 13 factory skills (installed to `~/.claude/skills/`)
 - `docs/` - Progressive disclosure documentation (architecture, workflow, tech-stack, getting-started)
 - `.claude/` - Local permissions config (`settings.local.json`)
 

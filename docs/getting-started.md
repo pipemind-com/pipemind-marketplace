@@ -2,7 +2,7 @@
 
 > **AI Context Summary**: Install the factory once per machine by symlinking or copying
 > `user_level_settings/` to `~/.claude/`. Then bootstrap any project by invoking the
-> creating-* skills inside that project. Symlinks are preferred—`git pull` propagates
+> initializing-* and compiling-* skills inside that project. Symlinks are preferred—`git pull` propagates
 > factory updates automatically. Requires Claude Code CLI and a git repository.
 
 ## Prerequisites
@@ -28,7 +28,7 @@ cp -r user_level_settings/skills ~/.claude/
 
 # Verify
 ls ~/.claude/agents/agent-author.md          # meta-agent
-ls ~/.claude/skills/creating-*/SKILL.md      # 12 skills
+ls ~/.claude/skills/*/SKILL.md               # 13 skills
 ```
 
 **Windows (PowerShell):**
@@ -45,18 +45,18 @@ In any git repository with Claude Code:
 
 ```bash
 # 1. Generate CLAUDE.md (lean project context)
-/creating-project-settings
+/initializing-project-settings
 
 # 2. Generate docs/ (progressive disclosure)
-/creating-project-docs
+/initializing-project-docs
 
 # 3. Compile project-specific agents
-/creating-planner-agent
-/creating-builder-agent
+/compiling-planner-agent
+/compiling-builder-agent
 
 # Optional specialized agents
-/creating-security-agent
-/creating-devops-agent
+/compiling-security-agent
+/compiling-devops-agent
 ```
 
 Each skill analyzes the codebase and generates files tailored to the tech stack.
@@ -87,10 +87,10 @@ claude --agent builder
 
 | Problem | Solution |
 |---------|----------|
-| `Command not found: /creating-planner-agent` | Skills must be at `~/.claude/skills/<name>/SKILL.md` |
+| `Command not found: /compiling-planner-agent` | Skills must be at `~/.claude/skills/<name>/SKILL.md` |
 | "agent-author not found" | Complete Step 1 first; restart Claude CLI |
-| Skills show generic output | Ensure CLAUDE.md exists before running creating-*-agent |
-| Builder uses wrong test framework | Update CLAUDE.md testing section, re-run `/creating-builder-agent` |
+| Skills show generic output | Ensure CLAUDE.md exists before running compiling-*-agent |
+| Builder uses wrong test framework | Update CLAUDE.md testing section, re-run `/compiling-builder-agent` |
 
 ## Updating the Factory
 
