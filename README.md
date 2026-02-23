@@ -31,7 +31,7 @@ Specification skills:
 
 Utility skills:
 - `/reviewing-code-quality` - Score code against 6 quality axes
-- `/verifying-implementation` - Adversarial property-based tests
+- `/stress-testing` - Adversarial property-based tests
 - `/committing-changes` - Split git changes into atomic commits
 - `/conducting-post-mortem` - Extract lessons, propose CLAUDE.md updates
 
@@ -107,7 +107,7 @@ New-Item -ItemType SymbolicLink -Path "$env:USERPROFILE\.claude\skills" -Target 
     ├── defining-specs/                  # Behavioral spec generator
     ├── defining-test-scenarios/         # Test scenario expander
     ├── reviewing-code-quality/          # Code quality scorer
-    ├── verifying-implementation/        # Adversarial testing
+    ├── stress-testing/                  # Adversarial testing
     ├── committing-changes/              # Atomic commit splitter
     └── conducting-post-mortem/          # Lesson extractor
 ```
@@ -200,7 +200,7 @@ Installed once, available everywhere. These are the "tools that build tools":
     ├── defining-specs/              # Behavioral Spec Generator
     ├── defining-test-scenarios/     # Test Scenario Expander
     ├── reviewing-code-quality/      # Code Quality Scorer
-    ├── verifying-implementation/    # Adversarial Testing
+    ├── stress-testing/              # Adversarial Testing
     ├── committing-changes/          # Atomic Commit Splitter
     └── conducting-post-mortem/      # Lesson Extractor
 ```
@@ -312,7 +312,7 @@ The DevOps agent focuses exclusively on infrastructure configuration — never a
 ### Adversarial Verification
 
 ```bash
-claude -p "/verifying-implementation src/auth/login.ts"
+claude -p "/stress-testing src/auth/login.ts"
 ```
 
 Generates property-based tests with 100+ random inputs using `hypothesis` (Python), `fast-check` (JS), or `proptest` (Rust) to find edge cases the builder missed.

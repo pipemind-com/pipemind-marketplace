@@ -89,7 +89,7 @@ Skills are invoked as slash commands in the main Claude Code session:
 # Utility skills (can pass arguments)
 /committing-changes
 /conducting-post-mortem tasks/completed/001-auth.md
-/verifying-implementation src/auth/login.ts
+/stress-testing src/auth/login.ts
 /reviewing-code-quality
 /defining-specs
 /defining-test-scenarios

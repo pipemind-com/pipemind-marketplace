@@ -20,7 +20,7 @@ Global Factory (~/.claude/)          Local Products (.claude/agents/)
 │   defining-specs/          │       ┌──────────────────────────────┐
 │   defining-test-scenarios/ │       │ CLAUDE.md  (project context) │
 │   reviewing-code-quality/  │       │ docs/      (progressive detail│
-│   verifying-implementation/│       └──────────────────────────────┘
+│   stress-testing/          │       └──────────────────────────────┘
 │   committing-changes/      │
 │   conducting-post-mortem/  │
 └────────────────────────────┘
@@ -62,7 +62,7 @@ user_level_settings/skills/
 ├── defining-specs/              # Utility: behavioral specs from PRDs
 ├── defining-test-scenarios/     # Utility: granular test scenarios from specs
 ├── reviewing-code-quality/      # Utility: 6-axis code quality review
-├── verifying-implementation/    # Utility: adversarial property-based tests
+├── stress-testing/              # Utility: adversarial property-based tests
 ├── committing-changes/          # Utility: split git changes into atomic commits
 └── conducting-post-mortem/      # Utility: extract lessons, update CLAUDE.md
 ```

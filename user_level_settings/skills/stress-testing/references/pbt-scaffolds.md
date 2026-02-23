@@ -1,6 +1,6 @@
 # Property-Based Testing Scaffolds
 
-Ready-made scaffold templates for the `/verifying-implementation` skill. Use as a deterministic starting point — adapt imports, strategies, and assertions to the function-under-test.
+Ready-made scaffold templates for the `/stress-testing` skill. Use as a deterministic starting point — adapt imports, strategies, and assertions to the function-under-test.
 
 ## Python (hypothesis)
 
