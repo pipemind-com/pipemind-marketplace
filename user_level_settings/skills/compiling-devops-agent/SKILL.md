@@ -1,5 +1,5 @@
 ---
-name: creating-devops-agent
+name: compiling-devops-agent
 description: "Creates lean DevOps agent for infrastructure (50-80 lines). Use when adding an infrastructure/CI-CD specialist to a project's agent workflow."
 user-invocable: true
 argument-hint: "optional: cloud provider (AWS/GCP/Azure) or specific toolchain"

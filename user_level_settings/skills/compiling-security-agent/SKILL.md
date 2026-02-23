@@ -1,5 +1,5 @@
 ---
-name: creating-security-agent
+name: compiling-security-agent
 description: "Creates lean security auditor agent (50-100 lines). Use when adding adversarial red-team security review to a project's agent workflow."
 user-invocable: true
 argument-hint: "optional: compliance standard (e.g. OWASP, SOC2)"

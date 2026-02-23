@@ -1,5 +1,5 @@
 ---
-name: creating-project-settings
+name: initializing-project-settings
 description: "Generates lean CLAUDE.md (~50-100 lines) with progressive disclosure. Use when setting up a new project or when CLAUDE.md is missing or bloated."
 user-invocable: true
 argument-hint: "optional: --focus 'area' to emphasize specific patterns"
@@ -60,7 +60,7 @@ Claude reliably follows ~150 instructions. Claude Code's system prompt uses ~50,
 ## Arguments
 
 - `--focus "area"`: Emphasize specific patterns (e.g., "caching", "auth")
-- Default: Lean CLAUDE.md only. Run `/creating-project-docs` afterward for detailed docs.
+- Default: Lean CLAUDE.md only. Run `/initializing-project-docs` afterward for detailed docs.
 
 ## CLAUDE.md Template (Target: 50-100 lines)
 
@@ -114,7 +114,7 @@ Before specific tasks, read relevant documentation:
 - Testing: `docs/testing.md`
 Read only what's relevant to your current task.
 
-Generate docs with: `/creating-project-docs`
+Generate docs with: `/initializing-project-docs`
 ```
 
 ## The 80% Rule
@@ -127,4 +127,4 @@ Move to `docs/`: detailed deployment steps, comprehensive code style, full archi
 
 Do NOT include: linting rules (use actual linters), what Claude can infer, task-specific instructions (belong in agents), sensitive info (API keys, credentials).
 
-Run `/creating-project-docs` to generate the `docs/` content.
+Run `/initializing-project-docs` to generate the `docs/` content.
