@@ -1,6 +1,6 @@
 ---
 name: conducting-post-mortem
-description: Extracts lessons from task and proposes CLAUDE.md updates
+description: "Extracts lessons from completed task and proposes CLAUDE.md updates. Use at the end of a task session to capture gotchas."
 user-invocable: true
 argument-hint: "none required - reviews current conversation"
 allowed-tools:
@@ -66,3 +66,8 @@ return new Response(JSON.stringify(data), {
 
 **Where to Add**: CLAUDE.md → Supabase → Edge Functions section
 ```
+
+## Error Handling
+
+- **No CLAUDE.md**: WARN — still propose the update content, note that CLAUDE.md needs to be created first
+- **No meaningful gotcha found**: Report "No novel gotchas identified in this session" and stop

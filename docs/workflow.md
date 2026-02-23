@@ -77,7 +77,7 @@ Skills are invoked as slash commands in the main Claude Code session:
 
 ```bash
 # Setup skills
-/creating-claude-settings
+/creating-project-settings
 /creating-project-docs
 
 # Agent factory skills
@@ -130,7 +130,7 @@ TaskGet     → fetch full task description before delegating
 ## Complete Development Lifecycle
 
 ```
-/creating-claude-settings    ← Define project context
+/creating-project-settings    ← Define project context
 /creating-project-docs       ← Generate docs/ reference
 /creating-planner-agent      ← Compile planner for this stack
 /creating-builder-agent      ← Compile builder for this stack

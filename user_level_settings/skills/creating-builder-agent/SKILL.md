@@ -1,6 +1,6 @@
 ---
 name: creating-builder-agent
-description: Creates lean project-specific builder agent (50-100 lines)
+description: "Creates lean project-specific builder agent (50-100 lines). Use when setting up implementation agents for a project's agentic workflow."
 user-invocable: true
 argument-hint: "optional: customization notes or tech stack details"
 allowed-tools:
@@ -169,7 +169,3 @@ When generating code: keep functions pure and isolate side effects at system bou
 - **Full review rubric in builder** → duplication; will drift from the skill
 
 ---
-
-## Integration Context
-
-This skill is a **factory**: it lives at the user level (`~/.claude/skills/`) and produces project-level agents (`<project>/.claude/agents/builder.md`). The generated builder works with a planner agent — planner creates tasks, builder implements them, review skill verifies quality.

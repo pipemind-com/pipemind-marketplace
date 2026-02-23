@@ -1,6 +1,6 @@
 ---
 name: verifying-implementation
-description: Generates adversarial property-based tests to prove code is broken
+description: "Generates adversarial property-based tests to prove code is broken. Use after implementing a function to find edge cases and boundary failures."
 user-invocable: true
 argument-hint: "optional: specific function or module to test"
 allowed-tools:
@@ -29,7 +29,7 @@ This skill will generate and execute comprehensive adversarial tests to find edg
 
 ## Process
 
-**1. Analyze**: Look at the "Requirements" and "Algorithm Constraints" in the current task or specified function.
+**1. Analyze**: Look at the "Requirements" and "Algorithm Constraints" in the current task or specified function. If no function-under-test can be identified from the argument or context, report: "No target function found. Provide a file path or function name." and stop.
 
 **2. Identify Invariants**: Determine what mathematical or logical properties must *always* hold true:
    - Examples: "Output length == Input length", "Transaction sum == 0", "Result is sorted"
@@ -41,7 +41,7 @@ This skill will generate and execute comprehensive adversarial tests to find edg
    - Massive arrays (performance/memory check)
    - Edge cases specific to the algorithm
 
-**4. Produce Test Script**: Write a **standalone** verification script in `tmp/` that uses **Property-Based Testing**:
+**4. Produce Test Script**: Write a **standalone** verification script in `tmp/` using Property-Based Testing. Start from the scaffold in `references/pbt-scaffolds.md` for the detected language.
    - Python: Use `hypothesis` library
    - JavaScript/TypeScript: Use `fast-check` library
    - Rust: Use `proptest` or `quickcheck`

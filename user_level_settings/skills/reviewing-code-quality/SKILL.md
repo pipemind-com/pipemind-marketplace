@@ -1,6 +1,6 @@
 ---
 name: reviewing-code-quality
-description: Structured code quality review across 6 axes (purity, testability, abstraction, readability, docs, robustness)
+description: "Structured code quality review across 6 axes. Use to review code for purity, testability, abstraction, readability, docs, and robustness."
 user-invocable: true
 argument-hint: "code snippet, file path, directory, or glob pattern — optionally with language and context"
 allowed-tools:

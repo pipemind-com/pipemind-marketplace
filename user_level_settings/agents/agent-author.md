@@ -44,7 +44,7 @@ Invoke the appropriate skill, or create directly for custom needs.
 
 | Skill | Purpose |
 |-------|---------|
-| `/creating-claude-settings` | Generate lean CLAUDE.md (50-100 lines) |
+| `/creating-project-settings` | Generate lean CLAUDE.md (50-100 lines) |
 | `/creating-project-docs` | Generate docs/ for progressive disclosure |
 
 **Agent factory skills (create project-level agents):**

@@ -45,7 +45,7 @@ In any git repository with Claude Code:
 
 ```bash
 # 1. Generate CLAUDE.md (lean project context)
-/creating-claude-settings
+/creating-project-settings
 
 # 2. Generate docs/ (progressive disclosure)
 /creating-project-docs

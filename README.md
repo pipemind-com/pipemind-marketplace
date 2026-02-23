@@ -16,7 +16,7 @@ This system has a **two-tier architecture**:
 **The Factory** (12 skills + 1 meta-agent):
 
 Setup & documentation:
-- `/creating-claude-settings` - Generate lean CLAUDE.md (50-100 lines)
+- `/creating-project-settings` - Generate lean CLAUDE.md (50-100 lines)
 - `/creating-project-docs` - Generate `docs/` for progressive disclosure
 
 Agent compilers:
@@ -98,7 +98,7 @@ New-Item -ItemType SymbolicLink -Path "$env:USERPROFILE\.claude\skills" -Target 
 ├── agents/
 │   └── agent-author.md                  # Meta-agent (creates other agents)
 └── skills/
-    ├── creating-claude-settings/        # CLAUDE.md generator
+    ├── creating-project-settings/        # CLAUDE.md generator
     ├── creating-project-docs/           # docs/ generator
     ├── creating-planner-agent/          # Planner compiler
     ├── creating-builder-agent/          # Builder compiler
@@ -124,7 +124,7 @@ New-Item -ItemType SymbolicLink -Path "$env:USERPROFILE\.claude\skills" -Target 
 Navigate to your project and invoke each skill in order:
 
 ```
-/creating-claude-settings     → Lean CLAUDE.md (project context, 50-100 lines)
+/creating-project-settings     → Lean CLAUDE.md (project context, 50-100 lines)
         ↓
 /creating-project-docs        → Detailed docs/ (architecture, workflow, tech-stack, getting-started)
         ↓
@@ -148,7 +148,7 @@ Ready for agentic workflow!
 
 ### What Each Step Does
 
-**`/creating-claude-settings`** — Analyzes your codebase (tech stack, directory structure, config files, conventions) and generates a lean `CLAUDE.md` following the 80% rule: only instructions relevant to 80%+ of sessions.
+**`/creating-project-settings`** — Analyzes your codebase (tech stack, directory structure, config files, conventions) and generates a lean `CLAUDE.md` following the 80% rule: only instructions relevant to 80%+ of sessions.
 
 **`/creating-project-docs`** — Generates detailed documentation that agents read on-demand:
 - `docs/index.md` - Documentation overview and reading order
@@ -191,7 +191,7 @@ Installed once, available everywhere. These are the "tools that build tools":
 ├── agents/
 │   └── agent-author.md              # The Meta-Agent
 └── skills/
-    ├── creating-claude-settings/    # CLAUDE.md Generator
+    ├── creating-project-settings/    # CLAUDE.md Generator
     ├── creating-project-docs/       # docs/ Generator
     ├── creating-planner-agent/      # Planner Compiler
     ├── creating-builder-agent/      # Builder Compiler
@@ -387,7 +387,7 @@ Skills must have correct directory structure:
 **Skill says "CLAUDE.md not found"**
 
 You're running skills out of order. Follow the sequence:
-1. `/creating-claude-settings` first (creates `CLAUDE.md`)
+1. `/creating-project-settings` first (creates `CLAUDE.md`)
 2. `/creating-project-docs` second (creates `docs/`)
 3. Agent compilers last (they reference both)
 
@@ -407,7 +407,7 @@ Update `CLAUDE.md` with the correct framework, re-run `/creating-project-docs`, 
 
 **Planner doesn't understand architecture**
 
-Check that `CLAUDE.md` and `docs/architecture.md` accurately describe your project. Re-run `/creating-claude-settings` and `/creating-project-docs` if needed.
+Check that `CLAUDE.md` and `docs/architecture.md` accurately describe your project. Re-run `/creating-project-settings` and `/creating-project-docs` if needed.
 
 ### Verification Commands
 

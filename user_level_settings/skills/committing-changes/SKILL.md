@@ -1,6 +1,6 @@
 ---
 name: committing-changes
-description: Splits all git changes into atomic commits of related changes
+description: "Splits all git changes into atomic commits of related changes. Use when you have uncommitted work ready to commit."
 user-invocable: true
 argument-hint: "none required - analyzes current working tree"
 allowed-tools:

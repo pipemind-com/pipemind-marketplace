@@ -15,7 +15,7 @@ Global Factory (~/.claude/)          Local Products (.claude/agents/)
 │                            │       │ security.md (red team audit) │
 │ skills/                    │       │ devops.md   (infra/CI/CD)    │
 │   creating-*-agent/ ×4     │       └──────────────────────────────┘
-│   creating-claude-settings/│
+│   creating-project-settings/│
 │   creating-project-docs/   │              ↑ references
 │   defining-specs/          │       ┌──────────────────────────────┐
 │   defining-test-scenarios/ │       │ CLAUDE.md  (project context) │
@@ -31,7 +31,7 @@ Global Factory (~/.claude/)          Local Products (.claude/agents/)
 | Component | Responsibility | Location |
 |-----------|---------------|----------|
 | `agent-author` | Meta-agent; guides creation of all other agents and skills | `user_level_settings/agents/agent-author.md` |
-| Setup skills | Generate CLAUDE.md and docs/ for any project | `creating-claude-settings/`, `creating-project-docs/` |
+| Setup skills | Generate CLAUDE.md and docs/ for any project | `creating-project-settings/`, `creating-project-docs/` |
 | Agent factory skills | Compile project-specific planner/builder/security/devops agents | `creating-*-agent/` ×4 |
 | Utility skills | Code quality, property tests, atomic commits, post-mortem | remaining 5 skills |
 | CLAUDE.md | Single source of truth for a project's architecture and patterns | project root |
@@ -53,7 +53,7 @@ Global Factory (~/.claude/)          Local Products (.claude/agents/)
 
 ```
 user_level_settings/skills/
-├── creating-claude-settings/    # Setup: generate lean CLAUDE.md
+├── creating-project-settings/    # Setup: generate lean CLAUDE.md
 ├── creating-project-docs/       # Setup: generate docs/ with progressive disclosure
 ├── creating-planner-agent/      # Factory: task planning agent
 ├── creating-builder-agent/      # Factory: implementation agent
@@ -74,7 +74,7 @@ User installs factory:
   user_level_settings/ ──symlink/copy──► ~/.claude/
 
 User bootstraps a project:
-  /creating-claude-settings  → CLAUDE.md
+  /creating-project-settings  → CLAUDE.md
   /creating-project-docs     → docs/
   /creating-planner-agent    → .claude/agents/planner.md
   /creating-builder-agent    → .claude/agents/builder.md

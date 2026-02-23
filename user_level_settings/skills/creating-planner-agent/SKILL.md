@@ -1,6 +1,6 @@
 ---
 name: creating-planner-agent
-description: Creates lean project-specific planner agent (50-100 lines)
+description: "Creates lean project-specific planner agent (50-100 lines). Use when setting up task planning for a project's agentic workflow."
 user-invocable: true
 argument-hint: "optional: customization notes or task template preferences"
 allowed-tools:
@@ -173,7 +173,3 @@ Out: [what NOT to touch]
 - **Quality check only tests specificity, not design quality** → planner will produce detailed but architecturally flawed plans
 
 ---
-
-## Integration Context
-
-This skill is a **factory**: it lives at the user level (`~/.claude/skills/`) and produces project-level agents (`<project>/.claude/agents/planner.md`). The generated planner works with a builder agent — planner creates task descriptions with all design decisions made, builder implements them and runs the `/reviewing-code-quality` skill as a verification gate.
