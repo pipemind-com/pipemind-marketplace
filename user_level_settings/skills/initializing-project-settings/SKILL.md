@@ -43,14 +43,15 @@ Claude reliably follows ~150 instructions. Claude Code's system prompt uses ~50,
    - Identify essential commands (build, test, run)
 
 **4. Generate Lean CLAUDE.md** (~50-100 lines):
-   1. **Project Context** (2-3 sentences) — what this is
-   2. **About This Project** (tech stack, 2-3 sentences)
-   3. **Key Directories** (5-8 items max)
-   4. **Commands** (essential only)
-   5. **Standards** (critical conventions only)
-   6. **Notes** (gotchas, warnings)
-   7. **Workflow** (conditional — only if planner/builder agents exist)
-   8. **Additional Documentation** — references to `docs/` files
+   1. **Mission Statement** (1 sentence, bold) — why this project exists and who it serves; anchors every coding, speccing, and architecture decision
+   2. **Project Context** (2-3 sentences) — what this is
+   3. **About This Project** (tech stack, 2-3 sentences)
+   4. **Key Directories** (5-8 items max)
+   5. **Commands** (essential only)
+   6. **Standards** (critical conventions only)
+   7. **Notes** (gotchas, warnings)
+   8. **Workflow** (conditional — only if planner/builder agents exist)
+   9. **Additional Documentation** — references to `docs/` files
 
 **5. Validation**:
    - Verify under 100 lines
@@ -67,7 +68,9 @@ Claude reliably follows ~150 instructions. Claude Code's system prompt uses ~50,
 ```markdown
 # Project Context
 
-Brief philosophy (1-2 sentences).
+**Mission:** One sentence — what the project does and who it serves.
+
+Brief context (1-2 sentences).
 
 ## About This Project
 
