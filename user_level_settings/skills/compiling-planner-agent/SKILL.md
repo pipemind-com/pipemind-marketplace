@@ -101,6 +101,7 @@ allowed-tools:
   - Grep
   - Bash
 model: sonnet
+color: purple
 ---
 
 # Planner Agent
