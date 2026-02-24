@@ -67,7 +67,7 @@ Present the decomposition to user via AskUserQuestion for confirmation. Adjust i
 
 ### Pass 1 — Parallel Planning
 
-Spawn planner subagents via the `Task` tool with `subagent_type: "planner"`. The compiled planner agent carries its own instructions — only pass task-specific context in the prompt:
+Spawn planner subagents via the `Task` tool with `subagent_type: general-purpose`, beginning the prompt with `@"planner (agent)"` — this routes to the compiled planner agent with its full identity. Only pass task-specific context in the rest of the prompt:
 
 Each planner prompt includes:
 - Contents of `CLAUDE.md` as project context
@@ -104,7 +104,7 @@ Then create the task graph:
 1. Call `TaskList` to identify all currently unblocked pending tasks
 2. For each unblocked task, call `TaskUpdate` to `in_progress` and `TaskGet` to retrieve its planner output — do these prep calls in parallel too
 3. Check each for file conflicts with already-running builders
-4. **In a single response, emit one `Task` call per non-conflicting builder** — this launches them all concurrently. Never serialize builders that could run in parallel.
+4. **In a single response, emit one `Task` call per non-conflicting builder** — this launches them all concurrently. Never serialize builders that could run in parallel. Each Task call must use `subagent_type: general-purpose` and begin the prompt with `@"builder (agent)"` so Claude Code routes it to the compiled builder agent.
 
 ### Completion Handling
 

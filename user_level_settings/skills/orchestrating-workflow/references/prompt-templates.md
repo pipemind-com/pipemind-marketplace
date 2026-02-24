@@ -1,57 +1,59 @@
 # Prompt Templates
 
-Templates for injecting project-specific context into Task subagents. The orchestrator reads these templates and fills in the `{placeholders}` before passing to the Task tool prompt.
+Reference for how the orchestrator should construct prompts when spawning planner and builder subagents via the `Task` tool.
 
-## Planner Subagent Prompt
-
-```
-You are a planner agent for this project. Follow these instructions:
-
-{contents of .claude/agents/planner.md}
-
-Project context:
-{contents of CLAUDE.md}
-
-Available documentation:
-{list of docs/ files that exist}
-
-Your sub-task:
-Title: {sub-task title}
-Scope: {sub-task scope description}
-Likely files: {list of likely files}
-
-Dependencies context:
-{list of predecessor sub-tasks with their scope descriptions}
-{completed plans of predecessor dependencies, if available}
-
-Constraints:
-- Plan ONLY the sub-task above — do not plan work belonging to other sub-tasks
-- Reference existing patterns found in the codebase
-- If a dependency plan is provided above, ensure your plan is compatible with its interfaces
-
-Return your plan using the Output Format defined in the planner instructions above.
-```
-
-## Builder Subagent Prompt
+## Spawning a Planner
 
 ```
-You are a builder agent. Follow these instructions:
+Task(
+  subagent_type: general-purpose,
+  description: "Plan <sub-task title>",
+  prompt: |
+    @"planner (agent)"
 
-{contents of .claude/agents/builder.md}
+    Project context:
+    {contents of CLAUDE.md}
 
-Project context:
-{contents of CLAUDE.md}
+    Available documentation:
+    {list of docs/ files that exist}
 
-Your task:
-{full planner output from TaskGet description}
+    Your sub-task:
+    Title: {sub-task title}
+    Scope: {sub-task scope description}
+    Likely files: {list of likely files}
 
-Constraints:
-- Implement ONLY what the plan specifies — no extra features or refactoring
-- Run tests after implementation
-- If blocked by a missing dependency or unclear requirement, report the blocker clearly instead of guessing
+    Dependencies context:
+    {list of predecessor sub-tasks with their scope descriptions}
+    {completed plans of predecessor dependencies, if available}
 
-Return your status using the Output Format defined in the builder instructions above.
+    Constraints:
+    - Plan ONLY the sub-task above — do not plan work belonging to other sub-tasks
+    - Reference existing patterns found in the codebase
+    - If a dependency plan is provided above, ensure your plan is compatible with its interfaces
+)
 ```
+
+## Spawning a Builder
+
+```
+Task(
+  subagent_type: general-purpose,
+  description: "Build <task title>",
+  prompt: |
+    @"builder (agent)"
+
+    {full planner output from TaskGet description}
+
+    Constraints:
+    - Implement ONLY what the plan specifies — no extra features or refactoring
+    - Run only tests relevant to your changes (parallel builders share the environment)
+    - If blocked by a missing dependency or unclear requirement, report the blocker clearly instead of guessing
+)
+```
+
+## Why `@"agent (agent)"` syntax
+
+Claude Code resolves `@"<name> (agent)"` references at the start of a Task prompt to the compiled agent at `.claude/agents/<name>.md`, instantiating it with its full identity (color, model, tools, system prompt). Using `subagent_type: "planner"` or `subagent_type: "builder"` does NOT work — the Task tool only accepts built-in type names. The `@` reference in the prompt is the correct mechanism for project-level agents.
 
 ## Decomposition Summary
 
