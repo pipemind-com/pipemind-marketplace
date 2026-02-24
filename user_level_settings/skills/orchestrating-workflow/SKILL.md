@@ -33,11 +33,7 @@ Before anything else, verify all prerequisites exist. FAIL and stop if any are m
 3. `.claude/agents/builder.md` exists — if not: "Run `/compiling-builder-agent` first"
 4. Feature description was provided as argument — if not: "Provide a feature description, spec file path, or issue URL"
 
-Once verified, read and cache these files for injection into subagent prompts:
-- `CLAUDE.md`
-- `.claude/agents/planner.md`
-- `.claude/agents/builder.md`
-- List available `docs/*.md` files (for reference in planner prompts)
+Once verified, read `CLAUDE.md` and list available `docs/*.md` files — these will be passed as context to subagents.
 
 ## Phase 1: Requirements Gathering
 
@@ -71,16 +67,15 @@ Present the decomposition to user via AskUserQuestion for confirmation. Adjust i
 
 ### Pass 1 — Parallel Planning
 
-For each sub-task, spawn a planner subagent via the `Task` tool with `subagent_type: Plan`. Use the planner prompt template from `references/prompt-templates.md`.
+Spawn planner subagents via the `Task` tool with `subagent_type: "planner"`. The compiled planner agent carries its own instructions — only pass task-specific context in the prompt:
 
-Each planner receives:
-- Contents of `.claude/agents/planner.md` as instructions
+Each planner prompt includes:
 - Contents of `CLAUDE.md` as project context
 - List of available `docs/` files
 - Sub-task title and scope
 - Dependency context: predecessor sub-task scopes and their completed plans (if available)
 
-Launch all **independent** sub-tasks in parallel. For **dependent** sub-tasks, wait for predecessor plans to complete first, then include those plans as additional context.
+**Emit all independent planner Task calls in a single response** — multiple tool calls in one message run concurrently. Never launch planners one at a time. Only wait for a predecessor's plan to finish before launching a dependent sub-task, then immediately launch that dependent planner.
 
 ### Pass 2 — Reconciliation
 
@@ -106,18 +101,14 @@ Then create the task graph:
 
 ### Launch Loop
 
-1. Call `TaskList` to find unblocked pending tasks
-2. For each unblocked task:
-   a. `TaskUpdate` to `in_progress`
-   b. `TaskGet` to retrieve full planner output from description
-   c. Verify no in-progress builder is modifying the same files (conflict guard)
-   d. Spawn builder subagent via `Task` with `subagent_type: general-purpose`
-3. Use the builder prompt template from `references/prompt-templates.md`
-4. Launch all unblocked, non-conflicting builders in parallel
+1. Call `TaskList` to identify all currently unblocked pending tasks
+2. For each unblocked task, call `TaskUpdate` to `in_progress` and `TaskGet` to retrieve its planner output — do these prep calls in parallel too
+3. Check each for file conflicts with already-running builders
+4. **In a single response, emit one `Task` call per non-conflicting builder** — this launches them all concurrently. Never serialize builders that could run in parallel.
 
 ### Completion Handling
 
-- **Builder completes successfully** → `TaskUpdate` to `completed`, call `TaskList` for newly unblocked tasks, launch them
+- **Builder completes successfully** → `TaskUpdate` to `completed`, call `TaskList` to find all newly unblocked tasks, **launch them all in a single response**
 - **Builder reports blocked** → pause, surface to user via AskUserQuestion: "Builder for '{task}' is blocked: {reason}" with options: Provide guidance / Skip task / Abort all
 - **Builder fails** → same pause-and-ask pattern with options: Retry with guidance / Skip task / Abort all
 
@@ -153,3 +144,4 @@ Stop and reassess if any of these occur:
 - Builders are launching without planner output (every builder needs a plan)
 - No user confirmation happened before building phase (always confirm decomposition first)
 - A failure is being silently swallowed (always surface errors to the user)
+- Agents are being launched one at a time when multiple are unblocked (always batch into a single response)
