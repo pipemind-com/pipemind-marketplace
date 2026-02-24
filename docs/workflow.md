@@ -110,10 +110,10 @@ TaskGet     → fetch full task description before delegating
 
 **Example orchestration sequence:**
 1. `TaskCreate` with feature description
-2. Spawn planner agent → receives task description via prompt
+2. Spawn planner: `Task(subagent_type: general-purpose, prompt: "@\"planner (agent)\"\n\n{task description}")`
 3. Planner returns task file path
 4. `TaskUpdate` status to `in_progress`
-5. Spawn builder agent → receives task file path
+5. Spawn builder: `Task(subagent_type: general-purpose, prompt: "@\"builder (agent)\"\n\n{planner output}")`
 6. Builder returns completion status
 7. `TaskUpdate` status to `completed`
 
@@ -160,6 +160,14 @@ This replaces the manual sequence of spawning individual planner and builder age
 5. **Reports** completion status with files modified and test results
 
 Use `/orchestrating-workflow` when a feature spans multiple files or components and benefits from parallel execution. For single-file changes, the manual planner → builder pattern above is simpler.
+
+## Gotchas
+
+**Spawning project-level agents via Task tool**: Using `subagent_type: "planner"` or `subagent_type: "builder"` does NOT work — the Task tool only accepts built-in type names (Bash, general-purpose, Explore, Plan, etc.). To instantiate a compiled project agent with its full identity (color, model, tools), use `subagent_type: general-purpose` and begin the prompt with `@"planner (agent)"` or `@"builder (agent)"`. Claude Code resolves the `@"<name> (agent)"` reference to `.claude/agents/<name>.md`.
+
+**Compiled agents need `color` in frontmatter**: Without a `color` field in the agent's YAML frontmatter, the agent runs correctly but shows no colored tag in the UI. The `compiling-planner-agent` and `compiling-builder-agent` skills include `color: purple` and `color: blue` respectively in their templates.
+
+**Parallel = multiple Task calls in one response**: Sending two `Task` tool calls in the same response runs them concurrently. Sending them in separate responses serializes them. Always batch all unblocked agents into a single response.
 
 ## Cross-References
 
