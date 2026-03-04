@@ -1,6 +1,6 @@
 ---
-name: initializing-project-docs
-description: "Generates docs/ for progressive disclosure from CLAUDE.md. Use after /initializing-project-settings to create detailed reference documentation that agents load on demand."
+name: compiling-project-docs
+description: "Generates docs/ for progressive disclosure from CLAUDE.md. Use after /compiling-project-settings to create detailed reference documentation that agents load on demand."
 user-invocable: true
 argument-hint: "optional: 'include: topic1, topic2; skip: topic3' or 'full' for all topics"
 allowed-tools:
@@ -17,13 +17,13 @@ color: blue
 
 Generates `docs/` directory with detailed documentation serving as **progressive disclosure** from your lean CLAUDE.md. CLAUDE.md stays at 50-100 lines; `docs/` holds the detail agents load on demand.
 
-**Run `/initializing-project-settings` first**, then this skill to generate the docs it references.
+**Run `/compiling-project-settings` first**, then this skill to generate the docs it references.
 
 ## When Invoked
 
 **1. Pre-Flight Validation**:
    - Verify git repository (FAIL if not)
-   - Check `CLAUDE.md` exists (WARN if missing — suggest `/initializing-project-settings`)
+   - Check `CLAUDE.md` exists (WARN if missing — suggest `/compiling-project-settings`)
    - Create `docs/` directory if needed
    - Parse user arguments for include/skip overrides
 
@@ -133,6 +133,6 @@ For detailed per-document content requirements, see `references/doc-templates.md
 ## Error Handling
 
 - **Not a git repo**: FAIL with message to run `git init`
-- **No CLAUDE.md**: WARN, proceed with degraded context, recommend `/initializing-project-settings`
+- **No CLAUDE.md**: WARN, proceed with degraded context, recommend `/compiling-project-settings`
 - **Placeholder text detected**: Report as validation failure
 - **Under 50% of target line count**: Flag for manual review

@@ -76,9 +76,12 @@ export const authMiddleware = ...
 Skills are invoked as slash commands in the main Claude Code session:
 
 ```bash
-# Setup skills
-/initializing-project-settings
-/initializing-project-docs
+# Full project compilation (one command)
+/compiling-agentic-workflow
+
+# Or individual compilation steps
+/compiling-project-settings
+/compiling-project-docs
 
 # Agent factory skills
 /compiling-planner-agent
@@ -130,10 +133,7 @@ TaskGet     → fetch full task description before delegating
 ## Complete Development Lifecycle
 
 ```
-/initializing-project-settings    ← Define project context
-/initializing-project-docs       ← Generate docs/ reference
-/compiling-planner-agent      ← Compile planner for this stack
-/compiling-builder-agent      ← Compile builder for this stack
+/compiling-agentic-workflow   ← Full project compilation (or run steps individually below)
         ↓
 claude --agent planner       ← Design: write task files
 claude --agent builder       ← Build: implement + test

@@ -40,12 +40,13 @@ Based on answers, determine configuration:
 ### 3. Generate
 Invoke the appropriate skill, or create directly for custom needs.
 
-**Setup & documentation skills:**
+**Project compilation skills:**
 
 | Skill | Purpose |
 |-------|---------|
-| `/initializing-project-settings` | Generate lean CLAUDE.md (50-100 lines) |
-| `/initializing-project-docs` | Generate docs/ for progressive disclosure |
+| `/compiling-agentic-workflow` | Full project compilation (CLAUDE.md + docs/ + planner + builder) |
+| `/compiling-project-settings` | Generate lean CLAUDE.md (50-100 lines) |
+| `/compiling-project-docs` | Generate docs/ for progressive disclosure |
 
 **Agent factory skills (create project-level agents):**
 

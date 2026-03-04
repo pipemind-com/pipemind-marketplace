@@ -28,7 +28,7 @@ Coordinates planner and builder agents to implement multi-part features. The orc
 
 Before anything else, verify all prerequisites exist. FAIL and stop if any are missing:
 
-1. `CLAUDE.md` exists in project root — if not: "Run `/initializing-project-settings` first"
+1. `CLAUDE.md` exists in project root — if not: "Run `/compiling-project-settings` first"
 2. `.claude/agents/planner.md` exists — if not: "Run `/compiling-planner-agent` first"
 3. `.claude/agents/builder.md` exists — if not: "Run `/compiling-builder-agent` first"
 4. Feature description was provided as argument — if not: "Provide a feature description, spec file path, or issue URL"
@@ -132,8 +132,9 @@ Test Results: 12 passed, 0 failed
 Issues: Task #3 skipped (user decision)
 ```
 
+Then run `/committing-changes of the changes we implemented` to create atomic commits
+
 Suggest next steps:
-- `/committing-changes` to create atomic commits
 - `/conducting-post-mortem` to capture lessons learned
 
 ## Red Flags

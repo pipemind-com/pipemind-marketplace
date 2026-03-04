@@ -2,7 +2,7 @@
 
 > **AI Context Summary**: Install the factory once per machine by symlinking or copying
 > `user_level_settings/` to `~/.claude/`. Then bootstrap any project by invoking the
-> initializing-* and compiling-* skills inside that project. Symlinks are preferred—`git pull` propagates
+> compiling-* skills inside that project. Symlinks are preferred—`git pull` propagates
 > factory updates automatically. Requires Claude Code CLI and a git repository.
 
 ## Prerequisites
@@ -28,7 +28,7 @@ cp -r user_level_settings/skills ~/.claude/
 
 # Verify
 ls ~/.claude/agents/agent-author.md          # meta-agent
-ls ~/.claude/skills/*/SKILL.md               # 13 skills
+ls ~/.claude/skills/*/SKILL.md               # 14 skills
 ```
 
 **Windows (PowerShell):**
@@ -44,19 +44,21 @@ New-Item -ItemType SymbolicLink -Path "$env:USERPROFILE\.claude\skills" `
 In any git repository with Claude Code:
 
 ```bash
-# 1. Generate CLAUDE.md (lean project context)
-/initializing-project-settings
+# One command to compile everything
+/compiling-agentic-workflow
 
-# 2. Generate docs/ (progressive disclosure)
-/initializing-project-docs
-
-# 3. Compile project-specific agents
-/compiling-planner-agent
-/compiling-builder-agent
-
-# Optional specialized agents
+# Optional specialized agents (add after)
 /compiling-security-agent
 /compiling-devops-agent
+```
+
+Or run each step individually:
+
+```bash
+/compiling-project-settings    # 1. Generate CLAUDE.md
+/compiling-project-docs        # 2. Generate docs/
+/compiling-planner-agent       # 3. Compile planner
+/compiling-builder-agent       # 4. Compile builder
 ```
 
 Each skill analyzes the codebase and generates files tailored to the tech stack.

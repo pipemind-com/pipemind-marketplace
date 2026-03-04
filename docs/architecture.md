@@ -1,7 +1,7 @@
 # Architecture
 
 > **AI Context Summary**: Two-tier markdown/YAML system with no runtime dependencies. **Factory tier**
-> (`user_level_settings/` → `~/.claude/`) holds the meta-agent and 13 skills installed once per machine.
+> (`user_level_settings/` → `~/.claude/`) holds the meta-agent and 14 skills installed once per machine.
 > **Product tier** (`.claude/agents/`) holds project-specific agents compiled by the factory for each
 > codebase. Agents reference CLAUDE.md and `docs/` for project context—never duplicate content across files.
 
@@ -15,8 +15,9 @@ Global Factory (~/.claude/)          Local Products (.claude/agents/)
 │                            │       │ security.md (red team audit) │
 │ skills/                    │       │ devops.md   (infra/CI/CD)    │
 │   compiling-*-agent/ ×4    │       └──────────────────────────────┘
-│   initializing-project-settings/│
-│   initializing-project-docs/   │              ↑ references
+│   compiling-agentic-workflow/│
+│   compiling-project-settings/│
+│   compiling-project-docs/   │              ↑ references
 │   defining-specs/          │       ┌──────────────────────────────┐
 │   defining-test-scenarios/ │       │ CLAUDE.md  (project context) │
 │   reviewing-code-quality/  │       │ docs/      (progressive detail│
@@ -31,7 +32,7 @@ Global Factory (~/.claude/)          Local Products (.claude/agents/)
 | Component | Responsibility | Location |
 |-----------|---------------|----------|
 | `agent-author` | Meta-agent; guides creation of all other agents and skills | `user_level_settings/agents/agent-author.md` |
-| Setup skills | Generate CLAUDE.md and docs/ for any project | `initializing-project-settings/`, `initializing-project-docs/` |
+| Project compilation skills | Generate CLAUDE.md and docs/ for any project | `compiling-project-settings/`, `compiling-project-docs/` |
 | Agent factory skills | Compile project-specific planner/builder/security/devops agents | `compiling-*-agent/` ×4 |
 | Orchestration skill | Multi-task planner/builder pipeline | `orchestrating-workflow/` |
 | Utility skills | Code quality, property tests, atomic commits, post-mortem | remaining 4 skills |
@@ -54,8 +55,9 @@ Global Factory (~/.claude/)          Local Products (.claude/agents/)
 
 ```
 user_level_settings/skills/
-├── initializing-project-settings/    # Setup: generate lean CLAUDE.md
-├── initializing-project-docs/       # Setup: generate docs/ with progressive disclosure
+├── compiling-agentic-workflow/      # Orchestrator: full project compilation
+├── compiling-project-settings/      # Compilation: generate lean CLAUDE.md
+├── compiling-project-docs/          # Compilation: generate docs/ with progressive disclosure
 ├── compiling-planner-agent/         # Factory: task planning agent
 ├── compiling-builder-agent/         # Factory: implementation agent
 ├── compiling-security-agent/        # Factory: red-team security auditor
@@ -76,8 +78,9 @@ User installs factory:
   user_level_settings/ ──symlink/copy──► ~/.claude/
 
 User bootstraps a project:
-  /initializing-project-settings  → CLAUDE.md
-  /initializing-project-docs     → docs/
+  /compiling-agentic-workflow  → CLAUDE.md + docs/ + planner + builder (or individually below)
+  /compiling-project-settings  → CLAUDE.md
+  /compiling-project-docs     → docs/
   /compiling-planner-agent    → .claude/agents/planner.md
   /compiling-builder-agent    → .claude/agents/builder.md
 
