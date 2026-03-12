@@ -90,7 +90,7 @@ Skills are invoked as slash commands in the main Claude Code session:
 /compiling-devops-agent
 
 # Utility skills (can pass arguments)
-/committing-changes
+/git-commit-changes
 /conducting-post-mortem tasks/completed/001-auth.md
 /stress-testing src/auth/login.ts
 /reviewing-code-quality
@@ -137,7 +137,7 @@ TaskGet     → fetch full task description before delegating
         ↓
 claude --agent planner       ← Design: write task files
 claude --agent builder       ← Build: implement + test
-/committing-changes          ← Commit: atomic git commits
+/git-commit-changes          ← Commit: atomic git commits
 claude --agent security      ← Audit: find vulnerabilities
 claude --agent devops        ← Deploy: infra configuration
 /conducting-post-mortem      ← Learn: improve CLAUDE.md

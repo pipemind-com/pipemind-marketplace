@@ -63,7 +63,7 @@ Invoke the appropriate skill, or create directly for custom needs.
 |-------|---------|
 | `/reviewing-code-quality` | Score code against 10 Golden Rules |
 | `/stress-testing` | Adversarial property-based tests |
-| `/committing-changes` | Split git changes into atomic commits |
+| `/git-commit-changes` | Split git changes into atomic commits |
 | `/conducting-post-mortem` | Extract lessons, propose CLAUDE.md updates |
 
 ### 4. Validate

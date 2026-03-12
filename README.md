@@ -36,7 +36,7 @@ Orchestration:
 Utility skills:
 - `/reviewing-code-quality` - Score code against 6 quality axes
 - `/stress-testing` - Adversarial property-based tests
-- `/committing-changes` - Split git changes into atomic commits
+- `/git-commit-changes` - Split git changes into atomic commits
 - `/conducting-post-mortem` - Extract lessons, propose CLAUDE.md updates
 
 Meta-agent:
@@ -113,7 +113,7 @@ New-Item -ItemType SymbolicLink -Path "$env:USERPROFILE\.claude\skills" -Target 
     ├── defining-test-scenarios/         # Test scenario expander
     ├── reviewing-code-quality/          # Code quality scorer
     ├── stress-testing/                  # Adversarial testing
-    ├── committing-changes/              # Atomic commit splitter
+    ├── git-commit-changes/              # Atomic commit splitter
     ├── conducting-post-mortem/          # Lesson extractor
     └── orchestrating-workflow/          # Multi-task orchestrator
 ```
@@ -216,7 +216,7 @@ Installed once, available everywhere. These are the "tools that build tools":
     ├── defining-test-scenarios/     # Test Scenario Expander
     ├── reviewing-code-quality/      # Code Quality Scorer
     ├── stress-testing/              # Adversarial Testing
-    ├── committing-changes/          # Atomic Commit Splitter
+    ├── git-commit-changes/          # Atomic Commit Splitter
     ├── conducting-post-mortem/      # Lesson Extractor
     └── orchestrating-workflow/      # Multi-Task Orchestrator
 ```

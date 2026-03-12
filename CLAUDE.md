@@ -35,7 +35,7 @@ ln -sf "$(pwd)/user_level_settings/skills" ~/.claude/skills
 
 ## Notes
 
-- NEVER add `Co-Authored-By` lines to commits (explicitly forbidden in `committing-changes` skill)
+- NEVER add `Co-Authored-By` lines to commits (explicitly forbidden in `git-commit-changes` skill)
 - Symlinks are preferred over copying—`git pull` then propagates updates to all machines automatically
 - When adding a new skill, place it under `user_level_settings/skills/<gerund-name>/SKILL.md`
 - Skills listed in `system-reminder` are live; changes take effect immediately without restart

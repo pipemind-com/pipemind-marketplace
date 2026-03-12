@@ -132,7 +132,7 @@ Test Results: 12 passed, 0 failed
 Issues: Task #3 skipped (user decision)
 ```
 
-Then run `/committing-changes of the changes we implemented` to create atomic commits
+Then run `/git-commit-changes of the changes we implemented` to create atomic commits
 
 Suggest next steps:
 - `/conducting-post-mortem` to capture lessons learned

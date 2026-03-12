@@ -22,7 +22,7 @@ Global Factory (~/.claude/)          Local Products (.claude/agents/)
 │   defining-test-scenarios/ │       │ CLAUDE.md  (project context) │
 │   reviewing-code-quality/  │       │ docs/      (progressive detail│
 │   stress-testing/          │       └──────────────────────────────┘
-│   committing-changes/      │
+│   git-commit-changes/      │
 │   conducting-post-mortem/  │
 └────────────────────────────┘
 ```
@@ -67,7 +67,7 @@ user_level_settings/skills/
 ├── orchestrating-workflow/          # Orchestration: multi-task planner/builder pipeline
 ├── reviewing-code-quality/          # Utility: 6-axis code quality review
 ├── stress-testing/                  # Utility: adversarial property-based tests
-├── committing-changes/              # Utility: split git changes into atomic commits
+├── git-commit-changes/              # Utility: split git changes into atomic commits
 └── conducting-post-mortem/          # Utility: extract lessons, update CLAUDE.md
 ```
 
@@ -87,7 +87,7 @@ User bootstraps a project:
 User runs workflow:
   claude --agent planner  → reads CLAUDE.md → writes task file
   claude --agent builder  → reads task file → implements + tests
-  /committing-changes     → splits staged changes into atomic commits
+  /git-commit-changes     → splits staged changes into atomic commits
   /conducting-post-mortem → proposes CLAUDE.md improvements
 ```
 
@@ -97,7 +97,7 @@ User runs workflow:
 - **80% rule**: every agent instruction must apply to 80%+ of sessions; move niche content to `docs/`
 - **File size**: agents 50-100 lines, skills 100-200 lines
 - **Names**: agents = kebab-case nouns (`code-reviewer`), skills = gerunds (`reviewing-code`)
-- **No Co-Authored-By** lines in commits (explicitly forbidden in `committing-changes` skill)
+- **No Co-Authored-By** lines in commits (explicitly forbidden in `git-commit-changes` skill)
 
 ## Cross-References
 
