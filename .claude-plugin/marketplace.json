@@ -9,7 +9,7 @@
     {
       "name": "pm-workflow",
       "source": "./plugins/pm-workflow",
-      "version": "1.0.0",
+      "version": "1.0.1",
       "description": "Agentic workflow factory — compile project-specific planners, builders, and specialist agents for any codebase."
     },
     {
