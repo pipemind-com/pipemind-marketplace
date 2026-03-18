@@ -79,7 +79,11 @@ jq --arg name "$PLUGIN" --arg version "$NEW_VERSION" \
   "$MARKETPLACE_JSON" > "_marketplace.json"
 mv "_marketplace.json" "$MARKETPLACE_JSON"
 
-git add "$MARKETPLACE_JSON"
+jq --arg version "$NEW_VERSION" '.version = $version' \
+  "$PLUGIN_JSON" > "_plugin.json"
+mv "_plugin.json" "$PLUGIN_JSON"
+
+git add "$MARKETPLACE_JSON" "$PLUGIN_JSON"
 git commit -m "chore: release $PLUGIN v$NEW_VERSION"
 git tag "$TAG"
 git push

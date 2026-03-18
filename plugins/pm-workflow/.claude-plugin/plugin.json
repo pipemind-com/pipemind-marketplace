@@ -1,28 +1,9 @@
 {
-  "agents": [
-    "agent-author"
-  ],
-  "author": {
-    "email": "support@pipemind.com",
-    "name": "Pipemind Technologies Inc."
-  },
-  "dependencies": [],
-  "description": "Agentic workflow factory — compile project-specific planners, builders, and specialist agents for any codebase.",
   "name": "pm-workflow",
-  "skills": [
-    "compiling-agentic-workflow",
-    "compiling-builder-agent",
-    "compiling-devops-agent",
-    "compiling-planner-agent",
-    "compiling-project-docs",
-    "compiling-project-settings",
-    "compiling-security-agent",
-    "conducting-post-mortem",
-    "defining-specs",
-    "defining-test-scenarios",
-    "git-commit-changes",
-    "orchestrating-workflow",
-    "reviewing-code-quality",
-    "stress-testing"
-  ]
+  "version": "1.0.1",
+  "description": "Agentic workflow factory — compile project-specific planners, builders, and specialist agents for any codebase.",
+  "author": {
+    "name": "Pipemind Technologies Inc.",
+    "email": "support@pipemind.com"
+  }
 }

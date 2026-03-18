@@ -1,6 +1,11 @@
 {
   "name": "rust-lsp",
+  "version": "0.1.0",
   "description": "Rust LSP configuration using rust-analyzer.",
+  "author": {
+    "email": "support@pipemind.com",
+    "name": "Pipemind Technologies Inc."
+  },
   "agents": [],
   "skills": [],
   "dependencies": []

@@ -1,6 +1,11 @@
 {
   "name": "typescript-lsp",
+  "version": "0.1.0",
   "description": "TypeScript/JavaScript LSP configuration using typescript-language-server.",
+  "author": {
+    "email": "support@pipemind.com",
+    "name": "Pipemind Technologies Inc."
+  },
   "agents": [],
   "skills": [],
   "dependencies": []
