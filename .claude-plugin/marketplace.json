@@ -1,0 +1,16 @@
+{
+  "name": "claude-marketplace",
+  "description": "Marketplace of Claude Code plugins — agents and skills installable into ~/.claude/",
+  "owner": {
+    "name": "pipemind-com",
+    "email": ""
+  },
+  "plugins": [
+    {
+      "name": "pm-workflow",
+      "source": "./plugins/pm-workflow",
+      "version": "1.0.0",
+      "description": "Agentic workflow factory — compile project-specific planners, builders, and specialist agents for any codebase."
+    }
+  ]
+}

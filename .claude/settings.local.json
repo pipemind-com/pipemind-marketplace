@@ -9,5 +9,8 @@
       "Bash(cd:*)",
       "Bash(git:*)"
     ]
+  },
+  "enabledPlugins": {
+    "superpowers@claude-plugins-official": true
   }
 }
