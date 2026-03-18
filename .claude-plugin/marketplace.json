@@ -21,7 +21,7 @@
     {
       "name": "rust-lsp",
       "source": "./plugins/rust-lsp",
-      "version": "0.1.0",
+      "version": "0.1.1",
       "description": "Rust LSP configuration using rust-analyzer."
     }
   ]
