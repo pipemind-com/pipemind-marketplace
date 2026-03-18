@@ -1,6 +1,6 @@
 {
   "name": "pm-workflow",
-  "version": "1.0.1",
+  "version": "1.0.2",
   "description": "Agentic workflow factory — compile project-specific planners, builders, and specialist agents for any codebase.",
   "author": {
     "name": "Pipemind Technologies Inc.",
