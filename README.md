@@ -1,4 +1,4 @@
-# claude-marketplace
+# agentic-marketplace
 
 A marketplace of Claude Code plugins. The flagship plugin, **pm-workflow**, is a self-replicating agentic workflow factory that treats **agent definitions as software that must be compiled** for specific project contexts.
 
@@ -55,7 +55,7 @@ Meta-agent:
 ### Unix/Mac/Linux
 
 ```bash
-cd /path/to/claude-marketplace
+cd /path/to/agentic-marketplace
 
 # Symlink (recommended — git pull auto-updates)
 ./install.sh pm-workflow --symlink
@@ -71,7 +71,7 @@ ls ~/.claude/skills/         # Should show: 14 skill directories
 ### Windows (PowerShell)
 
 ```powershell
-cd C:\path\to\claude-marketplace
+cd C:\path\to\agentic-marketplace
 
 Copy-Item -Recurse plugins\pm-workflow\agents $env:USERPROFILE\.claude\
 Copy-Item -Recurse plugins\pm-workflow\skills $env:USERPROFILE\.claude\

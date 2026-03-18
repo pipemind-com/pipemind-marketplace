@@ -1,5 +1,5 @@
 {
-  "name": "claude-marketplace",
+  "name": "agentic-marketplace",
   "description": "Marketplace of Claude Code plugins — agents and skills installable into ~/.claude/",
   "owner": {
     "name": "pipemind-com",

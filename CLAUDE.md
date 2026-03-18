@@ -1,6 +1,6 @@
 # Project Context
 
-This repo is the **claude-marketplace**: a collection of Claude Code plugins (agents + skills) installable into `~/.claude/`. Each plugin lives under `plugins/<name>/` and is self-contained.
+This repo is the **agentic-marketplace**: a collection of Claude Code plugins (agents + skills) installable into `~/.claude/`. Each plugin lives under `plugins/<name>/` and is self-contained.
 
 ## About This Project
 
