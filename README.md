@@ -11,18 +11,15 @@ A marketplace of Claude Code plugins. Install plugins once globally (`~/.claude/
 ## Installation
 
 ```bash
-# Symlink (recommended — git pull auto-updates)
-./install.sh pm-workflow --symlink
+# Marketplace
+claude plugin marketplace add pipemind-com/agentic-marketplace
 
-# Copy
-./install.sh pm-workflow
+# Plugins
+claude plugin install pm-workflow@agentic-marketplace
+claude plugin install rust-lsp@agentic-marketplace
+claude plugin install typescript-lsp@agentic-marketplace
 ```
 
-## Adding a Plugin
-
-1. Create `plugins/<plugin-name>/` with `plugin.json`, `agents/`, `skills/`, `docs/`
-2. Add an entry to `marketplace.json`
-3. `install.sh` picks it up automatically
 
 ## Support
 
