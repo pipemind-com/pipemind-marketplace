@@ -1,0 +1,6 @@
+{
+  "eval_id": 1,
+  "eval_name": "role-management",
+  "prompt": "Write a spec for this:\n\nUser Role Management — PRD v0.3\n\nWe need to support multiple user roles within organizations. Currently we have 'admin' and 'member' but we want custom roles that admins can define. Custom roles have configurable permissions. Users can hold multiple roles simultaneously. When roles grant conflicting permissions (one grants access, another denies), a resolution rule is needed.\n\nPermissions in scope: read-only access to reports, ability to invite new members, ability to manage billing, ability to create/delete workspaces.\n\nAudit trail: all permission changes must be logged with actor and timestamp.\n\nThe role system needs to interoperate with our existing SSO integration. SSO-provisioned users may have roles assigned externally.",
+  "assertions": []
+}

@@ -1,0 +1,7 @@
+{
+  "name": "typescript-lsp",
+  "description": "TypeScript/JavaScript LSP configuration using typescript-language-server.",
+  "agents": [],
+  "skills": [],
+  "dependencies": []
+}

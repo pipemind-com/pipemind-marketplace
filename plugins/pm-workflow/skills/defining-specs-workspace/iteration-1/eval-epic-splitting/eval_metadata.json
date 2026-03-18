@@ -1,0 +1,6 @@
+{
+  "eval_id": 2,
+  "eval_name": "epic-splitting",
+  "prompt": "Create behavioral requirements for our Q2 milestone:\n\nMilestone 4: Growth Platform\n\nOnboarding\n- Self-serve signup with email verification\n- Guided setup wizard (workspace name, logo, invite teammates)\n- Sample data seeding for new workspaces\n- Onboarding checklist with progress tracking\n- In-app welcome tour\n\nBilling & Subscriptions\n- Free tier with usage limits\n- Pro and Enterprise plans\n- Stripe integration for card payments\n- Invoice generation and download\n- Usage metering and overage billing\n- Subscription upgrades/downgrades mid-cycle\n- Cancellation flow with retention offer\n\nTeam Management\n- Invite members via email\n- Remove members (with data ownership transfer)\n- Transfer workspace ownership\n- Member activity log\n\nNotifications\n- Email digests (daily/weekly)\n- In-app notification center\n- Slack integration for alerts\n- Notification preferences per user",
+  "assertions": []
+}

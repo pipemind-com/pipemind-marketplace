@@ -1,0 +1,6 @@
+{
+  "eval_id": 0,
+  "eval_name": "comment-review",
+  "prompt": "Spec this out:\n\nFeature Request: Product Review System\n\nUsers need to be able to leave reviews on products they've purchased. A review consists of a star rating (1–5) and optional written text. Reviews are visible to all site visitors on the product detail page. Only users who have completed an order containing that product can submit a review. Users can edit or delete their own reviews. Admins can remove any review without explanation. A product's average rating and review count are displayed on the product listing and detail pages.",
+  "assertions": []
+}

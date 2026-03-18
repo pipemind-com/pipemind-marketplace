@@ -24,6 +24,5 @@
     "orchestrating-workflow",
     "reviewing-code-quality",
     "stress-testing"
-  ],
-  "version": "1.0.0"
+  ]
 }

@@ -1,0 +1,29 @@
+{
+  "skill_name": "defining-specs",
+  "evals": [
+    {
+      "id": 0,
+      "eval_name": "comment-review",
+      "prompt": "Spec this out:\n\nFeature Request: Product Review System\n\nUsers need to be able to leave reviews on products they've purchased. A review consists of a star rating (1–5) and optional written text. Reviews are visible to all site visitors on the product detail page. Only users who have completed an order containing that product can submit a review. Users can edit or delete their own reviews. Admins can remove any review without explanation. A product's average rating and review count are displayed on the product listing and detail pages.",
+      "expected_output": "A behavioral spec file with GIVEN-WHEN-THEN scenarios, feature IDs, system constraints, assumption tags, and failure scenarios. Questions asked after writing, not before.",
+      "files": [],
+      "assertions": []
+    },
+    {
+      "id": 1,
+      "eval_name": "role-management",
+      "prompt": "Write a spec for this:\n\nUser Role Management — PRD v0.3\n\nWe need to support multiple user roles within organizations. Currently we have 'admin' and 'member' but we want custom roles that admins can define. Custom roles have configurable permissions. Users can hold multiple roles simultaneously. When roles grant conflicting permissions (one grants access, another denies), a resolution rule is needed.\n\nPermissions in scope: read-only access to reports, ability to invite new members, ability to manage billing, ability to create/delete workspaces.\n\nAudit trail: all permission changes must be logged with actor and timestamp.\n\nThe role system needs to interoperate with our existing SSO integration. SSO-provisioned users may have roles assigned externally.",
+      "expected_output": "A behavioral spec with GIVEN-WHEN-THEN, feature IDs, assumption tags for the conflict resolution rule and SSO behavior. Followed by max 4 questions with criticality prefixes and at least one [EXPLORATION] question.",
+      "files": [],
+      "assertions": []
+    },
+    {
+      "id": 2,
+      "eval_name": "epic-splitting",
+      "prompt": "Create behavioral requirements for our Q2 milestone:\n\nMilestone 4: Growth Platform\n\nOnboarding\n- Self-serve signup with email verification\n- Guided setup wizard (workspace name, logo, invite teammates)\n- Sample data seeding for new workspaces\n- Onboarding checklist with progress tracking\n- In-app welcome tour\n\nBilling & Subscriptions\n- Free tier with usage limits\n- Pro and Enterprise plans\n- Stripe integration for card payments\n- Invoice generation and download\n- Usage metering and overage billing\n- Subscription upgrades/downgrades mid-cycle\n- Cancellation flow with retention offer\n\nTeam Management\n- Invite members via email\n- Remove members (with data ownership transfer)\n- Transfer workspace ownership\n- Member activity log\n\nNotifications\n- Email digests (daily/weekly)\n- In-app notification center\n- Slack integration for alerts\n- Notification preferences per user",
+      "expected_output": "Epic split presented (4 epics identified), epic selection presented via question rather than writing an index file, then a spec for one selected epic with proper filename including epic slug.",
+      "files": [],
+      "assertions": []
+    }
+  ]
+}

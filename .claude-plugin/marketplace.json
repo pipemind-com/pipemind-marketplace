@@ -11,6 +11,18 @@
       "source": "./plugins/pm-workflow",
       "version": "1.0.0",
       "description": "Agentic workflow factory — compile project-specific planners, builders, and specialist agents for any codebase."
+    },
+    {
+      "name": "typescript-lsp",
+      "source": "./plugins/typescript-lsp",
+      "version": "0.0.0",
+      "description": "TypeScript/JavaScript LSP configuration using typescript-language-server."
+    },
+    {
+      "name": "rust-lsp",
+      "source": "./plugins/rust-lsp",
+      "version": "0.0.0",
+      "description": "Rust LSP configuration using rust-analyzer."
     }
   ]
 }
