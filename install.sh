@@ -14,7 +14,7 @@ if [[ -z "$PLUGIN" ]]; then
   echo "Available plugins:"
   for dir in plugins/*/; do
     name=$(basename "$dir")
-    desc=$(jq -r '.description' "$dir/plugin.json" 2>/dev/null || echo "(no description)")
+    desc=$(jq -r '.description' "$dir/.claude-plugin/plugin.json" 2>/dev/null || echo "(no description)")
     echo "  $name — $desc"
   done
   exit 1
@@ -22,8 +22,8 @@ fi
 
 PLUGIN_DIR="plugins/$PLUGIN"
 
-if [[ ! -f "$PLUGIN_DIR/plugin.json" ]]; then
-  echo "Error: plugin '$PLUGIN' not found (missing $PLUGIN_DIR/plugin.json)"
+if [[ ! -f "$PLUGIN_DIR/.claude-plugin/plugin.json" ]]; then
+  echo "Error: plugin '$PLUGIN' not found (missing $PLUGIN_DIR/.claude-plugin/plugin.json)"
   exit 1
 fi
 
