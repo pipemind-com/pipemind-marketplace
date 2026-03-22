@@ -23,6 +23,12 @@
       "source": "./plugins/rust-lsp",
       "version": "0.1.1",
       "description": "Rust LSP configuration using rust-analyzer."
+    },
+    {
+      "name": "scientific-method",
+      "source": "./plugins/scientific-method",
+      "version": "0.1.0",
+      "description": "Domain-agnostic scientific method research loop: collaboratively refine problems, then autonomously generate and test hypotheses until solved."
     }
   ]
 }
