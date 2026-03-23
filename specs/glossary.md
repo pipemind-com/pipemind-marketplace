@@ -129,3 +129,15 @@ A stable identifier assigned to each source in `references.md`. Sequential, neve
 
 **Findings**
 The terminal output of the research loop (`findings.md`). Written when the loop exits — either because a hypothesis was confirmed and satisfies success criteria, or because MAX_ITERATIONS was reached.
+
+**Novelty Scale**
+A 3-level assessment applied to confirmed experiment results: `novel` (no prior art found), `incremental` (extends or improves on prior work), `replication` (reproduces known findings). Only `replication` can block a solution from satisfying the "solved" condition when `Novelty required: yes` is set in `problem.md`.
+
+**Publishability Assessment**
+A structured evaluation in `findings.md` covering rigor, novelty, and significance. Produces a verdict: `publishable`, `publishable-with-revisions`, or `not-publishable`. Non-publishable verdicts include actionable suggestions.
+
+**Dual-Track Search**
+The literature research strategy requiring two search passes per topic: one filtered post-hoc to the last 3 years (recency track) and one unfiltered (landmark track). Both tracks apply the same quality gate.
+
+**Quality Gate (Literature)**
+The source inclusion filter that prefers peer-reviewed articles, conference papers, and technical reports while silently dropping blog posts, opinion pieces, and low-signal web content. Prioritizes depth over breadth.

@@ -12,10 +12,14 @@
 - **SC-03**: Hypothesis numbering must be globally sequential across all iterations. Once `hypothesis-03.md` exists, the next hypothesis is always `hypothesis-04.md`, regardless of which iteration created it. Hypothesis filenames are immutable once created — no skill may rename or renumber an existing hypothesis file. This preserves the integrity of artifact paths recorded in Results sections.
 - **SC-04**: Every literature source must receive a stable REF-NNN identifier in `references.md`. Skills reference sources by these IDs. IDs must never be reused or reassigned.
 - **SC-05**: Experiment results must record what was actually observed, not what was expected. Fabricated or simulated results are prohibited. If an experiment cannot be executed, the result must be `not-runnable` with an explanation.
-- **SC-06**: The research loop must terminate after at most 5 full iterations (Steps A through F). On termination, `findings.md` must be written regardless of outcome.
+- **SC-06**: The research loop must terminate after at most 5 full iterations (Steps A through F) per invocation. On termination, `findings.md` must be written regardless of outcome. The operator can re-invoke `/researching` to start a new 5-iteration session that resumes from existing state.
 - **SC-07**: Each skill must operate on a single problem directory. All file reads and writes are scoped to that directory. Skills must not read or modify files outside the problem directory (except reading their own skill instructions).
 - **SC-08**: Parallel sub-agents must be independent. No hypothesis refinement, experiment, or conclusion agent may read or modify another hypothesis's file.
 - **SC-09**: Experiment artifacts (code files, downloaded datasets, analysis outputs) must be written to `<problem-dir>/experiments/<hypothesis-slug>/` exclusively by the `/running-experiments` skill. `/designing-experiments` writes nothing to `experiments/`. Each hypothesis gets its own subdirectory, ensuring parallel agents never collide. Artifact files are numbered globally and sequentially per hypothesis across all iterations (`exp1.py`, `exp2.py`, …) — the extension matches the language or format chosen by the running agent based on hypothesis context (e.g., `.py`, `.sh`, `.js`, `.csv`). Numbers never reset and existing files are never overwritten. The `Results` section of the hypothesis file must include a line `**Artifact:** experiments/<hypothesis-slug>/exp<N>.<ext>` for every file written, so readers can locate artifacts without scanning the directory. The hypothesis file remains the sole authoritative state checkpoint; the orchestrator never reads `experiments/` for resume detection. If an experiment produces no persistent artifact (math-proof, logical-deduction, inline evidence-gathering), nothing is written to `experiments/`. Fetched literature content continues to go to `references/` as always. Failed experiments (non-zero exit, import error) leave their artifact in place — the artifact is evidence, not a success signal. **Safety invariant**: experiment code must not write files outside `<problem-dir>/` and must not spawn persistent background processes; any experiment that would require doing so must be recorded as `not-runnable`.
+
+- **SC-10**: Literature sources must meet a quality bar before inclusion in `references.md`. Prefer peer-reviewed journal articles, conference papers, and established technical reports. Actively exclude blog posts, opinion pieces, press releases, and low-signal web pages unless no higher-quality source exists for a critical claim. A smaller set of authoritative sources is always preferred over a padded list — 5 high-quality sources outweigh 10 mediocre ones. Every included source must earn its place by directly advancing understanding of the topic.
+- **SC-11**: Literature search must use a dual-track strategy: one search pass filtered to the last 3 years to capture cutting-edge work, and one unfiltered pass to surface landmark papers that define the field. Both tracks contribute to `references.md`. The `Year` field on each entry lets downstream agents distinguish recent from foundational sources.
+- **SC-12**: Experiment results must meet publication-grade rigor: reproducible methodology, clearly documented procedure, honest reporting of all outcomes (including negative results), and appropriate statistical treatment where quantitative data is involved. Novelty relative to existing literature is desirable and should be assessed, but is not always achievable — rigor is the non-negotiable floor.
 
 ## Features
 
@@ -24,17 +28,17 @@
 **F-01.1: Initial problem setup (happy path)**
 - **GIVEN** an operator with a rough problem statement and a problem slug
 - **WHEN** the operator invokes `/refining-problem` with the slug and description
-- **THEN** a problem directory is created, background literature research agents are launched in parallel, and the operator is asked their first refinement question
+- **THEN** a problem directory is created, background `/researching-literature` agents are launched in parallel (inheriting dual-track search and quality gate from F-07), and the operator is asked their first refinement question
 
 **F-01.2: Background literature informs refinement**
-- **GIVEN** background research agents are running while the operator answers questions
+- **GIVEN** background `/researching-literature` agents are running while the operator answers questions
 - **WHEN** the agents complete and return findings
-- **THEN** relevant findings are surfaced in subsequent questions to the operator, not dumped as a raw list
+- **THEN** relevant findings are surfaced in subsequent questions to the operator, not dumped as a raw list. Sources are written to `references.md` following the same quality and recency standards as all other literature research
 
 **F-01.3: Operator confirms problem statement**
 - **GIVEN** a draft `problem.md` has been written after 3-5 questions
 - **WHEN** the operator confirms the problem statement
-- **THEN** `problem.md` is finalized and the skill exits, signaling readiness for the autonomous loop
+- **THEN** `problem.md` is finalized — including a `Novelty required: yes/no` field that the operator sets — and the skill exits, signaling readiness for the autonomous loop. The novelty field determines whether the orchestrator (F-08) requires a novel solution or accepts replications as valid solutions. Once confirmed, `problem.md` fields including the novelty requirement are immutable for the duration of the research session
 
 **F-01.4: Operator requests adjustments**
 - **GIVEN** a draft `problem.md` has been presented
@@ -87,7 +91,7 @@
 **F-03.1: Literature-backed refinement (happy path)**
 - **GIVEN** a hypothesis file exists with status `pending` and no `## Literature` section
 - **WHEN** `/refining-hypothesis` is invoked on that file
-- **THEN** three parallel literature searches are launched (claim, mechanism, counterexamples), and the hypothesis file is expanded with supporting evidence, challenges, and a refined statement
+- **THEN** three lightweight parallel searches are launched (1-2 queries each for claim, mechanism, counterexamples), followed by one full dual-track `/researching-literature` invocation to fill gaps in coverage. All searches inherit the quality gate from F-07. The hypothesis file is expanded with supporting evidence, challenges, and a refined statement. All sources flow through `references.md` with REF-NNN IDs
 
 **F-03.2: Literature resolves hypothesis without experiments**
 - **GIVEN** a hypothesis file exists with status `pending`
@@ -111,7 +115,7 @@
 **F-04.1: Design experiments for a refined hypothesis (happy path)**
 - **GIVEN** a hypothesis file has a `## Literature` section, no `## Experiments` section, and status `pending` or `inconclusive`
 - **WHEN** `/designing-experiments` is invoked
-- **THEN** 1-3 experiment paths are appended to the hypothesis file, each specifying type, approach, confirmation criteria, refutation criteria, and confidence level; no files are written to `experiments/`
+- **THEN** 1-3 experiment paths are appended to the hypothesis file, each specifying type, approach, confirmation criteria, refutation criteria, confidence level, and a `**Publishability potential:**` note assessing whether this experiment, if successful, could yield a novel contribution relative to the prior art in the Literature section. When multiple experiment types are equally valid for testing the hypothesis, the design should lean toward the type with higher publishability potential — but never sacrifice scientific validity for publishability. No files are written to `experiments/`
 
 **F-04.2: Hypothesis already resolved by literature (skip)**
 - **GIVEN** a hypothesis file has status `confirmed` or `refuted`
@@ -162,6 +166,16 @@
 - **WHEN** the result is recorded
 - **THEN** the artifact file is retained, the Results section records the full error output and the artifact path, outcome is `inconclusive` or `not-runnable` as appropriate, and the failure is not treated as evidence against the hypothesis unless the failure itself is informative
 
+**F-05.5c: Publication-grade rigor in results**
+- **GIVEN** an experiment has been executed and results are being recorded
+- **WHEN** the `#### Results` section is written
+- **THEN** the methodology is documented clearly enough to be reproduced, all outcomes are reported honestly (including negative or unexpected results), quantitative data includes appropriate statistical context, and the evidence assessment distinguishes between what was observed and what was inferred
+
+**F-05.5d: Novelty assessment with targeted search**
+- **GIVEN** an experiment produces a `confirmed` outcome and the hypothesis file has a `## Literature` section
+- **WHEN** the result is recorded
+- **THEN** 1-2 targeted WebSearches are run comparing the confirmed result against existing published solutions (e.g., querying for the specific method or finding). The Results section includes a `**Novelty:**` tag using a 3-level scale: `novel` (no prior art found for this result), `incremental` (extends or improves on prior work), or `replication` (reproduces known findings). Only the `replication` tag signals the orchestrator (F-08) that the result may not satisfy success criteria when `Novelty required: yes` is set in `problem.md`. The novelty comparison cites any newly discovered prior art by URL. If the literature section has fewer than 3 sources, the novelty search is especially important to avoid false novelty claims
+
 **F-05.6: Early exit on decisive result**
 - **GIVEN** an experiment produces a `confirmed` or `refuted` outcome with `strong` evidence
 - **WHEN** subsequent experiments remain pending in the same hypothesis
@@ -201,6 +215,16 @@
 - **WHEN** `/drawing-conclusions` is invoked
 - **THEN** the verdict is `inconclusive` with a note that the hypothesis could not be tested with available tools
 
+**F-06.4a: Rigor assessment in every conclusion**
+- **GIVEN** a conclusion is being written for any verdict
+- **WHEN** the conclusion section is appended
+- **THEN** it includes a `**Rigor:**` assessment noting whether the evidence meets publication-grade standards: reproducibility of methodology, honesty of reporting, appropriate statistical treatment, and any methodological limitations
+
+**F-06.4b: Novelty note for confirmed hypotheses**
+- **GIVEN** a hypothesis receives a `confirmed` verdict
+- **WHEN** the conclusion section is written
+- **THEN** it includes a `**Novelty:**` note assessing whether the confirmed result reproduces existing knowledge or contributes something new relative to the literature reviewed in the hypothesis file
+
 **F-06.5: Status line updated to match verdict**
 - **GIVEN** a conclusion has been written
 - **WHEN** the conclusion step completes
@@ -208,10 +232,20 @@
 
 ### F-07: Literature Research | MUST
 
-**F-07.1: Source discovery and bibliography (happy path)**
+**F-07.1: Dual-track source discovery (happy path)**
 - **GIVEN** a topic query and a problem directory
 - **WHEN** `/researching-literature` is invoked
-- **THEN** 3-5 web searches are conducted from different angles, up to 10 new sources are evaluated, and relevant sources are appended to `references.md` with sequential REF-NNN IDs, metadata, and relevance summaries
+- **THEN** two search tracks run: (1) a recency track targeting cutting-edge work, and (2) a landmark track targeting foundational papers. Both tracks use standard queries without date operators — recency is determined post-hoc by extracting the publication year from each fetched source and filtering to the last 3 years for the recency track. Across both tracks, 4-6 web searches are conducted from different angles, candidate sources are evaluated for quality, and only authoritative sources are appended to `references.md` with sequential REF-NNN IDs, metadata, and relevance summaries
+
+**F-07.1a: Quality gate on source inclusion**
+- **GIVEN** candidate sources have been found by searches
+- **WHEN** each source is evaluated for inclusion
+- **THEN** peer-reviewed journal articles, conference papers, and established technical reports are preferred. Blog posts, opinion pieces, press releases, and low-signal web pages are silently dropped — they do not appear in `references.md` and no log of excluded sources is kept. The final reference list prioritizes depth over breadth — 5 authoritative sources are preferred over 10 mediocre ones
+
+**F-07.1b: Recency and landmark balance**
+- **GIVEN** both search tracks have returned results
+- **WHEN** the final source list is assembled
+- **THEN** the list includes both recent work (last 3 years) and older sources where they are relevant. The landmark track applies no special criteria beyond relevance and the quality gate — any older source that directly advances understanding of the topic qualifies. The `Year` field on each entry allows downstream agents to distinguish cutting-edge from foundational sources
 
 **F-07.2: PDF download when available**
 - **GIVEN** a source URL points to a PDF or has a visible PDF download link
@@ -262,6 +296,11 @@
 - **WHEN** Step F assesses the state
 - **THEN** the problem is not considered solved and the loop continues to the next iteration
 
+**F-08.5a: Replication does not satisfy novel-solution criteria (edge case)**
+- **GIVEN** a hypothesis is `confirmed` but its Results section contains `**Novelty: replication**` and `problem.md` has `Novelty required: yes`
+- **WHEN** Step F assesses the state
+- **THEN** the replication is noted as useful context but the problem is not considered solved, and the loop continues to the next iteration seeking a novel or incremental contribution
+
 **F-08.6: Parallel step execution**
 - **GIVEN** multiple hypotheses need the same step (refinement, experiment design, execution, or conclusion)
 - **WHEN** the orchestrator reaches that step
@@ -298,16 +337,21 @@
 **F-10.1: Solved findings (happy path)**
 - **GIVEN** the loop exits because a hypothesis was confirmed and satisfies success criteria
 - **WHEN** `findings.md` is written
-- **THEN** it contains: outcome "solved", solution summary, what was ruled out, open questions, iteration count, and lists of confirmed and refuted hypotheses
+- **THEN** it contains: outcome "solved", solution summary, what was ruled out, open questions, iteration count, lists of confirmed and refuted hypotheses, and a `## Publishability Assessment` section
 
 **F-10.2: Inconclusive findings (termination)**
 - **GIVEN** the loop exits because MAX_ITERATIONS was reached
 - **WHEN** `findings.md` is written
-- **THEN** it contains: outcome "inconclusive after N iterations", what was ruled out, open questions with concrete follow-up directions, iteration count, and lists of confirmed and refuted hypotheses
+- **THEN** it contains: outcome "inconclusive after N iterations", what was ruled out, open questions with concrete follow-up directions, iteration count, lists of confirmed and refuted hypotheses, and a `## Publishability Assessment` section
+
+**F-10.3: Publishability assessment in all findings**
+- **GIVEN** `findings.md` is being written (solved or inconclusive)
+- **WHEN** the `## Publishability Assessment` section is generated
+- **THEN** it evaluates three dimensions: (1) **Rigor** — whether the methodology, evidence collection, and statistical treatment meet publication-grade standards, (2) **Novelty** — whether the results advance beyond what the literature already establishes, distinguishing between `novel` (no prior art), `incremental` (extends prior work), and `replication` (reproduces known findings). Incremental contributions are noted as potentially suitable for workshop papers or short communications, while fully novel contributions may warrant a full paper, (3) **Significance** — whether the findings address a meaningful question with practical or theoretical impact. Each dimension receives a brief assessment. The section concludes with a verdict: `publishable`, `publishable-with-revisions`, or `not-publishable`. For `publishable-with-revisions` and `not-publishable` verdicts, the assessment includes 2-3 concrete, actionable suggestions for improving publishability (e.g., "gather additional data on X", "compare results against <method> from REF-NNN", "narrow scope to <specific aspect> where the contribution is clearest")
 
 ## Open Questions
 
-- OQ-01: Should the operator be able to configure MAX_ITERATIONS per session, or is 5 always the cap?
+- ~~OQ-01~~: Resolved — fixed at 5 per invocation. Operator can re-invoke for another 5-iteration session.
 - OQ-02: Should findings.md include a cost/token summary of the research session?
 - OQ-03: What happens if the operator re-invokes `/refining-problem` after the autonomous loop has already started — should it reset the entire session or only update problem.md?
 
