@@ -2,7 +2,7 @@
 
 **Mission:** Ship a curated marketplace of Claude Code plugins (agents + skills) that any developer can install once globally and use across all their projects.
 
-This repo is the **agentic-marketplace**: self-contained plugins installable into `~/.claude/`. Each plugin lives under `plugins/<name>/` and ships its own agents, skills, and docs.
+This repo is the **pipemind-marketplace**: self-contained plugins installable into `~/.claude/`. Each plugin lives under `plugins/<name>/` and ships its own agents, skills, and docs.
 
 ## About This Project
 

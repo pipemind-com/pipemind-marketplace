@@ -53,7 +53,7 @@ Meta-agent:
 ### Unix/Mac/Linux
 
 ```bash
-cd /path/to/agentic-marketplace
+cd /path/to/pipemind-marketplace
 
 # Symlink (recommended — git pull auto-updates)
 ./install.sh spec-driven-development --symlink
@@ -69,7 +69,7 @@ ls ~/.claude/skills/         # Should show: 14 skill directories
 ### Windows (PowerShell)
 
 ```powershell
-cd C:\path\to\agentic-marketplace
+cd C:\path\to\pipemind-marketplace
 
 Copy-Item -Recurse plugins\spec-driven-development\agents $env:USERPROFILE\.claude\
 Copy-Item -Recurse plugins\spec-driven-development\skills $env:USERPROFILE\.claude\

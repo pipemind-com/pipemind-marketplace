@@ -18,10 +18,10 @@
 ### Native (recommended)
 
 ```bash
-claude plugin marketplace add pipemind-com/agentic-marketplace
-claude plugin install spec-driven-development@agentic-marketplace
-claude plugin install rust-lsp@agentic-marketplace
-claude plugin install typescript-lsp@agentic-marketplace
+claude plugin marketplace add pipemind-com/pipemind-marketplace
+claude plugin install spec-driven-development@pipemind-marketplace
+claude plugin install rust-lsp@pipemind-marketplace
+claude plugin install typescript-lsp@pipemind-marketplace
 ```
 
 ### Manual (via this repo)

@@ -1,4 +1,4 @@
-# agentic-marketplace
+# pipemind-marketplace
 
 A marketplace of Claude Code plugins. Install plugins once globally (`~/.claude/`), then use them across all your projects.
 
@@ -12,12 +12,12 @@ A marketplace of Claude Code plugins. Install plugins once globally (`~/.claude/
 
 ```bash
 # Marketplace
-claude plugin marketplace add pipemind-com/agentic-marketplace
+claude plugin marketplace add pipemind-com/pipemind-marketplace
 
 # Plugins
-claude plugin install spec-driven-development@agentic-marketplace
-claude plugin install rust-lsp@agentic-marketplace
-claude plugin install typescript-lsp@agentic-marketplace
+claude plugin install spec-driven-development@pipemind-marketplace
+claude plugin install rust-lsp@pipemind-marketplace
+claude plugin install typescript-lsp@pipemind-marketplace
 ```
 
 

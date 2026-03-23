@@ -23,7 +23,7 @@
 
 #### F-01.1: Symlink installation succeeds with valid plugin
 
-GIVEN the operator is in the root of the agentic-marketplace repository
+GIVEN the operator is in the root of the pipemind-marketplace repository
 AND `plugins/spec-driven-development/.claude-plugin/plugin.json` exists
 AND `~/.claude/` is writable (or `CLAUDE_DIR` points to a writable directory)
 WHEN the operator runs `./install.sh spec-driven-development --symlink`
@@ -237,8 +237,8 @@ AND skills and agents are still discoverable by Claude Code
 
 #### F-03.9: Symlink breaks if source repository is moved or deleted
 
-GIVEN the factory was installed via symlink from `/path/to/agentic-marketplace`
-WHEN the operator moves or deletes `/path/to/agentic-marketplace`
+GIVEN the factory was installed via symlink from `/path/to/pipemind-marketplace`
+WHEN the operator moves or deletes `/path/to/pipemind-marketplace`
 THEN the symlinks in `~/.claude/` become dangling (point to nonexistent targets)
 AND Claude Code will fail to load the affected skills and agents
 AND the operator must re-install from the new location to restore functionality [ASSUMPTION]

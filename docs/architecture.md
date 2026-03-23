@@ -1,6 +1,6 @@
 # Architecture
 
-> **AI Context Summary**: The agentic-marketplace is a two-tier plugin distribution system with no runtime
+> **AI Context Summary**: The pipemind-marketplace is a two-tier plugin distribution system with no runtime
 > dependencies. The **registry tier** (`.claude-plugin/marketplace.json`) tracks plugin versions and metadata.
 > The **plugin tier** (`plugins/<name>/`) holds self-contained agents, skills, and docs installed into
 > `~/.claude/` via `install.sh`. Two plugin layouts coexist: legacy (`spec-driven-development`, root `plugin.json`) and
@@ -9,7 +9,7 @@
 ## System Overview
 
 ```
-agentic-marketplace/
+pipemind-marketplace/
 ├── .claude-plugin/
 │   └── marketplace.json          ← registry index (source of truth for versions)
 ├── .claude/

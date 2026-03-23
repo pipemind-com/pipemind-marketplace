@@ -1,6 +1,6 @@
 # Documentation Index
 
-Reference documentation for the agentic-marketplace repo. Read `CLAUDE.md` first for project context, then load whichever doc is relevant to your current task.
+Reference documentation for the pipemind-marketplace repo. Read `CLAUDE.md` first for project context, then load whichever doc is relevant to your current task.
 
 ## Documents
 
