@@ -23,7 +23,7 @@ Generates `docs/` directory with detailed documentation serving as **progressive
 
 **1. Pre-Flight Validation**:
    - Verify git repository (FAIL if not)
-   - Check `CLAUDE.md` exists (WARN if missing — suggest `/compiling-project-settings`)
+   - `CLAUDE.md` must exist. If missing, FAIL immediately — do not create any `docs/` files. Direct operator: run `/compiling-project-settings` first.
    - Create `docs/` directory if needed
    - Parse user arguments for include/skip overrides
 
@@ -133,6 +133,6 @@ For detailed per-document content requirements, see `references/doc-templates.md
 ## Error Handling
 
 - **Not a git repo**: FAIL with message to run `git init`
-- **No CLAUDE.md**: WARN, proceed with degraded context, recommend `/compiling-project-settings`
+- **No CLAUDE.md**: FAIL immediately, create no files, direct operator to run `/compiling-project-settings` first
 - **Placeholder text detected**: Report as validation failure
 - **Under 50% of target line count**: Flag for manual review

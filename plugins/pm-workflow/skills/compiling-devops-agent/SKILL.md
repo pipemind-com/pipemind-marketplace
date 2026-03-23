@@ -22,8 +22,8 @@ Creates a project-specific `devops.md` agent (50-80 lines) for infrastructure an
 ## When Invoked
 
 **1. Pre-Flight Validation**:
-   - Check `CLAUDE.md` (WARN if missing — helpful but not required)
-   - Check `.claude/agents/devops.md` (WARN if exists, allow override)
+   - `CLAUDE.md` must exist. If missing, FAIL immediately — do not generate any agent file. Direct operator: run `/compiling-project-settings` first.
+   - If `.claude/agents/devops.md` exists, update it unconditionally; report "updated" (not "created") in the summary.
    - Verify infrastructure files exist
 
 **2. Read Project Context**:

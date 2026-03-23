@@ -34,7 +34,7 @@ Creates a project-specific `planner.md` agent at `.claude/agents/planner.md`.
   ❌ Cannot create planner agent without CLAUDE.md
   Please create CLAUDE.md with: architecture overview, tech stack, project structure, coding standards.
   ```
-- **Check `.claude/agents/planner.md`** — warn if it exists, but allow override.
+- **Check `.claude/agents/planner.md`** — if it exists, update it unconditionally; report "updated" (not "created") in the summary.
 - **Verify CLAUDE.md contains architecture and project context.**
 
 ### 2. Read Project Context

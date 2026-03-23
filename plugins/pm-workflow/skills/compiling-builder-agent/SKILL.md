@@ -34,7 +34,7 @@ Creates a project-specific `builder.md` agent at `.claude/agents/builder.md`.
   ❌ Cannot create builder agent without CLAUDE.md
   Please create CLAUDE.md with: tech stack, architecture overview, coding standards, testing requirements.
   ```
-- **Check `.claude/agents/builder.md`** — warn if it exists, but allow override.
+- **Check `.claude/agents/builder.md`** — if it exists, update it unconditionally; report "updated" (not "created") in the summary.
 - **Verify CLAUDE.md contains tech stack information.**
 
 ### 2. Read Project Context
@@ -49,6 +49,8 @@ Auto-detect from project files (no web fetching):
 - `go.mod` → Go
 
 Cross-reference with CLAUDE.md. Detection supplements what's documented — doesn't override it.
+
+If multiple stacks are detected (e.g., Python backend and JavaScript frontend), include patterns, test commands, and conventions for all detected stacks in the generated agent; organize them by directory context so the builder knows which patterns apply to which part of the codebase.
 
 ### 4. Check for `docs/` References
 Scan for available documentation files (`docs/architecture.md`, `docs/testing.md`, `docs/tech-stack.md`, etc.). Only include references to files that actually exist. If `docs/` is empty or absent, omit the references section — don't point the builder at files that aren't there.

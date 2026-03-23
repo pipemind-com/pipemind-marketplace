@@ -24,7 +24,7 @@ Creates a project-specific `security.md` agent (50-100 lines) acting as an adver
 **1. Pre-Flight Validation**:
    - `CLAUDE.md` must exist (FAIL if missing — required for context)
    - Check `.claude/agents/security.md` (WARN if exists, allow override)
-   - Verify recognizable tech stack
+   - Detect tech stack; if unrecognizable, proceed — generate the agent with the most broadly applicable checks, note that stack-specific tuning was not possible, and recommend manual review
 
 **2. Read Project Context**:
    - Read `CLAUDE.md` for architecture, auth, data flow

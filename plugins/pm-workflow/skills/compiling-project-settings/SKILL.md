@@ -29,7 +29,7 @@ Claude reliably follows ~150 instructions. Claude Code's system prompt uses ~50,
 
 **1. Pre-Flight Validation**:
    - Verify git repository (FAIL if not)
-   - Check if `CLAUDE.md` exists (warn, allow override)
+   - If `CLAUDE.md` exists, update it unconditionally; report "updated" (not "created") in the summary
 
 **2. Codebase Analysis**:
    - Detect tech stack from project files
