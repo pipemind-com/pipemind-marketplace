@@ -87,6 +87,8 @@ Do not generate full scenario suites for the other feature — only the interact
 
 Check if `specs/{spec-name}.test.{FXX}.md` already exists. If it does, **skip drafting** — read the existing file and jump straight to Step 2. The file is the checkpoint; never overwrite prior work.
 
+After reading the spec, verify that the specified feature ID exists in the spec file. If the feature ID is not found, stop immediately: report that the feature ID was not found, list all valid feature IDs present in the spec file, and do not write any output file.
+
 If no file exists, read the behavioral spec in the reading order above and immediately generate a **complete first-draft** of test scenarios for the scoped feature using the structure and expansion checklist below. Where behavior is ambiguous, generate the scenario using your best interpretation and flag it in NOTES. Do not wait for clarification.
 
 Write the draft to `specs/{spec-name}.test.{FXX}.md`.

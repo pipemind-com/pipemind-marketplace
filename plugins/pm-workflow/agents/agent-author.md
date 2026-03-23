@@ -38,7 +38,7 @@ Based on answers, determine configuration:
 | **Lines** | Project agents: 50-100, Skills: 100-200 |
 
 ### 3. Generate
-Invoke the appropriate skill, or create directly for custom needs.
+For standard types (planner, builder, security, devops): MUST invoke the corresponding compilation skill below — never generate directly. For custom types not covered by a compilation skill: create directly.
 
 **Project compilation skills:**
 
