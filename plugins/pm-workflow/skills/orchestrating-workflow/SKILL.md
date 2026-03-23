@@ -110,6 +110,7 @@ Then create the task graph:
 
 - **Builder completes successfully** → `TaskUpdate` to `completed`, call `TaskList` to find all newly unblocked tasks, **launch them all in a single response**
 - **Builder reports blocked** → pause, surface to user via AskUserQuestion: "Builder for '{task}' is blocked: {reason}" with options: Provide guidance / Skip task / Abort all
+- **Builder reports partial completion** (some tests pass, some fail) → re-launch that builder exactly once with a note listing the specific failing tests; if the retry also reports partial or full failure → mark the sub-task `failed` and surface to user via AskUserQuestion: "Builder for '{task}' failed after retry: {reason}" with options: Retry with guidance / Skip task / Abort all
 - **Builder fails** → same pause-and-ask pattern with options: Retry with guidance / Skip task / Abort all
 
 Repeat the launch loop until all tasks are completed, skipped, or aborted.
