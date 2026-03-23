@@ -9,12 +9,13 @@
 
 - **SC-01**: Every skill must be idempotent. Re-running a skill on the same file must detect completed work and skip it. File state is the sole checkpoint — no in-memory state persists across sessions.
 - **SC-02**: After the operator confirms `problem.md`, the autonomous loop must not prompt or block on operator input. The only exception is if MAX_ITERATIONS is reached, at which point the loop exits and reports.
-- **SC-03**: Hypothesis numbering must be globally sequential across all iterations. Once `hypothesis-03.md` exists, the next hypothesis is always `hypothesis-04.md`, regardless of which iteration created it.
+- **SC-03**: Hypothesis numbering must be globally sequential across all iterations. Once `hypothesis-03.md` exists, the next hypothesis is always `hypothesis-04.md`, regardless of which iteration created it. Hypothesis filenames are immutable once created — no skill may rename or renumber an existing hypothesis file. This preserves the integrity of artifact paths recorded in Results sections.
 - **SC-04**: Every literature source must receive a stable REF-NNN identifier in `references.md`. Skills reference sources by these IDs. IDs must never be reused or reassigned.
 - **SC-05**: Experiment results must record what was actually observed, not what was expected. Fabricated or simulated results are prohibited. If an experiment cannot be executed, the result must be `not-runnable` with an explanation.
 - **SC-06**: The research loop must terminate after at most 5 full iterations (Steps A through F). On termination, `findings.md` must be written regardless of outcome.
 - **SC-07**: Each skill must operate on a single problem directory. All file reads and writes are scoped to that directory. Skills must not read or modify files outside the problem directory (except reading their own skill instructions).
 - **SC-08**: Parallel sub-agents must be independent. No hypothesis refinement, experiment, or conclusion agent may read or modify another hypothesis's file.
+- **SC-09**: Experiment artifacts (code files, downloaded datasets, analysis outputs) must be written to `<problem-dir>/experiments/<hypothesis-slug>/` exclusively by the `/running-experiments` skill. `/designing-experiments` writes nothing to `experiments/`. Each hypothesis gets its own subdirectory, ensuring parallel agents never collide. Artifact files are numbered globally and sequentially per hypothesis across all iterations (`exp1.py`, `exp2.py`, …) — the extension matches the language or format chosen by the running agent based on hypothesis context (e.g., `.py`, `.sh`, `.js`, `.csv`). Numbers never reset and existing files are never overwritten. The `Results` section of the hypothesis file must include a line `**Artifact:** experiments/<hypothesis-slug>/exp<N>.<ext>` for every file written, so readers can locate artifacts without scanning the directory. The hypothesis file remains the sole authoritative state checkpoint; the orchestrator never reads `experiments/` for resume detection. If an experiment produces no persistent artifact (math-proof, logical-deduction, inline evidence-gathering), nothing is written to `experiments/`. Fetched literature content continues to go to `references/` as always. Failed experiments (non-zero exit, import error) leave their artifact in place — the artifact is evidence, not a success signal. **Safety invariant**: experiment code must not write files outside `<problem-dir>/` and must not spawn persistent background processes; any experiment that would require doing so must be recorded as `not-runnable`.
 
 ## Features
 
@@ -110,7 +111,7 @@
 **F-04.1: Design experiments for a refined hypothesis (happy path)**
 - **GIVEN** a hypothesis file has a `## Literature` section, no `## Experiments` section, and status `pending` or `inconclusive`
 - **WHEN** `/designing-experiments` is invoked
-- **THEN** 1-3 experiment paths are appended to the hypothesis file, each specifying type, approach, confirmation criteria, refutation criteria, and confidence level
+- **THEN** 1-3 experiment paths are appended to the hypothesis file, each specifying type, approach, confirmation criteria, refutation criteria, and confidence level; no files are written to `experiments/`
 
 **F-04.2: Hypothesis already resolved by literature (skip)**
 - **GIVEN** a hypothesis file has status `confirmed` or `refuted`
@@ -129,7 +130,7 @@
 **F-05.1: Code experiment execution (happy path)**
 - **GIVEN** a hypothesis file has a code-type experiment with an empty `#### Results` section
 - **WHEN** `/running-experiments` is invoked
-- **THEN** the code is written, executed, and the actual output is recorded as the result along with an outcome and evidence strength assessment
+- **THEN** the code is written to `<problem-dir>/experiments/<hypothesis-slug>/exp<N>.<ext>`, executed, and the actual output is recorded inline in the hypothesis file as the result along with an outcome and evidence strength assessment
 
 **F-05.2: Math proof experiment execution**
 - **GIVEN** a hypothesis file has a math-proof-type experiment with an empty `#### Results` section
@@ -144,12 +145,22 @@
 **F-05.4: Data-analysis experiment execution**
 - **GIVEN** a hypothesis file has a data-analysis-type experiment with an empty `#### Results` section
 - **WHEN** `/running-experiments` is invoked
-- **THEN** datasets are searched, fetched, and analyzed, with key statistics and patterns recorded as the result
+- **THEN** datasets are fetched and saved to `<problem-dir>/experiments/<hypothesis-slug>/`, analysis scripts are written and run from there, and key statistics and patterns are recorded inline in the hypothesis file as the result
 
 **F-05.5: Logical-deduction experiment execution**
 - **GIVEN** a hypothesis file has a logical-deduction-type experiment with an empty `#### Results` section
 - **WHEN** `/running-experiments` is invoked
 - **THEN** the deductive chain is worked through with numbered premises, and the result records where the argument holds, requires assumptions, or breaks
+
+**F-05.5a: Artifact path recorded in Results**
+- **GIVEN** an experiment writes one or more files to `experiments/<hypothesis-slug>/`
+- **WHEN** the `#### Results` section is filled in
+- **THEN** the Results section includes `**Artifact:** experiments/<hypothesis-slug>/exp<N>.<ext>` for each file written, preceding the narrative
+
+**F-05.5b: Failed code experiment keeps artifact**
+- **GIVEN** a code experiment file is written to `experiments/<hypothesis-slug>/` but execution fails (non-zero exit code, import error, syntax error)
+- **WHEN** the result is recorded
+- **THEN** the artifact file is retained, the Results section records the full error output and the artifact path, outcome is `inconclusive` or `not-runnable` as appropriate, and the failure is not treated as evidence against the hypothesis unless the failure itself is informative
 
 **F-05.6: Early exit on decisive result**
 - **GIVEN** an experiment produces a `confirmed` or `refuted` outcome with `strong` evidence
@@ -157,9 +168,9 @@
 - **THEN** remaining experiments are marked `skipped` with a reference to the decisive result
 
 **F-05.7: Experiment not runnable (failure)**
-- **GIVEN** an experiment cannot be executed with available tools (missing dependencies, paywalled data, domain expertise gap)
+- **GIVEN** an experiment cannot be executed with available tools (missing dependencies, paywalled data, domain expertise gap, or would require writing outside `<problem-dir>/` or spawning persistent processes)
 - **WHEN** `/running-experiments` attempts to run it
-- **THEN** the result is recorded as `not-runnable` with a clear explanation of the limitation
+- **THEN** the result is recorded as `not-runnable` with a clear explanation of the limitation; no artifact file is written
 
 **F-05.8: Missing dependency is not a refutation (edge case)**
 - **GIVEN** a code experiment fails because a required tool or library is not installed
