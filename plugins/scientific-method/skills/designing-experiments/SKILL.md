@@ -67,6 +67,8 @@ Each experiment must specify:
 
 ### Step 3: Write experiment designs into hypothesis file
 
+**Note:** This skill only writes to the hypothesis file. It does not create files in `experiments/` — artifact creation is exclusively handled by `/running-experiments`.
+
 Append to the hypothesis file after the existing content:
 
 ```
