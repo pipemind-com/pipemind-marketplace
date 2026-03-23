@@ -48,6 +48,11 @@
 - **WHEN** the skill proceeds
 - **THEN** it generates the spec scoped to that epic only; the output file is specs/{name}.{epic-slug}.md (e.g., specs/milestone-4.payments.md)
 
+**F-01.5b: Epic selection — "Spec all" writes drafts first, then questions**
+- **GIVEN** the operator selects "Spec all — I'll wait"
+- **WHEN** the skill proceeds
+- **THEN** it writes complete first-draft spec files for all epics in sequence before asking any questions; after all drafts are written, it conducts a single combined question round covering ambiguities across all epics; questions are asked in order of criticality across all epics, not per-epic
+
 **F-01.6: Epic cross-references file created when epics share boundaries**
 - **GIVEN** two or more epics produce state that other epics consume (e.g., Epic A creates a wallet state that Epic B reads)
 - **WHEN** specs are being written
@@ -108,6 +113,11 @@
 - **GIVEN** an operator invokes /defining-test-scenarios with a spec file path and feature ID (e.g., specs/enrollment.md F-05)
 - **WHEN** the skill reads the spec and the Domain Glossary
 - **THEN** it writes a complete first-draft test scenario file to specs/{spec-name}.test.{FXX}.md covering all systematic expansion categories for that feature; it does not ask questions before writing the draft
+
+**F-02.1b: Feature ID not found — fail and list valid IDs**
+- **GIVEN** an operator provides a feature ID (e.g., F-99) that does not exist in the specified spec file
+- **WHEN** the skill attempts to locate the feature
+- **THEN** it reports that the feature ID was not found and lists all valid feature IDs present in the spec file; it does not proceed to scenario generation
 
 **F-02.2: Test scenario file used as checkpoint**
 - **GIVEN** specs/{spec-name}.test.{FXX}.md already exists
@@ -225,7 +235,7 @@
 - **OQ-01**: [AMBIGUITY] When /defining-specs splits into epics and the operator selects "Spec all — I'll wait," does the skill write all epics sequentially in one session, or does it complete one and prompt for the next?
 - **OQ-02**: [EDGE CASE] If specs/glossary.md already exists and the new spec introduces an actor with the same name but different definition, how is the conflict resolved — does the skill prompt the operator, overwrite silently, or append a variant?
 - **OQ-03**: [MISSING ACTOR] The /defining-specs skill is described as iterating "until the operator stops the loop" — is there a maximum iteration count or natural termination condition beyond operator intervention?
-- **OQ-04**: [IMPLICIT PRECONDITION] /defining-test-scenarios requires a spec file and feature ID — what happens if the feature ID does not exist in the spec file? Does the skill fail, list available features, or ask for clarification?
+*(OQ-04 resolved: invalid feature ID → fail and list valid IDs — see F-02.1b below)*
 - **OQ-05**: [SCOPE] The agent-author meta-agent is described as guiding creation but also as invoking compilation skills — does it have the ability to run compilation skills directly (via Skill tool), or does it only instruct the operator to run them?
 
 ## Assumptions
@@ -236,4 +246,4 @@
 - **A-04**: [ASSUMPTION] Test scenario files (specs/{name}.test.{FXX}.md) are scoped to a single feature at a time; expanding all features in a spec requires multiple /defining-test-scenarios invocations.
 - **A-05**: [ASSUMPTION] The agent-author meta-agent operates interactively and cannot be used in one-shot (-p) mode; discovery questions require operator responses.
 - **A-06**: [ASSUMPTION] When agent-author invokes a compilation skill, it uses the Skill tool (same mechanism as a slash command), not a subagent.
-- **A-07**: [ASSUMPTION] /defining-specs handles the case where the source document is pasted inline (not a file path) by treating the pasted text as the source material without attempting to read a file.
+- **A-07**: /defining-specs handles inline source documents (pasted text, not a file path) by deriving a slugified filename from the document's heading or first sentence; the operator does not need to provide a name separately.

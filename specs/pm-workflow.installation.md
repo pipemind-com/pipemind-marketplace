@@ -309,6 +309,8 @@ AND the operator should instead use `/compiling-agentic-workflow` which enforces
 
 - **OQ-01**: The install.sh script does not validate that the source repository is a git repository before installation. Should it? The getting-started.md mentions `git rev-parse --is-inside-work-tree` as a prerequisite for factory skills, but this check is not enforced at install time.
 - **OQ-02**: When using copy mode, there is no mechanism to detect version drift between the installed copy and the source. Should the installer record the installed version somewhere in `~/.claude/` to allow drift detection?
+
+**Version drift between factory and compiled project agents:** WON'T (this milestone). Operators are expected to re-compile project agents after updating the factory. No automated detection or warning is specified.
 - **OQ-03**: The install.sh script uses `rm -rf` on existing skill directories before creating symlinks (F-01.7). If the existing directory contains operator customizations that were not backed up, those are silently destroyed. Should the installer warn before overwriting?
 - **OQ-04**: The pm-workflow CLAUDE.md notes a "legacy layout" for pm-workflow using root `plugin.json`, but the actual codebase has `.claude-plugin/plugin.json`. This inconsistency in documentation should be resolved.
 - **OQ-05**: There is no uninstall command. Operators must manually remove symlinks or copied files from `~/.claude/`. Should `install.sh` support an `--uninstall` flag?

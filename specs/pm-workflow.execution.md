@@ -81,7 +81,12 @@
 - **WHEN** the skill considers launching B
 - **THEN** B is not launched until A's builder reports completion; the skill continues with other unblocked tasks in the meantime
 
-**F-01.13: Completion report**
+**F-01.13: Partial builder completion — auto-retry once**
+- **GIVEN** a builder subagent reports that some tests pass and some fail (partial completion)
+- **WHEN** the orchestrator receives the result
+- **THEN** it re-launches the builder for that sub-task exactly once with a note about the specific test failures; if the retry also reports partial or full failure, the orchestrator marks the sub-task as failed and escalates to the operator before proceeding
+
+**F-01.14: Completion report**
 - **GIVEN** all builders have reported completion or failure
 - **WHEN** the skill produces its final output
 - **THEN** it presents a summary of sub-tasks (status, files modified, test results), lists any outstanding issues, and suggests invoking /git-commit-changes and /conducting-post-mortem as next steps
@@ -127,6 +132,11 @@
 - **WHEN** the builder invokes /reviewing-code-quality as a gate
 - **THEN** the review output determines whether the builder proceeds (Pass/Advisory) or must address findings (Warning/Defect) before declaring completion
 
+**F-02.8: Large input — no hard limit, garbage-in garbage-out**
+- **GIVEN** an operator invokes /reviewing-code-quality on an entire repository or very large directory
+- **WHEN** the skill processes the input
+- **THEN** it proceeds without refusing; quality of findings degrades proportionally with scope size; the skill does not warn or refuse; operators are expected to scope their input appropriately (e.g., git diff output, a specific directory, or a glob pattern)
+
 ---
 
 ## F-03: Stress Testing | SHOULD
@@ -161,7 +171,12 @@
 - **WHEN** the skill identifies invariants
 - **THEN** it generates a round-trip invariant test: decode(encode(x)) equals x
 
-**F-03.7: No framework installed (failure)**
+**F-03.7: Test script runtime crash — debug and retry once**
+- **GIVEN** the generated test script crashes at runtime (e.g., import error, segfault) rather than producing test failures
+- **WHEN** the skill receives the crash output
+- **THEN** it attempts to diagnose and fix the script (e.g., resolves import errors, corrects API usage) and re-runs once; if the retry also crashes, it reports the crash output as a finding and stops
+
+**F-03.8: No framework installed (failure)**
 - **GIVEN** the language requires hypothesis/fast-check/proptest but the framework is not installed in the project
 - **WHEN** the skill attempts to run tests
 - **THEN** it reports the missing dependency with the install command and does not proceed to test execution
@@ -180,10 +195,10 @@
 - **WHEN** the skill groups changes into commits
 - **THEN** it groups by logical relationship in priority order: same concern (function + its tests) first, same feature across files second, same change type (renames, formatting) third, config/chore last; files are not committed one per commit
 
-**F-04.3: Commit plan presented for confirmation**
+**F-04.3: Commit plan presented with 30-second auto-proceed**
 - **GIVEN** the grouping is complete
 - **WHEN** the skill presents its plan
-- **THEN** it shows a numbered list of proposed commits, each with type, description, and files included; it waits for operator confirmation before executing any git commands
+- **THEN** it shows a numbered list of proposed commits, each with type, description, and files included; it waits up to 30 seconds for operator response; if no response is received within 30 seconds, it auto-proceeds with the plan as shown
 
 **F-04.4: Execution uses specific file staging**
 - **GIVEN** the operator confirms the plan
@@ -219,10 +234,10 @@
 
 ## F-05: Post-Mortem Learning | SHOULD
 
-**F-05.1: Gotcha identified and CLAUDE.md update proposed (happy path)**
+**F-05.1: Gotchas identified, ranked, and proposed (happy path)**
 - **GIVEN** the operator invokes /conducting-post-mortem after completing a task
 - **WHEN** the skill analyzes the conversation history
-- **THEN** it identifies exactly one gotcha encountered during the session that is not already documented in CLAUDE.md, describes the problem and solution, and proposes specific markdown content to add to CLAUDE.md with a suggested location
+- **THEN** it identifies up to 3 undocumented gotchas, ranks them by potential impact on future sessions, and proposes specific markdown content for each (problem, solution, suggested CLAUDE.md location); the operator can apply any or all of the proposals
 
 **F-05.2: No gotcha found — report without fabrication**
 - **GIVEN** the skill analyzes the conversation but finds no undocumented gotchas
@@ -253,15 +268,12 @@
 
 ## Open Questions
 
-- **OQ-01**: [AMBIGUITY] What happens if a builder subagent reports partial completion (some tests pass, some fail)? Does the orchestrator wait for manual resolution, retry the builder, or mark the sub-task as failed?
-- **OQ-02**: [MISSING ACTOR] The /orchestrating-workflow skill uses TaskCreate/TaskUpdate/TaskList/TaskGet for tracking — does this task tracking persist across sessions, or is it ephemeral to the current Claude Code conversation?
-- **OQ-03**: [EDGE CASE] If /stress-testing writes a test script to tmp/ and the script crashes the process (not a test failure, but a runtime error), what is the expected behavior?
-- **OQ-04**: [AMBIGUITY] /conducting-post-mortem says it identifies "ONE gotcha" — does this mean it strictly surfaces only one even if multiple are found, or does it prioritize and present the most valuable one?
-- **OQ-05**: [SCOPE] Can /reviewing-code-quality be invoked on an entire repository or is there a practical upper bound on input size?
+*(No unresolved questions.)*
 
 ## Assumptions
 
 - **A-01**: [ASSUMPTION] /orchestrating-workflow requires interactive mode — it cannot function in one-shot (-p) mode because it must wait for operator approval of the decomposition plan before spawning agents.
+- **A-06**: Task tracking via TaskCreate/TaskUpdate/TaskList/TaskGet is ephemeral to the current Claude Code session. If the session ends mid-orchestration, task state is lost and the orchestration must be restarted.
 - **A-02**: [ASSUMPTION] The "parallel tool calls in single response" constraint for builder launching is enforced by the skill's own instructions, not by Claude Code tooling; the skill would not detect a violation if builders were launched sequentially.
 - **A-03**: [ASSUMPTION] /reviewing-code-quality does not have a hard line limit for input; it handles directories and globs by processing files iteratively.
 - **A-04**: [ASSUMPTION] /git-commit-changes operates only on the current git repository's working tree; it does not traverse into submodules.

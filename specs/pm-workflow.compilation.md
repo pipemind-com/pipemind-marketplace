@@ -42,10 +42,10 @@
 - **WHEN** the skill performs its pre-flight check
 - **THEN** the skill reports that a git repository is required and halts without creating any files
 
-**F-01.5: User arguments forwarded to sub-skills**
+**F-01.5: User arguments forwarded to sub-skills context-aware**
 - **GIVEN** the operator passes customization arguments to /compiling-agentic-workflow (e.g., --focus "testing")
 - **WHEN** the skill delegates to sub-skills
-- **THEN** it forwards applicable arguments to each sub-skill; arguments that don't apply to a specific sub-skill are silently ignored for that step
+- **THEN** it routes arguments selectively based on each sub-skill's known interface: --focus routes to /compiling-project-settings; topic include/skip args route to /compiling-project-docs; customization notes route to agent compilation skills; an argument is not forwarded to a sub-skill that does not accept it
 
 **F-01.6: Completion report lists artifact status**
 - **GIVEN** all four sub-skills complete successfully
@@ -76,10 +76,10 @@
 - **WHEN** the skill decides what to include in CLAUDE.md
 - **THEN** instructions for that content are excluded from CLAUDE.md; only instructions relevant to 80%+ of typical sessions are included
 
-**F-02.5: Existing CLAUDE.md — operator prompted before overwrite**
+**F-02.5: Existing CLAUDE.md — unconditional update**
 - **GIVEN** a CLAUDE.md already exists
 - **WHEN** the operator re-runs /compiling-project-settings
-- **THEN** the skill either presents the proposed changes for operator review or clearly indicates it is updating the existing file; it does not silently overwrite without indication [ASSUMPTION: exact behavior — prompt vs. update — is not fully specified in source]
+- **THEN** the skill updates the file unconditionally to reflect the current codebase state and reports "updated" rather than "created" in its summary; it does not prompt for confirmation
 
 **F-02.6: Line count exceeding 100 flagged**
 - **GIVEN** the generated CLAUDE.md would exceed 100 lines
@@ -101,6 +101,11 @@
 ## F-03: Project Documentation Compilation | MUST
 
 **Requires:** F-02 (Project Settings Compilation)
+
+**F-03.0: CLAUDE.md missing — hard failure**
+- **GIVEN** CLAUDE.md does not exist
+- **WHEN** /compiling-project-docs is invoked
+- **THEN** it fails immediately and directs the operator to run /compiling-project-settings first; no docs/ files are created; this matches the behavior of all other compilation skills
 
 **F-03.1: docs/ directory generated with detected topics (happy path)**
 - **GIVEN** an operator invokes /compiling-project-docs in a project with CLAUDE.md
@@ -183,10 +188,10 @@
 - **WHEN** the planner agent is compiled
 - **THEN** the agent file references CLAUDE.md for that context rather than restating it; no content present in CLAUDE.md appears inline in the agent file
 
-**F-04.7: Existing planner.md — operator notified**
+**F-04.7: Existing planner.md — unconditional update**
 - **GIVEN** .claude/agents/planner.md already exists
 - **WHEN** the skill is invoked
-- **THEN** the skill indicates it is updating the existing file; it does not fail silently or create a duplicate [ASSUMPTION]
+- **THEN** the skill updates the file unconditionally and reports "updated" in its summary; it does not fail, prompt for confirmation, or create a duplicate
 
 ---
 
@@ -228,6 +233,11 @@
 - **GIVEN** CLAUDE.md contains the tech stack and testing framework
 - **WHEN** the builder agent is compiled
 - **THEN** the agent references CLAUDE.md and docs/ for that context; it does not inline stack-specific patterns that are already present in referenced files
+
+**F-05.8: Monorepo with multiple stacks — both stacks included**
+- **GIVEN** the codebase is a monorepo with multiple tech stacks detected (e.g., Python backend and JavaScript frontend)
+- **WHEN** the builder agent is compiled
+- **THEN** the agent includes patterns, test commands, and conventions for all detected stacks; instructions are organized by directory context so the builder knows which patterns apply to which part of the codebase
 
 ---
 
@@ -279,10 +289,10 @@
 - **WHEN** the skill scans for infrastructure artifacts
 - **THEN** it generates .claude/agents/devops.md containing only commands for detected tools; undetected tools are not included; the file is 50-80 lines
 
-**F-07.2: CLAUDE.md missing — warning, not failure**
+**F-07.2: CLAUDE.md missing — hard failure**
 - **GIVEN** CLAUDE.md does not exist
 - **WHEN** the skill is invoked
-- **THEN** the skill warns that CLAUDE.md is missing (it won't have project context) but proceeds to generate the devops agent from infrastructure artifact detection alone
+- **THEN** the skill fails immediately and directs the operator to run /compiling-project-settings first; consistent with all other agent compilation skills
 
 **F-07.3: Never-modify-application-code constraint always present**
 - **GIVEN** the devops agent is being compiled
@@ -299,19 +309,19 @@
 - **WHEN** the devops agent is compiled
 - **THEN** AWS-specific patterns, CLI commands, and service names are emphasized over generic equivalents; GCP/Azure patterns are omitted unless also detected
 
-**F-07.6: Existing devops.md — operator warned**
+**F-07.6: Existing devops.md — unconditional update**
 - **GIVEN** .claude/agents/devops.md already exists
 - **WHEN** the skill is invoked
-- **THEN** the skill warns that an existing devops.md will be updated; it does not silently overwrite [ASSUMPTION]
+- **THEN** the skill updates the file unconditionally and reports "updated" in its summary; consistent with all other compilation skills
 
 ---
 
 ## F-08: Compilation Constraint Enforcement | MUST
 
-**F-08.1: 80% rule applied to CLAUDE.md content**
-- **GIVEN** the skill is deciding whether to include an instruction in CLAUDE.md
-- **WHEN** the instruction would apply to fewer than 80% of typical sessions
-- **THEN** that instruction is excluded from CLAUDE.md and either omitted or moved to a docs/ reference
+**F-08.1: 80% rule validation — shows violations, asks to confirm removal**
+- **GIVEN** a compiled artifact (CLAUDE.md or agent file) contains instructions that appear to apply to fewer than 80% of sessions
+- **WHEN** the skill validates its output
+- **THEN** it identifies the niche instructions, presents them to the operator with a reason for each (e.g., "this applies only to the migration tooling used once"), and asks whether to remove or keep each before writing the final artifact
 
 **F-08.2: 80% rule applied to agent content**
 - **GIVEN** the skill is deciding whether to include an instruction in a compiled agent
@@ -342,12 +352,7 @@
 
 ## Open Questions
 
-- **OQ-01**: [AMBIGUITY] When /compiling-project-settings encounters an existing CLAUDE.md, does it prompt the operator for confirmation before overwriting, show a diff and ask, or silently update? The source does not specify this interaction.
-- **OQ-02**: [EDGE CASE] If /compiling-project-docs is run before /compiling-project-settings (no CLAUDE.md exists), does it fail, warn and continue, or generate docs/ without project context?
-- **OQ-03**: [AMBIGUITY] /compiling-devops-agent has a "WARN if missing" behavior for CLAUDE.md rather than a hard failure — is this intentional or an oversight? The other agent compilers all hard-fail on missing CLAUDE.md.
-- **OQ-04**: [SCOPE] The 80% rule is described as a validation step in the skills, but what happens when a compiled artifact fails the 80% rule check? Is content automatically trimmed, or is the operator shown what to remove?
-- **OQ-05**: [MISSING ACTOR] When /compiling-agentic-workflow passes arguments to sub-skills, is there a defined interface for which arguments each sub-skill accepts, or are arguments passed through opportunistically?
-- **OQ-06**: [EDGE CASE] What happens if the tech stack is ambiguous (e.g., a monorepo with Python backend and JavaScript frontend)? Does the builder agent address both, or does it focus on a primary stack?
+*(All open questions resolved.)*
 
 ## Assumptions
 
@@ -356,4 +361,4 @@
 - **A-03**: [ASSUMPTION] "Idempotent" means the output is functionally equivalent when re-run on an unchanged codebase; re-running on a changed codebase updates the artifact to match.
 - **A-04**: [ASSUMPTION] The devops agent's softer pre-flight (WARN vs FAIL) for missing CLAUDE.md is intentional — infrastructure detection from filesystem artifacts alone is sufficient for minimal viability.
 - **A-05**: [ASSUMPTION] Conditional doc references in agent files (only reference docs/ files that exist) are validated at write time, not at agent runtime; the compilation skill scans the actual docs/ directory.
-- **A-06**: [ASSUMPTION] /compiling-security-agent auto-detects the auth mechanism by scanning source code for patterns like "jwt", "bearer", "session" rather than reading a dedicated config file.
+- **A-05b**: [ASSUMPTION] /compiling-security-agent auto-detects the auth mechanism by scanning source code for patterns like "jwt", "bearer", "session" rather than reading a dedicated config file.
