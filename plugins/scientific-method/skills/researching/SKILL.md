@@ -141,6 +141,8 @@ Read all hypothesis files from this iteration. Check their verdicts.
 
 **Solved condition**: at least one hypothesis has status `confirmed`, and the confirmed claim satisfies the success criteria defined in `problem.md`. Read `problem.md` to verify this -- a confirmed hypothesis that does not address the core question does not count as solved.
 
+**Novelty gate** (check only when solved condition passes): read `problem.md` for the `Novelty required:` field. If the value is `yes` AND the confirmed hypothesis's conclusion contains `**Novelty:** replication`, the problem is NOT solved -- the replication is noted as useful context and the loop continues to the next iteration seeking a novel or incremental contribution.
+
 - **Solved**: write `findings.md` (format below) and stop.
 - **Not solved, iterations remain**: return to Step A. The generating-hypotheses skill will read prior conclusions and propose new angles informed by what was ruled out.
 - **Not solved, MAX_ITERATIONS reached**: write `findings.md` with outcome "inconclusive after N iterations" and report to the operator.
@@ -162,3 +164,16 @@ Write `<problem-dir>/findings.md` when the loop exits. Use this structure:
 5. **Iterations completed** -- N iterations, M hypotheses tested
 6. **Confirmed hypotheses** -- list with titles and one-line summaries
 7. **Refuted hypotheses** -- list with titles and one-line summaries of what was ruled out
+8. **Publishability Assessment** -- evaluates three dimensions and concludes with a publishability verdict
+
+### Publishability Assessment Content
+
+Evaluate three dimensions in order:
+
+1. **Rigor** -- whether the methodology, evidence collection, and statistical treatment meet publication-grade standards
+2. **Novelty** -- whether the results advance beyond the literature: `novel` (no prior art), `incremental` (extends prior work), or `replication` (reproduces known findings). Note incremental contributions as potentially suitable for workshop papers or short communications; fully novel contributions may warrant a full paper
+3. **Significance** -- whether the findings address a meaningful question with practical or theoretical impact
+
+Each dimension receives a brief assessment (2-4 sentences). The section concludes with a verdict: `publishable`, `publishable-with-revisions`, or `not-publishable`. For `publishable-with-revisions` and `not-publishable` verdicts, include 2-3 concrete, actionable improvement suggestions (e.g., "gather additional data on X", "compare results against <method> from REF-NNN", "narrow scope to <specific aspect> where the contribution is clearest").
+
+This section appears in findings.md for both solved and inconclusive outcomes.
