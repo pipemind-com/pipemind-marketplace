@@ -41,21 +41,33 @@ bash -c "mkdir -p <problem-dir>/references"
 
 Read existing `<problem-dir>/references.md` if present. Note the highest REF-NNN number so new entries continue the sequence. Collect all URLs already listed so you skip duplicates in later steps. If no file exists, start from REF-001.
 
-### Step 2: Search from multiple angles
+### Step 2: Search using dual-track strategy
 
-A single query gives you one slice of the literature. Run **3-5 WebSearch queries** that approach the topic from different directions to surface diverse perspectives:
+Run **4-6 WebSearch queries** across two tracks. Both tracks use standard queries — no date operators. Recency is determined post-hoc in Step 3 by reading the publication year from each fetched source.
 
-- The topic as stated by the user
-- Topic + "peer reviewed" or "systematic review" -- surfaces high-confidence work
-- Topic + "empirical study" or "experimental results" -- surfaces data-driven work
-- Topic + "limitations" or "challenges" -- surfaces contrarian and critical literature (this is important because confirmation bias is the default failure mode of literature searches)
+**Recency track** (target: cutting-edge work from the last 3 years)
+Run 2-3 queries approaching the topic from different angles:
+- The topic as stated
+- Topic + "peer reviewed" or "systematic review"
+- Topic + "empirical study" or "experimental results"
+
+After fetching sources for this track (Step 3), keep only those published in the last 3 years. Sources older than 3 years found during this track are discarded unless they surface in the landmark track.
+
+**Landmark track** (target: foundational papers with no recency filter)
+Run 2-3 queries that surface older, definitional work:
+- Topic + "foundational" or "seminal"
+- Topic + "limitations" or "challenges" — surfaces critical and contrarian literature
 - Topic + an adjacent domain if the topic is interdisciplinary
 
-Collect all result URLs. Deduplicate against URLs already in `references.md`.
+The landmark track applies no date filter. Any source that directly advances understanding of the topic qualifies, regardless of age.
+
+Collect all result URLs across both tracks. Deduplicate against URLs already in `references.md`.
 
 ### Step 3: Fetch and evaluate each source
 
 For each new URL (up to 10 per run):
+
+**Quality gate:** Before recording any source, assess its type. Peer-reviewed journal articles, conference papers, and established technical reports are included. Blog posts, opinion pieces, press releases, and low-signal web pages are silently dropped — they do not appear in `references.md` and no exclusion log is kept. Prefer depth over breadth: 5 authoritative sources outweigh 10 mediocre ones. Every included source must directly advance understanding of the topic.
 
 1. **WebFetch** the URL to retrieve content
 2. **Assess relevance** -- is this directly useful to the topic? Skip tangential results. A smaller, high-quality reference list is far more valuable than a padded one, because downstream work treats every entry as worth reading

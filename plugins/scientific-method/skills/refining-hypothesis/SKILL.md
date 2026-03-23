@@ -57,6 +57,24 @@ Run /researching-literature with:
 
 Wait for all three to complete. Then read the updated `references.md` to identify which new REF IDs were added. Note the relevant ones for this hypothesis.
 
+### Step 2b: Gap assessment and full dual-track search
+
+Read the updated `references.md`. Assess coverage along two dimensions:
+
+- **Recency gap**: are any sources from the last 3 years present? If all found sources are older than 3 years, recent work is underrepresented.
+- **Landmark gap**: are any foundational or definitional sources present? If all found sources are very recent, foundational context is missing.
+
+Run one full `/researching-literature` invocation to fill gaps. Always run this step — the three parallel searches in Step 2 are targeted and narrow; this invocation provides broad dual-track coverage.
+
+Task prompt format:
+```
+Run /researching-literature with:
+- Topic: "<broader query derived from the hypothesis topic, not the specific claim>"
+- Problem directory: "<absolute path to problem directory>"
+```
+
+Wait for the invocation to complete, then read `references.md` again to identify additional REF IDs added.
+
 ### Step 3: Sharpen the hypothesis
 
 With the literature findings in hand, assess the hypothesis through these lenses:
