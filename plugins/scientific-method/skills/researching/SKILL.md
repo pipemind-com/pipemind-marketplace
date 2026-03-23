@@ -71,6 +71,8 @@ Use `Glob` for `<slug>/hypothesis-*.md`, then `Read` each file to check section 
 
 A hypothesis is "resolved" if its status is `confirmed` or `refuted`. Hypotheses resolved by literature alone (confirmed/refuted during Step B without needing experiments) skip Steps C-D-E entirely.
 
+**Note:** The orchestrator never reads `experiments/` for resume detection. Hypothesis files are the sole state checkpoint.
+
 ---
 
 ## Phase 1: Refine Problem (operator involved)
