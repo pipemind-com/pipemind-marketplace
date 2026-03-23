@@ -76,7 +76,7 @@ Continue asking questions, now incorporating both operator answers and literatur
 
 ### Step 4: Write problem.md
 
-After 3-5 questions (or earlier if the problem is already well-defined), write `<problem-slug>/problem.md` using the structure in `references/problem-template.md`.
+After 3-5 questions (or earlier if the problem is already well-defined), write `<problem-slug>/problem.md` using the structure in `references/problem-template.md`. Leave 'Novelty required' as a placeholder — the operator sets it during Step 5 confirmation.
 
 ### Step 5: Confirm with operator
 
@@ -88,7 +88,17 @@ Options: "Yes, this is correct", "Needs adjustments", "Start over"
 
 - **Adjustments**: Ask what to change, update the file, re-confirm.
 - **Start over**: Clear the file, return to Step 2.
-- **Confirmed**: Output the path to `problem.md` and confirm the autonomous loop is ready.
+- **Confirmed**: Proceed to the novelty question below before finalizing.
+
+**Novelty question (after "Yes, this is correct" only):** Ask via `AskUserQuestion`:
+
+> "Does this research require a novel solution, or is confirming an existing result acceptable?"
+
+Options: "Novel solution required (replications do not count as solved)", "Replications accepted (confirming known results is a valid outcome)"
+
+Set `Novelty required: yes` or `Novelty required: no` in `problem.md` based on the answer. Once set, this field is immutable for the duration of the research session.
+
+Output the path to `problem.md` and confirm the autonomous loop is ready.
 
 Once confirmed, do not involve the operator again unless explicitly invoked.
 

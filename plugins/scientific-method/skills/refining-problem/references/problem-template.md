@@ -17,6 +17,9 @@
 ## Success Criteria
 <What constitutes a confirmed solution -- specific, verifiable>
 
+## Novelty Required
+Novelty required: yes | no
+
 ## Constraints
 - <...>
 
