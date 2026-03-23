@@ -89,7 +89,7 @@ For each completed experiment, fill in the `#### Results` section using Edit. Do
 
 **Outcome:** <confirmed | refuted | inconclusive | not-runnable>
 
-<Detailed narrative of what was done and what was found. Include code outputs, proof steps, quoted evidence, statistics, or error messages. The reader should be able to verify your conclusion from this record alone.>
+<Detailed narrative of what was done and what was found. Include code outputs, proof steps, quoted evidence, statistics, or error messages. The reader must be able to reproduce the methodology from this record alone. Report all outcomes honestly, including negative or unexpected results. For quantitative data, include appropriate statistical context (e.g., sample size, confidence interval, p-value). Distinguish between what was directly observed and what was inferred.>
 
 **Evidence strength:** <strong | moderate | weak>
 ```
@@ -109,3 +109,26 @@ Evidence strength guidance:
 
 Experiment <N> produced a decisive <confirmed|refuted> result with strong evidence. Further testing is unnecessary.
 ```
+
+### Step 3: Novelty assessment
+
+**Only for experiments with `confirmed` outcome where the hypothesis file contains a `## Literature` section.**
+
+Run 1-2 targeted WebSearches comparing the confirmed result against existing published work. Search for the specific method, finding, or mechanism confirmed — not general background.
+
+If the literature section has fewer than 3 sources, this search is especially important to avoid false novelty claims.
+
+After the search, append a `**Novelty:**` tag immediately after `**Evidence strength:**` in the Results section:
+
+```
+**Novelty:** <novel | incremental | replication> — <one sentence of rationale, citing any newly discovered prior art by URL>
+```
+
+Novelty scale:
+- `novel` — no prior art found for this specific result
+- `incremental` — extends or improves on prior work
+- `replication` — reproduces known findings
+
+The `replication` tag signals the orchestrator that this result may not satisfy success criteria when `Novelty required: yes` is in `problem.md`.
+
+If no `## Literature` section exists in the hypothesis file, skip this step entirely.

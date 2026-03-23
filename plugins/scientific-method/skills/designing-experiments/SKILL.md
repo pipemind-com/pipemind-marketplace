@@ -64,6 +64,9 @@ Each experiment must specify:
 - **Confirms if**: specific result that would support the hypothesis
 - **Refutes if**: specific result that would contradict the hypothesis
 - **Confidence**: how decisive a positive/negative result would be (high / medium / low) -- be honest about limitations
+- **Publishability potential**: whether this experiment, if successful, could yield a novel contribution relative to prior art in the `## Literature` section (high / medium / low, with one sentence of rationale)
+
+When multiple experiment types are equally valid, lean toward the type with higher publishability potential — but never sacrifice scientific validity for publishability.
 
 ### Step 3: Write experiment designs into hypothesis file
 
@@ -81,6 +84,7 @@ Append to the hypothesis file after the existing content:
 - **Confirms if:** <expected result if the hypothesis is true>
 - **Refutes if:** <expected result if the hypothesis is false>
 - **Confidence:** <high | medium | low>
+- **Publishability potential:** <high | medium | low — one sentence assessing whether a successful result would be novel relative to prior art in the Literature section>
 
 #### Results
 <!-- To be filled by running-experiments -->
