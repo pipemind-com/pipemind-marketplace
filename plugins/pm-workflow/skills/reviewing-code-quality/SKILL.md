@@ -100,3 +100,4 @@ If the review focus was narrowed to specific axes, only report on those axes but
 5. **Adapt to the language.** Apply idiomatic standards for the language in question. Good state management in Rust differs from Python differs from JavaScript. Review against the ecosystem's conventions, not a platonic ideal.
 6. **No unsolicited rewrites.** Provide the minimum code needed to illustrate a suggestion. If the caller wants a refactored version, they will ask separately.
 7. **Findings are atomic.** One finding, one issue. Do not bundle unrelated observations.
+8. **No scope refusal.** When invoked on a large directory or entire repository, proceed without refusing or warning about scope size. Findings degrade proportionally with scope — a broad review yields higher-level observations than a tight review of a single file. Operators are expected to scope their input appropriately.

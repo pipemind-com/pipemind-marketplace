@@ -55,7 +55,7 @@ Plan:
 ...
 ```
 
-Wait for user confirmation. If the user says nothing or approves, proceed.
+Present the plan above and wait up to 30 seconds for operator response. If the operator approves or does not respond within 30 seconds, proceed with the plan as shown.
 
 **4. Execute commits**
 

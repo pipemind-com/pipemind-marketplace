@@ -46,9 +46,13 @@ This skill will generate and execute comprehensive adversarial tests to find edg
    - JavaScript/TypeScript: Use `fast-check` library
    - Rust: Use `proptest` or `quickcheck`
    - Generate 100+ random test cases
+   - Before writing the script, verify the required framework is available (`python -c "import hypothesis"`, `node -e "require('fast-check')"`, etc.). If the framework is not installed, report the missing dependency with the install command (e.g., `pip install hypothesis` or `npm install fast-check`) and stop. Do not proceed to test execution.
 
 **5. Execute Tests** (#9 Auto-Run):
    - Run the generated test script immediately
+   - Distinguish between two failure modes:
+     - **Test failures**: assertions failed — report count, rate, and failing cases as findings
+     - **Script crash**: import error, segfault, or unhandled exception before tests run — attempt to diagnose and fix the script (resolve import errors, correct API usage), then re-run once; if the retry also crashes, report the crash output as a finding and stop
    - Display output (passes and failures)
    - Report total test count and failure rate
 
