@@ -19,7 +19,7 @@
 
 ```bash
 claude plugin marketplace add pipemind-com/agentic-marketplace
-claude plugin install pm-workflow@agentic-marketplace
+claude plugin install spec-driven-development@agentic-marketplace
 claude plugin install rust-lsp@agentic-marketplace
 claude plugin install typescript-lsp@agentic-marketplace
 ```
@@ -31,10 +31,10 @@ git clone <repo-url>
 cd claude-agentic
 
 # Symlink install (recommended — git pull auto-updates)
-./install.sh pm-workflow --symlink
+./install.sh spec-driven-development --symlink
 
 # Copy install
-./install.sh pm-workflow
+./install.sh spec-driven-development
 ```
 
 Verify the install:

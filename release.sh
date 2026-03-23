@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 # Usage: ./release.sh <plugin-name> <patch|minor|major>
-# Example: ./release.sh pm-workflow patch
+# Example: ./release.sh spec-driven-development patch
 
 set -euo pipefail
 cd "$(dirname "$0")"

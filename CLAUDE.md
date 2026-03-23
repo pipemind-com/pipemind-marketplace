@@ -6,12 +6,12 @@ This repo is the **agentic-marketplace**: self-contained plugins installable int
 
 ## About This Project
 
-Pure markdown/YAML system — no build pipeline, no runtime dependencies. The `install.sh` CLI handles symlink or copy installs. Plugins use a `.claude-plugin/plugin.json` manifest; legacy `pm-workflow` uses `plugin.json` at the plugin root.
+Pure markdown/YAML system — no build pipeline, no runtime dependencies. The `install.sh` CLI handles symlink or copy installs. Plugins use a `.claude-plugin/plugin.json` manifest; legacy `spec-driven-development` uses `plugin.json` at the plugin root.
 
 ## Key Directories
 
 - `plugins/` - All marketplace plugins
-- `plugins/pm-workflow/` - Agentic workflow factory (agents + skills + docs); legacy layout
+- `plugins/spec-driven-development/` - Agentic workflow factory (agents + skills + docs); legacy layout
 - `plugins/rust-lsp/` - Rust LSP config plugin (`.claude-plugin/` layout)
 - `plugins/typescript-lsp/` - TypeScript LSP config plugin (`.claude-plugin/` layout)
 - `plugins/scientific-method/` - Scientific method research loop plugin (`.claude-plugin/` layout)
@@ -42,8 +42,8 @@ Pure markdown/YAML system — no build pipeline, no runtime dependencies. The `i
 - NEVER add `Co-Authored-By` lines to commits
 - Symlinks are preferred — `git pull` propagates updates to all machines
 - Skills listed in `system-reminder` are live; changes take effect immediately without restart
-- When adding a skill to `pm-workflow`, place it under `plugins/pm-workflow/skills/<gerund-name>/SKILL.md`
-- New plugins: use `.claude-plugin/plugin.json`; `pm-workflow` uses legacy root `plugin.json`
+- When adding a skill to `spec-driven-development`, place it under `plugins/spec-driven-development/skills/<gerund-name>/SKILL.md`
+- New plugins: use `.claude-plugin/plugin.json`; `spec-driven-development` uses legacy root `plugin.json`
 
 ## Workflow
 
@@ -60,5 +60,5 @@ Before specific tasks, read the relevant doc:
 - Adding plugins, releasing: `docs/getting-started.md`
 - Agent/skill/manifest formats: `docs/tech-stack.md`
 - Developing plugins with planner/builder agents: `docs/workflow.md`
-- pm-workflow agent authoring: `plugins/pm-workflow/agents/agent-author.md`
+- spec-driven-development agent authoring: `plugins/spec-driven-development/agents/agent-author.md`
 - Full workflow and skill descriptions: `README.md`

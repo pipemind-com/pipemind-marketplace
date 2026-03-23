@@ -3,7 +3,7 @@
 > **AI Context Summary**: The agentic-marketplace is a two-tier plugin distribution system with no runtime
 > dependencies. The **registry tier** (`.claude-plugin/marketplace.json`) tracks plugin versions and metadata.
 > The **plugin tier** (`plugins/<name>/`) holds self-contained agents, skills, and docs installed into
-> `~/.claude/` via `install.sh`. Two plugin layouts coexist: legacy (`pm-workflow`, root `plugin.json`) and
+> `~/.claude/` via `install.sh`. Two plugin layouts coexist: legacy (`spec-driven-development`, root `plugin.json`) and
 > current (`.claude-plugin/plugin.json`).
 
 ## System Overview
@@ -15,7 +15,7 @@ agentic-marketplace/
 ├── .claude/
 │   └── agents/                   ← project-specific planner + builder agents
 ├── plugins/
-│   ├── pm-workflow/              ← LEGACY layout (plugin.json at root)
+│   ├── spec-driven-development/              ← LEGACY layout (plugin.json at root)
 │   │   ├── plugin.json
 │   │   ├── agents/               ← .md agent files installed to ~/.claude/agents/
 │   │   ├── skills/               ← skill dirs installed to ~/.claude/skills/
@@ -55,9 +55,9 @@ Manifest lives at `plugins/<name>/.claude-plugin/plugin.json`. `install.sh` requ
 }
 ```
 
-### Legacy Layout (pm-workflow only)
+### Legacy Layout (spec-driven-development only)
 
-Manifest lives at `plugins/pm-workflow/plugin.json`. `install.sh` reads from `.claude-plugin/plugin.json` which does not exist for `pm-workflow` — install for pm-workflow is handled separately. See `plugins/pm-workflow/README.md` for details.
+Manifest lives at `plugins/spec-driven-development/plugin.json`. `install.sh` reads from `.claude-plugin/plugin.json` which does not exist for `spec-driven-development` — install for spec-driven-development is handled separately. See `plugins/spec-driven-development/README.md` for details.
 
 ## Install Flow
 
@@ -91,7 +91,7 @@ release.sh <plugin> <patch|minor|major>
       └─ git push --follow-tags
 ```
 
-Tags follow the format `<plugin>/v<semver>` (e.g., `pm-workflow/v1.0.2`).
+Tags follow the format `<plugin>/v<semver>` (e.g., `spec-driven-development/v1.0.2`).
 
 ## Registry
 
@@ -101,4 +101,4 @@ Tags follow the format `<plugin>/v<semver>` (e.g., `pm-workflow/v1.0.2`).
 
 - Setup: [getting-started.md](./getting-started.md)
 - Plugin file formats: [tech-stack.md](./tech-stack.md)
-- Agent/skill authoring: `plugins/pm-workflow/agents/agent-author.md`
+- Agent/skill authoring: `plugins/spec-driven-development/agents/agent-author.md`

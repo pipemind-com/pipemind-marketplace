@@ -1,5 +1,5 @@
-# Spec: pm-workflow — Specification & Design
-**Source:** plugins/pm-workflow/ (brownfield reverse-engineering)
+# Spec: spec-driven-development — Specification & Design
+**Source:** plugins/spec-driven-development/ (brownfield reverse-engineering)
 **Epic:** E-C
 **Glossary:** specs/glossary.md
 **Generated:** 2026-03-22

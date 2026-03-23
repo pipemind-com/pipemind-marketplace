@@ -1,5 +1,5 @@
-# Spec: pm-workflow — Project Compilation Pipeline
-**Source:** plugins/pm-workflow/ (brownfield reverse-engineering)
+# Spec: spec-driven-development — Project Compilation Pipeline
+**Source:** plugins/spec-driven-development/ (brownfield reverse-engineering)
 **Epic:** E-B
 **Glossary:** specs/glossary.md
 **Generated:** 2026-03-22

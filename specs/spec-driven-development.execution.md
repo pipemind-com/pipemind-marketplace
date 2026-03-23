@@ -1,5 +1,5 @@
-# Spec: pm-workflow — Development Execution & Quality
-**Source:** plugins/pm-workflow/ (brownfield reverse-engineering)
+# Spec: spec-driven-development — Development Execution & Quality
+**Source:** plugins/spec-driven-development/ (brownfield reverse-engineering)
 **Epic:** E-D
 **Glossary:** specs/glossary.md
 **Generated:** 2026-03-22

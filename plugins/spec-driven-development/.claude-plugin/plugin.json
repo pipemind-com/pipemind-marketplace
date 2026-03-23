@@ -1,5 +1,5 @@
 {
-  "name": "pm-workflow",
+  "name": "spec-driven-development",
   "version": "1.0.3",
   "description": "Agentic workflow factory — compile project-specific planners, builders, and specialist agents for any codebase.",
   "author": {

@@ -56,7 +56,7 @@ Constraints: 100-200 lines. Name must be gerund form (e.g., `compiling-`, `defin
 
 ```json
 {
-  "name": "pm-workflow",
+  "name": "spec-driven-development",
   "version": "1.0.2",
   "description": "...",
   "agents": ["planner", "builder"],
@@ -86,4 +86,4 @@ Every instruction in an agent or skill must apply to 80%+ of sessions. Instructi
 
 - Architecture overview: [architecture.md](./architecture.md)
 - Adding plugins: [getting-started.md](./getting-started.md)
-- Agent authoring guide: `plugins/pm-workflow/agents/agent-author.md`
+- Agent authoring guide: `plugins/spec-driven-development/agents/agent-author.md`

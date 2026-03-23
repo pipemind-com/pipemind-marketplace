@@ -1,5 +1,5 @@
-# Spec: pm-workflow --- Installation & Distribution
-**Source:** plugins/pm-workflow/ (brownfield reverse-engineering)
+# Spec: spec-driven-development --- Installation & Distribution
+**Source:** plugins/spec-driven-development/ (brownfield reverse-engineering)
 **Epic:** E-A
 **Glossary:** specs/glossary.md
 **Generated:** 2026-03-22
@@ -12,7 +12,7 @@
 - **SC-03**: The installer validates a plugin by checking for `<plugin-dir>/.claude-plugin/plugin.json`; a plugin without this manifest is considered nonexistent
 - **SC-04**: Skills must reside in a gerund-named directory containing a file named exactly `SKILL.md`; Claude Code will not discover skills with any other naming
 - **SC-05**: Agents must be markdown files in `~/.claude/agents/`; Claude Code discovers them by filename and invokes them via `claude --agent <stem>`
-- **SC-06**: The pm-workflow factory comprises exactly 14 skill directories and 1 agent file at the time of this writing
+- **SC-06**: The spec-driven-development factory comprises exactly 14 skill directories and 1 agent file at the time of this writing
 - **SC-07**: Claude Code imposes a 150-instruction limit across its system prompt, CLAUDE.md, and all loaded agents combined; the system prompt consumes approximately 50, leaving approximately 100 for user-controlled files
 - **SC-08**: Factory skills are listed in the system-reminder and take effect immediately upon file change when installed via symlink; no Claude Code restart is required for skill changes
 - **SC-09**: Version is tracked in both `.claude-plugin/plugin.json` and `.claude-plugin/marketplace.json`; `release.sh` bumps both atomically and creates a semver git tag in the format `<plugin-name>/v<MAJOR>.<MINOR>.<PATCH>`
@@ -24,11 +24,11 @@
 #### F-01.1: Symlink installation succeeds with valid plugin
 
 GIVEN the operator is in the root of the agentic-marketplace repository
-AND `plugins/pm-workflow/.claude-plugin/plugin.json` exists
+AND `plugins/spec-driven-development/.claude-plugin/plugin.json` exists
 AND `~/.claude/` is writable (or `CLAUDE_DIR` points to a writable directory)
-WHEN the operator runs `./install.sh pm-workflow --symlink`
-THEN `~/.claude/agents/` contains a symbolic link for each markdown file in `plugins/pm-workflow/agents/`
-AND `~/.claude/skills/` contains a symbolic link for each subdirectory in `plugins/pm-workflow/skills/`
+WHEN the operator runs `./install.sh spec-driven-development --symlink`
+THEN `~/.claude/agents/` contains a symbolic link for each markdown file in `plugins/spec-driven-development/agents/`
+AND `~/.claude/skills/` contains a symbolic link for each subdirectory in `plugins/spec-driven-development/skills/`
 AND each agent symlink points to the absolute path of its source file
 AND each skill symlink points to the absolute path of its source directory
 AND the installer prints a confirmation line for every linked agent and skill
@@ -37,7 +37,7 @@ AND the installer prints verification commands referencing `$CLAUDE_DIR`
 #### F-01.2: Copy installation succeeds with valid plugin
 
 GIVEN the same preconditions as F-01.1
-WHEN the operator runs `./install.sh pm-workflow` (without `--symlink`)
+WHEN the operator runs `./install.sh spec-driven-development` (without `--symlink`)
 THEN all agent markdown files are recursively copied into `~/.claude/agents/`
 AND all skill directories are recursively copied into `~/.claude/skills/`
 AND no symbolic links are created
@@ -46,14 +46,14 @@ AND the installer prints a confirmation line for agents and skills
 #### F-01.3: Target directory is auto-created when absent
 
 GIVEN `~/.claude/agents/` and `~/.claude/skills/` do not yet exist
-WHEN the operator runs `./install.sh pm-workflow --symlink` (or without `--symlink`)
+WHEN the operator runs `./install.sh spec-driven-development --symlink` (or without `--symlink`)
 THEN the installer creates `~/.claude/agents/` and `~/.claude/skills/` via `mkdir -p` before writing any files
 AND installation proceeds normally
 
 #### F-01.4: Installation fails when plugin manifest is missing
 
-GIVEN the operator runs `./install.sh pm-workflow`
-AND `plugins/pm-workflow/.claude-plugin/plugin.json` does not exist
+GIVEN the operator runs `./install.sh spec-driven-development`
+AND `plugins/spec-driven-development/.claude-plugin/plugin.json` does not exist
 WHEN the installer checks for the manifest
 THEN the installer exits with a non-zero status
 AND prints an error message identifying the missing manifest path
@@ -68,14 +68,14 @@ AND prints a usage message listing all available plugins with their descriptions
 #### F-01.6: Symlink overwrites existing targets
 
 GIVEN `~/.claude/agents/agent-author.md` already exists (as a regular file or a stale symlink)
-WHEN the operator runs `./install.sh pm-workflow --symlink`
+WHEN the operator runs `./install.sh spec-driven-development --symlink`
 THEN the existing file or symlink is replaced by the new symlink (the installer uses `ln -sf`)
 AND no interactive confirmation is requested
 
 #### F-01.7: Symlink overwrites existing skill directories
 
 GIVEN `~/.claude/skills/compiling-planner-agent/` already exists
-WHEN the operator runs `./install.sh pm-workflow --symlink`
+WHEN the operator runs `./install.sh spec-driven-development --symlink`
 THEN the existing skill directory is removed (via `rm -rf`) before the new symlink is created
 AND the new symlink points to the source skill directory
 
@@ -104,7 +104,7 @@ AND no error is raised about missing skills
 #### F-01.11: Permission error halts installation
 
 GIVEN `~/.claude/` exists but the operator lacks write permission to it
-WHEN the operator runs `./install.sh pm-workflow --symlink`
+WHEN the operator runs `./install.sh spec-driven-development --symlink`
 THEN the installer exits with a non-zero status due to `set -euo pipefail`
 AND a system-level permission error is surfaced
 AND no partial installation artifacts are guaranteed to be cleaned up [ASSUMPTION]
@@ -156,7 +156,7 @@ AND contains YAML frontmatter with `name`, `description`, `model`, `tools`, and 
 #### F-02.6: Factory editing in symlink mode affects all future compilations
 
 GIVEN the factory was installed via symlink
-AND the operator edits a skill file in `plugins/pm-workflow/skills/`
+AND the operator edits a skill file in `plugins/spec-driven-development/skills/`
 WHEN any project subsequently invokes that skill
 THEN the modified version of the skill is used
 AND existing product artifacts in other projects remain unchanged until explicitly re-compiled
@@ -174,7 +174,7 @@ AND the factory tier at `~/.claude/` remains unchanged
 
 #### F-03.1: Symlink mode propagates updates on git pull
 
-GIVEN the factory was installed via `./install.sh pm-workflow --symlink`
+GIVEN the factory was installed via `./install.sh spec-driven-development --symlink`
 AND `~/.claude/skills/compiling-planner-agent` is a symbolic link pointing to the source repository
 WHEN the operator runs `git pull` in the source repository and the pull modifies a factory skill
 THEN the skill at `~/.claude/skills/compiling-planner-agent/SKILL.md` reflects the updated content immediately
@@ -189,26 +189,26 @@ AND no Claude Code restart or reinstallation is required
 
 #### F-03.3: Copy mode does not propagate updates
 
-GIVEN the factory was installed via `./install.sh pm-workflow` (copy mode)
+GIVEN the factory was installed via `./install.sh spec-driven-development` (copy mode)
 WHEN the operator runs `git pull` in the source repository and the pull modifies a factory skill
 THEN `~/.claude/skills/` still contains the old version of the skill
-AND the operator must re-run `./install.sh pm-workflow` or manually copy files to update
+AND the operator must re-run `./install.sh spec-driven-development` or manually copy files to update
 
 #### F-03.4: Version is tracked and tagged via release.sh
 
-GIVEN the operator wants to release a new version of pm-workflow
+GIVEN the operator wants to release a new version of spec-driven-development
 AND the git working tree is clean
-WHEN the operator runs `./release.sh pm-workflow patch` (or `minor` or `major`)
+WHEN the operator runs `./release.sh spec-driven-development patch` (or `minor` or `major`)
 THEN the version in `.claude-plugin/plugin.json` is bumped according to semver rules
 AND the version in `.claude-plugin/marketplace.json` is bumped to the same value
-AND a git commit is created with message `chore: release pm-workflow v<NEW_VERSION>`
-AND a git tag `pm-workflow/v<NEW_VERSION>` is created
+AND a git commit is created with message `chore: release spec-driven-development v<NEW_VERSION>`
+AND a git tag `spec-driven-development/v<NEW_VERSION>` is created
 AND the commit and tag are pushed to the remote
 
 #### F-03.5: Release fails when working tree is dirty
 
 GIVEN the operator has uncommitted changes in the repository
-WHEN the operator runs `./release.sh pm-workflow patch`
+WHEN the operator runs `./release.sh spec-driven-development patch`
 THEN the script exits with a non-zero status
 AND prints an error instructing the operator to commit or stash changes
 AND no version bump, commit, or tag is created
@@ -216,15 +216,15 @@ AND no version bump, commit, or tag is created
 #### F-03.6: Release fails when tag already exists
 
 GIVEN the target semver tag already exists in the git history
-WHEN the operator runs `./release.sh pm-workflow patch`
+WHEN the operator runs `./release.sh spec-driven-development patch`
 THEN the script exits with a non-zero status
 AND prints an error identifying the duplicate tag
 AND no files are modified
 
 #### F-03.7: Release fails when plugin is not in marketplace registry
 
-GIVEN `pm-workflow` is absent from `.claude-plugin/marketplace.json`
-WHEN the operator runs `./release.sh pm-workflow patch`
+GIVEN `spec-driven-development` is absent from `.claude-plugin/marketplace.json`
+WHEN the operator runs `./release.sh spec-driven-development patch`
 THEN the script exits with a non-zero status
 AND prints an error identifying the missing marketplace entry
 
@@ -312,7 +312,7 @@ AND the operator should instead use `/compiling-agentic-workflow` which enforces
 
 **Version drift between factory and compiled project agents:** WON'T (this milestone). Operators are expected to re-compile project agents after updating the factory. No automated detection or warning is specified.
 - **OQ-03**: The install.sh script uses `rm -rf` on existing skill directories before creating symlinks (F-01.7). If the existing directory contains operator customizations that were not backed up, those are silently destroyed. Should the installer warn before overwriting?
-- **OQ-04**: The pm-workflow CLAUDE.md notes a "legacy layout" for pm-workflow using root `plugin.json`, but the actual codebase has `.claude-plugin/plugin.json`. This inconsistency in documentation should be resolved.
+- **OQ-04**: The spec-driven-development CLAUDE.md notes a "legacy layout" for spec-driven-development using root `plugin.json`, but the actual codebase has `.claude-plugin/plugin.json`. This inconsistency in documentation should be resolved.
 - **OQ-05**: There is no uninstall command. Operators must manually remove symlinks or copied files from `~/.claude/`. Should `install.sh` support an `--uninstall` flag?
 
 ## Assumptions

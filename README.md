@@ -6,7 +6,7 @@ A marketplace of Claude Code plugins. Install plugins once globally (`~/.claude/
 
 | Plugin | Description | Docs |
 |--------|-------------|------|
-| **pm-workflow** | Self-replicating agentic workflow factory — compiles project-specific agents for any codebase | [README](plugins/pm-workflow/README.md) |
+| **spec-driven-development** | Self-replicating agentic workflow factory — compiles project-specific agents for any codebase | [README](plugins/spec-driven-development/README.md) |
 
 ## Installation
 
@@ -15,7 +15,7 @@ A marketplace of Claude Code plugins. Install plugins once globally (`~/.claude/
 claude plugin marketplace add pipemind-com/agentic-marketplace
 
 # Plugins
-claude plugin install pm-workflow@agentic-marketplace
+claude plugin install spec-driven-development@agentic-marketplace
 claude plugin install rust-lsp@agentic-marketplace
 claude plugin install typescript-lsp@agentic-marketplace
 ```

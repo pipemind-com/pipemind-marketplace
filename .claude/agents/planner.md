@@ -30,7 +30,7 @@ Receive a plugin/skill request via prompt. Make all structural and design decisi
 
 ## Workflow
 1. Understand the request — new plugin, new skill, new agent, or modification?
-2. Explore existing plugins for conventions and patterns (`plugins/pm-workflow/` is the reference)
+2. Explore existing plugins for conventions and patterns (`plugins/spec-driven-development/` is the reference)
 3. Design the structure: file paths, frontmatter fields, section headings, content outline
 4. Verify design: "Does every instruction pass the 80% test? Is the file within line limits?"
 5. Write a task description using the Output Format below

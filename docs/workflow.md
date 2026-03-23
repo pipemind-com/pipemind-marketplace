@@ -1,24 +1,24 @@
 # Workflow
 
 > **AI Context Summary**: Developing marketplace plugins follows a spec-first, agent-assisted pattern.
-> The `pm-workflow` plugin's planner/builder agents apply to the marketplace itself — use them to plan
+> The `spec-driven-development` plugin's planner/builder agents apply to the marketplace itself — use them to plan
 > and implement new plugins or skill additions. Skills are live the moment files change (no restart).
 > Agent changes require re-installing the plugin to take effect.
 
 ## Developing the Marketplace
 
-### Adding a Skill to pm-workflow
+### Adding a Skill to spec-driven-development
 
 1. Plan with the planner agent:
    ```bash
    claude --agent planner
-   # "Add a skill for <purpose> to pm-workflow"
+   # "Add a skill for <purpose> to spec-driven-development"
    ```
 
 2. Implement with the builder agent:
    ```bash
    claude --agent builder
-   # reads the task file, creates plugins/pm-workflow/skills/<gerund>/SKILL.md
+   # reads the task file, creates plugins/spec-driven-development/skills/<gerund>/SKILL.md
    ```
 
 3. Skills are live immediately — no reinstall needed. Verify in `system-reminder` context.
@@ -38,7 +38,7 @@ See [getting-started.md](./getting-started.md) for the full plugin creation chec
 
 ## Planner → Builder Pattern
 
-The `pm-workflow` plugin's agents apply to developing the marketplace itself:
+The `spec-driven-development` plugin's agents apply to developing the marketplace itself:
 
 ```
 You (main thread)
@@ -86,4 +86,4 @@ git pull          # pulls latest plugin files
 
 - Architecture and install flow: [architecture.md](./architecture.md)
 - Plugin formats: [tech-stack.md](./tech-stack.md)
-- pm-workflow workflow details: `plugins/pm-workflow/docs/workflow.md`
+- spec-driven-development workflow details: `plugins/spec-driven-development/docs/workflow.md`

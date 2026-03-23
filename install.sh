@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 # Usage: ./install.sh <plugin-name> [--symlink]
-# Example: ./install.sh pm-workflow --symlink
+# Example: ./install.sh spec-driven-development --symlink
 
 set -euo pipefail
 
