@@ -30,7 +30,7 @@ These principles exist because the research loop only works when experiment resu
 
 1. **Execute, don't narrate.** Run the code. Work the proof. Fetch the data. The difference between this skill and a planning skill is that this one produces real artifacts and real output. If you find yourself writing "this would likely show..." you've slipped into narration.
 2. **Record what happened, not what was expected.** Confirmation bias is the enemy of good research. Write down the actual output, even when it surprises you.
-3. **Be honest about limits.** Some experiments genuinely cannot run with the available tools (missing hardware, paywalled data, domain expertise gaps). Mark these `not-runnable` with a clear explanation rather than attempting unreliable workarounds — a clean "I can't test this" is more valuable than a misleading result.
+3. **Be honest about limits.** Some experiments genuinely cannot run with the available tools (missing hardware, missing software dependencies, paywalled data, domain expertise gaps). Mark these `not-runnable` with a clear explanation rather than attempting unreliable workarounds — a clean "I can't test this" is more valuable than a misleading result.
 4. **Stop when you have a decisive answer.** If an early experiment produces strong confirmation or refutation, running the rest wastes time and adds noise. Mark remaining experiments as `skipped` with a pointer to the decisive result.
 
 ## Workflow
@@ -46,10 +46,12 @@ If all experiments already have results, report that experiments are complete an
 Work through pending experiments in order. For each experiment type, follow the approach below. After each experiment, if the outcome is `confirmed` or `refuted` with `strong` evidence, skip remaining experiments (see the results template in Step 2 for how to record skipped experiments).
 
 **Code experiments (type: code):**
-- Write the code to a temporary file (in `<problem-dir>/tmp/` or inline via Bash)
-- Execute via Bash, capturing stdout, stderr, and exit code
-- Check for required dependencies first (`which <tool>` or `<tool> --version`) — an experiment that fails because of a missing dependency is not a refutation, it is a setup problem
-- Record: what code was run, the full output, and your assessment of the outcome
+- Write code to `<problem-dir>/experiments/<hypothesis-slug>/exp<N>.<ext>` where `<N>` is the next globally sequential integer for that directory (check existing files to determine it), and `<ext>` matches the language (`.py`, `.sh`, `.js`, `.csv`, etc.). Create the directory if it does not exist. Numbers never reset and existing files are never overwritten.
+- The slug is derived from the hypothesis filename (e.g., `hypothesis-01.md` → `hypothesis-01`).
+- Execute via Bash, capturing stdout, stderr, and exit code.
+- Check for required dependencies first (`which <tool>` or `<tool> --version`). A missing dependency means outcome `not-runnable`, not a refutation of the hypothesis.
+- **Safety invariant**: experiment code must not write files outside `<problem-dir>/` and must not spawn persistent background processes. If an experiment requires either, record it as `not-runnable` with an explanation instead of running it.
+- **Failed experiments**: if execution fails (non-zero exit, import error, syntax error), keep the artifact file — it is evidence, not a success signal. Record the full error output and artifact path in Results. Use outcome `inconclusive` or `not-runnable` as appropriate. A failure is not evidence against the hypothesis unless the failure itself is informative.
 
 **Math proof experiments (type: math-proof):**
 - Work through the proof step by step, stating each step as a numbered line (premise, transformation, or deduction)
@@ -65,7 +67,7 @@ Work through pending experiments in order. For each experiment type, follow the 
 
 **Data-analysis experiments (type: data-analysis):**
 - Search for available datasets relevant to the hypothesis (WebSearch)
-- Fetch accessible data (WebFetch or Bash download)
+- Fetch accessible data (WebFetch or Bash download). Save fetched datasets and analysis scripts to `<problem-dir>/experiments/<hypothesis-slug>/` using the same `exp<N>.<ext>` naming convention.
 - Analyze with Bash for structured data (CSV, JSON, etc.) — use Grep to search through local files when relevant
 - Report key statistics, patterns, or anomalies and explain what they mean for the hypothesis
 
@@ -83,12 +85,16 @@ For each completed experiment, fill in the `#### Results` section using Edit. Do
 ```
 #### Results
 
+**Artifact:** experiments/<hypothesis-slug>/exp<N>.<ext>
+
 **Outcome:** <confirmed | refuted | inconclusive | not-runnable>
 
 <Detailed narrative of what was done and what was found. Include code outputs, proof steps, quoted evidence, statistics, or error messages. The reader should be able to verify your conclusion from this record alone.>
 
 **Evidence strength:** <strong | moderate | weak>
 ```
+
+The `**Artifact:**` line is only included when the experiment wrote files to `experiments/`. Math-proof, logical-deduction, and evidence-gathering experiments that produce no persistent artifact omit this line.
 
 Evidence strength guidance:
 - **strong** — the result is decisive and reproducible (code ran with clear output, proof is complete, multiple independent sources agree)
