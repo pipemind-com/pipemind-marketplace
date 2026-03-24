@@ -16,6 +16,7 @@ claude plugin marketplace add pipemind-com/pipemind-marketplace
 
 # Plugins
 claude plugin install spec-driven-development@pipemind-marketplace
+claude plugin install scientific-method@pipemind-marketplace
 claude plugin install rust-lsp@pipemind-marketplace
 claude plugin install typescript-lsp@pipemind-marketplace
 ```
