@@ -1,0 +1,13 @@
+{
+  "name": "mcp-semantic-scholar",
+  "version": "0.1.0",
+  "description": "Semantic Scholar MCP server for academic paper search, citation graphs, and reference discovery.",
+  "agents": [],
+  "skills": [],
+  "dependencies": [],
+  "mcpServers": {
+    "mcp-semantic-scholar": {
+      "command": "${CLAUDE_PLUGIN_ROOT}/bin/mcp-semantic-scholar"
+    }
+  }
+}

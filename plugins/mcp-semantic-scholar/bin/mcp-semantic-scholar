@@ -1,0 +1,45 @@
+#!/usr/bin/env bash
+set -euo pipefail
+
+# Bootstrap script for mcp-semantic-scholar.
+#
+# Resolves paths via readlink -f so the script works when installed as a
+# symlink from ~/.claude/ pointing back to the repo (install.sh --symlink).
+#
+# Dev override: if target/debug/mcp-semantic-scholar exists (i.e. you ran
+# `cargo build` locally), it is used directly. Set S2_USE_RELEASE=1 to force
+# the release binary even during development.
+
+SCRIPT_REAL="$(readlink -f "$0")"
+PLUGIN_ROOT="$(dirname "$SCRIPT_REAL")/.."
+BINARY_RELEASE="${PLUGIN_ROOT}/target/release/mcp-semantic-scholar"
+BINARY_DEBUG="${PLUGIN_ROOT}/target/debug/mcp-semantic-scholar"
+
+if [ -n "${S2_USE_RELEASE:-}" ]; then
+  # Explicit release mode
+  if [ -x "$BINARY_RELEASE" ]; then
+    exec "$BINARY_RELEASE" "$@"
+  fi
+  if ! command -v cargo &>/dev/null; then
+    echo "mcp-semantic-scholar: cargo not found; cannot build release binary" >&2
+    exit 1
+  fi
+  echo "mcp-semantic-scholar: building release binary (first run)..." >&2
+  (cd "$PLUGIN_ROOT" && cargo build --release 2>&1) >&2
+  exec "$BINARY_RELEASE" "$@"
+fi
+
+# Default dev mode: prefer debug, fall back to release, build if neither exists
+if [ -x "$BINARY_DEBUG" ]; then
+  exec "$BINARY_DEBUG" "$@"
+fi
+if [ -x "$BINARY_RELEASE" ]; then
+  exec "$BINARY_RELEASE" "$@"
+fi
+if ! command -v cargo &>/dev/null; then
+  echo "mcp-semantic-scholar: no binary found and cargo is not installed. Run 'cargo build --release' in ${PLUGIN_ROOT}" >&2
+  exit 1
+fi
+echo "mcp-semantic-scholar: building release binary (first run)..." >&2
+(cd "$PLUGIN_ROOT" && cargo build --release 2>&1) >&2
+exec "$BINARY_RELEASE" "$@"
