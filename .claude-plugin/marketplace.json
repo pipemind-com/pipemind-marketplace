@@ -28,7 +28,19 @@
       "name": "scientific-method",
       "source": "./plugins/scientific-method",
       "version": "0.1.4",
-      "description": "Domain-agnostic scientific method research loop: collaboratively refine problems, then autonomously generate and test hypotheses until solved."
+      "description": "Domain-agnostic scientific method research loop: collaboratively refine problems, then autonomously generate and test hypotheses until solved.",
+      "optionalDependencies": [
+        {
+          "name": "mcp-semantic-scholar",
+          "description": "Enables structured academic paper search, citation graphs, and reference snowballing. Without it, skills fall back to WebSearch."
+        }
+      ]
+    },
+    {
+      "name": "mcp-semantic-scholar",
+      "source": "./plugins/mcp-semantic-scholar",
+      "version": "0.1.0",
+      "description": "Semantic Scholar MCP server for academic paper search, citation graphs, and reference discovery."
     }
   ]
 }
