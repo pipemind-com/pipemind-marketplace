@@ -7,7 +7,10 @@
   "dependencies": [],
   "mcpServers": {
     "mcp-semantic-scholar": {
-      "command": "${CLAUDE_PLUGIN_ROOT}/bin/mcp-semantic-scholar"
+      "command": "${CLAUDE_PLUGIN_ROOT}/bin/mcp-semantic-scholar",
+      "env": {
+        "S2_API_KEY": "${S2_API_KEY}"
+      }
     }
   }
 }

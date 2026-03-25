@@ -16,6 +16,7 @@
 - **SC-05**: /stress-testing generates tests that aim to find failures, not confirm correctness; 100+ random cases is the minimum threshold.
 - **SC-06**: /git-commit-changes never includes Co-Authored-By lines, never amends existing commits, and never pushes to remote.
 - **SC-07**: /conducting-post-mortem is read-only — it proposes CLAUDE.md changes but does not apply them.
+- **SC-08**: Building proceeds in exactly two waves: Wave 1 produces test artifacts only; Wave 2 produces implementation code only. No wave may be skipped or merged.
 
 ---
 
@@ -41,6 +42,11 @@
 - **WHEN** the skill performs pre-flight checks
 - **THEN** the skill halts and reports the missing builder agent with a suggestion to run /compiling-builder-agent first
 
+**F-01.4a: Pre-flight — test runner, naming convention, and test scenario specs (failure if missing)**
+- **GIVEN** all agent files exist
+- **WHEN** the skill performs pre-flight checks
+- **THEN** it discovers the test runner command (from package.json scripts, Makefile, Cargo.toml, or CLAUDE.md), the test file naming convention (from existing test files or framework config, e.g., *.test.ts, *_test.go, test_*.py), and verifies that test scenario spec files exist in specs/ (produced by /defining-test-scenarios); if no test runner is found or no test scenario specs exist, the skill halts and reports what is missing; the discovered test runner and naming convention are passed to Wave 1 builders so they follow project conventions
+
 **F-01.5: Requirements gathering — clarification questions**
 - **GIVEN** a feature description is provided but contains ambiguities about scope
 - **WHEN** the skill reaches the requirements gathering phase
@@ -64,32 +70,72 @@
 **F-01.9: Two-pass planning — parallel planner dispatch**
 - **GIVEN** the decomposition is approved and has independent sub-tasks
 - **WHEN** the skill dispatches planners for Pass 1
-- **THEN** all independent planner subagents are launched as simultaneous tool calls in a single response; the skill waits for all to complete before proceeding to reconciliation
+- **THEN** all independent planner subagents are launched as simultaneous tool calls in a single response; each planner prompt includes the relevant test scenario spec file path(s) so the planner can reference them in its output for Wave 1 builders; the skill waits for all to complete before proceeding to reconciliation
 
 **F-01.10: Two-pass planning — reconciliation detects file overlap**
 - **GIVEN** two planner outputs both intend to modify the same file
 - **WHEN** the skill performs Pass 2 reconciliation
 - **THEN** the skill identifies the conflict, determines which sub-task should own the file, adjusts the other sub-task's scope accordingly, and notes the resolution before building
 
-**F-01.11: Parallel building — all unblocked builders launched together**
-- **GIVEN** the task graph has multiple sub-tasks with no unresolved dependencies
-- **WHEN** the skill launches builders
-- **THEN** all unblocked builders are dispatched as simultaneous tool calls in a single response
+**F-01.11: Wave 1 dispatch — all test builders launched in parallel**
+- **GIVEN** the task graph is reconciled and Wave 1 (test building) begins
+- **WHEN** the skill dispatches test builders
+- **THEN** all test builders for every sub-task are launched as simultaneous tool calls in a single response, regardless of inter-task dependency ordering; each builder receives its planner output and is instructed to write tests only — no implementation code
 
-**F-01.12: Parallel building — blocked sub-task waits for dependency**
-- **GIVEN** sub-task B depends on sub-task A, and A has not yet completed
-- **WHEN** the skill considers launching B
-- **THEN** B is not launched until A's builder reports completion; the skill continues with other unblocked tasks in the meantime
+**F-01.12: Wave 1 scope enforcement — test artifacts and minimal type stubs only**
+- **GIVEN** a test builder is executing during Wave 1
+- **WHEN** it produces output files
+- **THEN** the output contains test files (test/spec files, fixtures, and test helpers) and optionally minimal type/interface stub files that tests import; stub files contain only type signatures and interface definitions with no implementation logic; no production source files with real implementation are created or modified
 
-**F-01.13: Partial builder completion — auto-retry once**
-- **GIVEN** a builder subagent reports that some tests pass and some fail (partial completion)
-- **WHEN** the orchestrator receives the result
-- **THEN** it re-launches the builder for that sub-task exactly once with a note about the specific test failures; if the retry also reports partial or full failure, the orchestrator marks the sub-task as failed and escalates to the operator before proceeding
+**F-01.12a: Wave 1 quality gate — test builders verify against spec and quality review**
+- **GIVEN** a test builder has produced test files during Wave 1
+- **WHEN** the builder checks its output before confirming the red phase
+- **THEN** it runs /reviewing-code-quality on its test files and verifies that the tests cover the scenarios defined in the test scenario spec file referenced by the planner output for that sub-task; if the quality gate reports Warning/Defect findings or test scenarios are missing coverage, the builder addresses them before proceeding to the red-phase check
 
-**F-01.14: Completion report**
-- **GIVEN** all builders have reported completion or failure
+**F-01.13: Wave 1 red-phase ownership — test builders verify their own tests fail**
+- **GIVEN** a test builder has finished writing tests
+- **WHEN** the builder runs its tests before reporting completion
+- **THEN** every test must fail (red phase); if any test passes unexpectedly, the builder diagnoses why and decides case-by-case: rewrite the test to target unimplemented behavior, or delete it if it tests already-implemented behavior; the builder iterates until all remaining tests correctly fail and does not report success until the red phase is confirmed; there is no orchestrator-imposed retry limit — the builder runs until it converges or hits Claude Code's natural context limits
+
+**F-01.14: Wave 1 to Wave 2 transition — orchestrator waits for all test builders**
+- **GIVEN** all test builders have been dispatched
+- **WHEN** the orchestrator collects results
+- **THEN** it waits for every test builder to report successful completion (tests written and confirmed failing); only after all report success does Wave 2 begin; if a builder reports failure (unable to produce valid failing tests after its own internal retries), the orchestrator asks the operator per sub-task whether to skip it in Wave 2 or build without tests; if no response within 30 seconds, it defaults to skipping the sub-task and proceeds with Wave 2 for the remaining sub-tasks
+
+**F-01.15: Wave 2 dispatch — code builders launched respecting dependency graph**
+- **GIVEN** Wave 1 is complete (all test builders finished or failed) and Wave 2 (code building) begins
+- **WHEN** the skill dispatches code builders
+- **THEN** all unblocked code builders are launched as simultaneous tool calls in a single response; builders whose sub-tasks have unresolved dependencies are held back
+
+**F-01.16: Wave 2 context — code builders receive test file paths**
+- **GIVEN** a code builder is being launched for a sub-task whose Wave 1 produced test files
+- **WHEN** the builder prompt is composed
+- **THEN** it includes the file paths of the test files from Wave 1 for that sub-task; the builder reads those files itself to discover what to implement — test content is not inlined in the prompt
+
+**F-01.17: Wave 2 blocked — code builder waits for dependency**
+- **GIVEN** code sub-task B depends on sub-task A, and A's code builder has not yet completed
+- **WHEN** the skill considers launching B's code builder
+- **THEN** B is not launched until A's code builder reports completion; the skill continues launching other unblocked code builders in the meantime
+
+**F-01.18: Wave 2 convergence ownership — code builders iterate until tests pass**
+- **GIVEN** a code builder is executing and some tests fail
+- **WHEN** the builder detects failing tests during its run
+- **THEN** the builder iterates internally — diagnosing failures, adjusting implementation, and re-running tests — until all Wave 1 tests for its sub-task pass; there is no orchestrator-imposed retry limit; the builder runs until it converges or hits Claude Code's natural context limits; if the builder reports failure (unable to make tests pass), the orchestrator escalates to the operator
+
+**F-01.18a: Wave 2 spec-implemented gate — code builders verify feature completeness**
+- **GIVEN** a code builder has made all its Wave 1 tests pass
+- **WHEN** the builder performs its final check before reporting completion
+- **THEN** it reviews the feature description from its planner output and the referenced behavioral spec scenarios to verify that every specified behavior has been implemented — not just the behaviors covered by tests; if the builder identifies a spec requirement that is neither implemented nor tested, it fills the gap inline: writes the missing test, confirms it fails, implements the code, and confirms the test passes (full TDD micro-cycle within the builder); the builder does not declare completion until both all tests pass and all spec requirements are covered
+
+**F-01.19: Final verification — test suite green**
+- **GIVEN** all code builders have reported completion or failure
+- **WHEN** the orchestrator performs final verification
+- **THEN** it runs the project's full test suite; all Wave 1 tests corresponding to completed sub-tasks are expected to pass; if a sub-task's tests fail due to another builder's changes (cross-contamination), the orchestrator reports which sub-task's tests broke and which builder likely caused it — the operator decides how to resolve; any remaining failures are reported as outstanding issues
+
+**F-01.20: Completion report**
+- **GIVEN** final verification is complete
 - **WHEN** the skill produces its final output
-- **THEN** it presents a summary of sub-tasks (status, files modified, test results), lists any outstanding issues, and suggests invoking /git-commit-changes and /conducting-post-mortem as next steps
+- **THEN** it presents a rolled-up summary of sub-tasks (status, files modified, test results), lists any outstanding issues, and suggests invoking /git-commit-changes and /conducting-post-mortem as next steps
 
 ---
 
@@ -278,3 +324,6 @@
 - **A-03**: [ASSUMPTION] /reviewing-code-quality does not have a hard line limit for input; it handles directories and globs by processing files iteratively.
 - **A-04**: [ASSUMPTION] /git-commit-changes operates only on the current git repository's working tree; it does not traverse into submodules.
 - **A-05**: [ASSUMPTION] /conducting-post-mortem does not have access to previous conversation sessions; it can only analyze the current session's history.
+- **A-07**: Wave 1 test builders run in parallel regardless of inter-task dependencies — tests define expected behavior without creating real interfaces that other tests consume. Wave 2 code builders respect the dependency graph.
+- **A-08**: The red phase is owned by the test builder, not the orchestrator. Each Wave 1 builder runs its own tests, confirms they fail, and fixes any that pass before reporting success. The orchestrator only waits for completion signals.
+- **A-09**: [ASSUMPTION] The planner produces a single unified plan per sub-task; the orchestrator splits execution into test-first vs code phases by instructing each wave's builders differently, not by running planners twice.

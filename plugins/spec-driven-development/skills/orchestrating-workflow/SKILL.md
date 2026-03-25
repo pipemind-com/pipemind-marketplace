@@ -32,6 +32,10 @@ Before anything else, verify all prerequisites exist. FAIL and stop if any are m
 2. `.claude/agents/planner.md` exists — if not: "Run `/compiling-planner-agent` first"
 3. `.claude/agents/builder.md` exists — if not: "Run `/compiling-builder-agent` first"
 4. Feature description was provided as argument — if not: "Provide a feature description, spec file path, or issue URL"
+5. Discover test runner command: check `package.json` scripts, `Makefile`, `Cargo.toml`, then `CLAUDE.md` — if not found: halt with "No test runner found — add a test command to package.json, Makefile, or CLAUDE.md"
+6. Discover test file naming convention: scan existing test files for pattern (e.g., `*.test.ts`, `*_test.go`, `test_*.py`) — if not found: halt with "No test file naming convention found — add example to CLAUDE.md"
+7. Verify test scenario spec files exist in `specs/` (produced by `/defining-test-scenarios`) — if none found: halt with "No test scenario specs in specs/ — run `/defining-test-scenarios` first"
+8. Store discovered test runner command and naming convention for Wave 1 builder prompts
 
 Once verified, read `CLAUDE.md` and list available `docs/*.md` files — these will be passed as context to subagents.
 
@@ -74,6 +78,7 @@ Each planner prompt includes:
 - List of available `docs/` files
 - Sub-task title and scope
 - Dependency context: predecessor sub-task scopes and their completed plans (if available)
+- Relevant test scenario spec file path(s) from `specs/` — so the planner can reference specific scenarios in its output for Wave 1 builders
 
 **Emit all independent planner Task calls in a single response** — multiple tool calls in one message run concurrently. Never launch planners one at a time. Only wait for a predecessor's plan to finish before launching a dependent sub-task, then immediately launch that dependent planner.
 
@@ -97,45 +102,70 @@ Then create the task graph:
   #4 Add auth tests               [blocked by #2, #3]
   ```
 
-## Phase 4: Parallel Building
+## Wave 1 — Test Building
 
-### Launch Loop
+Launch ALL test builders for every sub-task simultaneously in a single response — dependency ordering is Wave 2's concern.
 
-1. Call `TaskList` to identify all currently unblocked pending tasks
-2. For each unblocked task, call `TaskUpdate` to `in_progress` and `TaskGet` to retrieve its planner output — do these prep calls in parallel too
-3. Check each for file conflicts with already-running builders
-4. **In a single response, emit one `Task` call per non-conflicting builder** — this launches them all concurrently. Never serialize builders that could run in parallel. Each Task call must use `subagent_type: general-purpose` and begin the prompt with `@"builder (agent)"` so Claude Code routes it to the compiled builder agent.
+Each Wave 1 builder prompt begins with `@"builder (agent)"` using `subagent_type: general-purpose`, and includes: planner output, instruction to write TESTS ONLY, discovered test runner command, test file naming convention, and relevant test scenario spec file path(s).
 
-### Completion Handling
+Builders may only produce: test files, fixtures, test helpers, and minimal type/interface stubs (type signatures only — no implementation logic).
 
-- **Builder completes successfully** → `TaskUpdate` to `completed`, call `TaskList` to find all newly unblocked tasks, **launch them all in a single response**
-- **Builder reports blocked** → pause, surface to user via AskUserQuestion: "Builder for '{task}' is blocked: {reason}" with options: Provide guidance / Skip task / Abort all
-- **Builder reports partial completion** (some tests pass, some fail) → re-launch that builder exactly once with a note listing the specific failing tests; if the retry also reports partial or full failure → mark the sub-task `failed` and surface to user via AskUserQuestion: "Builder for '{task}' failed after retry: {reason}" with options: Retry with guidance / Skip task / Abort all
-- **Builder fails** → same pause-and-ask pattern with options: Retry with guidance / Skip task / Abort all
+Each Wave 1 builder must satisfy these completion criteria before reporting done:
 
-Repeat the launch loop until all tasks are completed, skipped, or aborted.
+1. Builder runs `/reviewing-code-quality` on its test files — addresses any Warning/Defect findings
+2. Builder verifies all scenarios from the referenced test scenario spec file are covered by at least one test
+3. Builder runs tests and confirms ALL fail (red phase) — if any test passes: rewrite it to target unimplemented behavior, or delete it if trivially true; iterate until all tests fail (no orchestrator retry limit)
 
-## Phase 5: Completion Report
+Wait for ALL Wave 1 builders before starting Wave 2.
+
+If a builder fails: ask operator per sub-task — "Skip in Wave 2 or build without tests?" (30-second timeout defaults to skip).
+
+## Wave 2 — Code Building
+
+Launch unblocked code builders in parallel (single response), respecting the dependency graph.
+
+Each Wave 2 builder prompt begins with `@"builder (agent)"` using `subagent_type: general-purpose`, and includes: planner output and the FILE PATHS (not content) of Wave 1 test files. The builder reads those files itself.
+
+Each Wave 2 builder must satisfy these completion criteria before reporting done:
+
+1. Builder implements code, iterates until all Wave 1 tests pass (no orchestrator retry limit)
+2. After tests pass: builder runs spec-implemented gate — reviews feature description and behavioral spec scenarios to verify all specified behaviors are implemented
+3. If gap found: builder runs TDD micro-cycle inline (write test → confirm fail → implement → confirm pass)
+4. Builder does not declare completion until all tests pass AND all spec scenarios are covered
+
+Completion handling:
+- Builder completes → `TaskUpdate` to `completed`, `TaskList` to find newly unblocked tasks, launch them in single response
+- Builder reports blocked → pause, surface to user via AskUserQuestion: "Builder for '{task}' is blocked: {reason}" with options: Provide guidance / Skip task / Abort all
+- Builder reports partial completion → re-launch exactly once with failing test list; if retry fails → mark `failed`, surface to user via AskUserQuestion: "Builder for '{task}' failed after retry: {reason}" with options: Retry with guidance / Skip task / Abort all
+- Builder fails → same pause-and-ask pattern with options: Retry with guidance / Skip task / Abort all
+- Repeat until all tasks completed, skipped, or aborted
+
+## Phase 5: Final Verification
+
+1. Run the project's full test suite using the discovered test runner command
+2. If any Wave 1 test for a completed sub-task fails: identify cross-contamination — report which sub-task's tests broke and which Wave 2 builder likely caused it
+3. Surface cross-contamination to operator via AskUserQuestion before proceeding to completion report
+
+## Phase 6: Completion Report
 
 When all tasks finish, print a summary:
 
 ```
 Orchestration Complete
 =====================
-| # | Task                    | Status    | Files Modified           |
-|---|-------------------------|-----------|--------------------------|
-| 1 | Add auth middleware      | completed | src/middleware/auth.ts    |
-| 2 | Add login/logout routes  | completed | src/routes/auth.ts       |
-| 3 | Add session persistence  | skipped   | —                        |
-| 4 | Add auth tests           | completed | tests/auth.test.ts       |
+| # | Task                    | Status    | Files Modified           | Tests |
+|---|-------------------------|-----------|--------------------------|-------|
+| 1 | Add auth middleware      | completed | src/middleware/auth.ts    | 4     |
+| 2 | Add login/logout routes  | completed | src/routes/auth.ts       | 6     |
+| 3 | Add session persistence  | skipped   | —                        | —     |
+| 4 | Add auth tests           | completed | tests/auth.test.ts       | 3     |
 
-Test Results: 12 passed, 0 failed
+Test Results: 13 passed, 0 failed
 Issues: Task #3 skipped (user decision)
 ```
 
-Then run `/git-commit-changes of the changes we implemented` to create atomic commits
-
 Suggest next steps:
+- `/git-commit-changes` to create atomic commits
 - `/conducting-post-mortem` to capture lessons learned
 
 ## Red Flags
@@ -147,3 +177,5 @@ Stop and reassess if any of these occur:
 - No user confirmation happened before building phase (always confirm decomposition first)
 - A failure is being silently swallowed (always surface errors to the user)
 - Agents are being launched one at a time when multiple are unblocked (always batch into a single response)
+- Wave 2 builders are launching before all Wave 1 builders have confirmed all-tests-failing (always wait for complete red phase)
+- A Wave 1 builder produced implementation code rather than tests (re-run with explicit test-only instruction)
