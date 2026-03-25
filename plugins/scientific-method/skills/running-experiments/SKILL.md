@@ -12,6 +12,10 @@ allowed-tools:
   - Bash
   - WebSearch
   - WebFetch
+  - mcp__mcp-semantic-scholar__search_papers
+  - mcp__mcp-semantic-scholar__get_paper
+  - mcp__mcp-semantic-scholar__get_references
+  - mcp__mcp-semantic-scholar__get_citations
 model: opus
 color: red
 ---
@@ -60,13 +64,14 @@ Work through pending experiments in order. For each experiment type, follow the 
 - If the proof requires knowledge or techniques beyond what is available: state the gap precisely
 
 **Evidence-gathering experiments (type: evidence-gathering):**
-- Run 2-3 targeted WebSearch queries to find direct evidence
-- WebFetch the most relevant sources
+- If `search_papers` is available, prefer it for academic evidence queries — it returns structured results with citation counts and open-access links. Use `get_references`/`get_citations` to follow citation chains from key papers. Fall back to WebSearch for non-academic sources or if MCP tools are unavailable.
+- Otherwise run 2-3 targeted WebSearch queries to find direct evidence
+- WebFetch the most relevant sources (or use metadata from MCP results directly)
 - Quote or summarize the key passages, referencing REF IDs from `references.md` where available
 - Assess whether the gathered sources support, contradict, or leave the hypothesis unresolved
 
 **Data-analysis experiments (type: data-analysis):**
-- Search for available datasets relevant to the hypothesis (WebSearch)
+- Search for available datasets relevant to the hypothesis (use `search_papers` if available to find papers with linked datasets, otherwise WebSearch)
 - Fetch accessible data (WebFetch or Bash download). Save fetched datasets and analysis scripts to `<problem-dir>/experiments/<hypothesis-slug>/` using the same `exp<N>.<ext>` naming convention.
 - Analyze with Bash for structured data (CSV, JSON, etc.) — use Grep to search through local files when relevant
 - Report key statistics, patterns, or anomalies and explain what they mean for the hypothesis
@@ -114,7 +119,7 @@ Experiment <N> produced a decisive <confirmed|refuted> result with strong eviden
 
 **Only for experiments with `confirmed` outcome where the hypothesis file contains a `## Literature` section.**
 
-Run 1-2 targeted WebSearches comparing the confirmed result against existing published work. Search for the specific method, finding, or mechanism confirmed — not general background.
+Run 1-2 targeted searches comparing the confirmed result against existing published work (prefer `search_papers` if available, otherwise WebSearch). Search for the specific method, finding, or mechanism confirmed — not general background.
 
 If the literature section has fewer than 3 sources, this search is especially important to avoid false novelty claims.
 
