@@ -1,6 +1,6 @@
 {
   "name": "scientific-method",
-  "version": "0.1.5",
+  "version": "0.1.6",
   "description": "Domain-agnostic scientific method research loop: collaboratively refine problems, then autonomously generate and test hypotheses until solved.",
   "author": {
     "name": "Pipemind Technologies Inc.",
