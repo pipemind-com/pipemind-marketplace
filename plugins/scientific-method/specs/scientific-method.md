@@ -8,7 +8,7 @@
 ## System Constraints
 
 - **SC-01**: Every skill must be idempotent. Re-running a skill on the same file must detect completed work and skip it. File state is the sole checkpoint — no in-memory state persists across sessions.
-- **SC-02**: After the operator confirms `problem.md`, the autonomous loop must not prompt or block on operator input. The only exception is if MAX_ITERATIONS is reached, at which point the loop exits and reports.
+- **SC-02**: After `problem.md` is written by the autonomous refinement loop, the research loop must not prompt or block on operator input. No skill in the pipeline uses `AskUserQuestion`. The only exception is if MAX_ITERATIONS is reached, at which point the loop exits and reports.
 - **SC-03**: Hypothesis numbering must be globally sequential across all iterations. Once `hypothesis-03.md` exists, the next hypothesis is always `hypothesis-04.md`, regardless of which iteration created it. Hypothesis filenames are immutable once created — no skill may rename or renumber an existing hypothesis file. This preserves the integrity of artifact paths recorded in Results sections.
 - **SC-04**: Every literature source must receive a stable REF-NNN identifier in `references.md`. Skills reference sources by these IDs. IDs must never be reused or reassigned.
 - **SC-05**: Experiment results must record what was actually observed, not what was expected. Fabricated or simulated results are prohibited. If an experiment cannot be executed, the result must be `not-runnable` with an explanation.
@@ -26,40 +26,35 @@
 
 ### F-01: Problem Refinement | MUST
 
-**F-01.1: Initial problem setup (happy path)**
-- **GIVEN** an operator with a rough problem statement and a problem slug
-- **WHEN** the operator invokes `/refining-problem` with the slug and description
-- **THEN** a problem directory is created, background `/researching-literature` agents are launched in parallel (inheriting dual-track search and quality gate from F-07), and the operator is asked their first refinement question
+**F-01.1: Autonomous problem setup (happy path)**
+- **GIVEN** a problem slug and initial description
+- **WHEN** the orchestrator invokes `/refining-problem`
+- **THEN** a problem directory is created, background `/researching-literature` agents are launched in parallel (inheriting dual-track search and quality gate from F-07), and an initial draft of `problem.md` is written from the initial description
 
-**F-01.2: Background literature informs refinement**
-- **GIVEN** background `/researching-literature` agents are running while the operator answers questions
-- **WHEN** the agents complete and return findings
-- **THEN** relevant findings are surfaced in subsequent questions to the operator, not dumped as a raw list. Sources are written to `references.md` following the same quality and recency standards as all other literature research
+**F-01.2: Background literature informs autonomous refinement**
+- **GIVEN** background `/researching-literature` agents complete while the initial draft exists
+- **WHEN** the agents return findings
+- **THEN** findings are synthesized into the Background section of `problem.md`, and the skill assesses the problem definition against three quality criteria: clear research question, testable success criteria, and appropriate scope
 
-**F-01.3: Operator confirms problem statement**
-- **GIVEN** a draft `problem.md` has been written after 3-5 questions
-- **WHEN** the operator confirms the problem statement
-- **THEN** `problem.md` is finalized — including a `Novelty required: yes/no` field that the operator sets — and the skill exits, signaling readiness for the autonomous loop. The novelty field determines whether the orchestrator (F-08) requires a novel solution or accepts replications as valid solutions. Once confirmed, `problem.md` fields including the novelty requirement are immutable for the duration of the research session
+**F-01.3: Autonomous refinement iteration**
+- **GIVEN** the problem definition fails one or more quality criteria
+- **WHEN** refinement iterations remain (max 3)
+- **THEN** the deficient sections of `problem.md` are refined, 1-2 targeted `/researching-literature` Tasks are launched to fill knowledge gaps, and the quality assessment is repeated
 
-**F-01.4: Operator requests adjustments**
-- **GIVEN** a draft `problem.md` has been presented
-- **WHEN** the operator selects "Needs adjustments"
-- **THEN** the operator is asked what to change, the file is updated, and confirmation is requested again
+**F-01.4: Autonomous novelty determination**
+- **GIVEN** the problem definition passes quality criteria (or 3 refinement iterations have elapsed)
+- **WHEN** the skill finalizes `problem.md`
+- **THEN** the `Novelty required:` field is auto-determined from the literature landscape: `yes` if existing published solutions substantially cover the problem space, `no` if the space is largely unexplored or preliminary. Once set, this field is immutable for the duration of the research session
 
-**F-01.5: Operator starts over**
-- **GIVEN** a draft `problem.md` has been presented
-- **WHEN** the operator selects "Start over"
-- **THEN** the existing file is cleared and refinement returns to the question phase
-
-**F-01.6: Resume from existing problem.md**
+**F-01.5: Resume from existing problem.md**
 - **GIVEN** `problem.md` already exists in the problem directory
-- **WHEN** the operator invokes `/refining-problem`
-- **THEN** the existing file is read and the operator is asked to re-confirm without re-drafting
+- **WHEN** `/refining-problem` is invoked
+- **THEN** the existing file is read and the skill skips to the quality assessment step without re-drafting
 
-**F-01.7: Missing initial description on first run (failure)**
+**F-01.6: Missing initial description on first run (failure)**
 - **GIVEN** no `problem.md` exists and no initial description is provided
-- **WHEN** the operator invokes `/refining-problem` with only a slug
-- **THEN** the skill proceeds but generates questions from the slug alone, producing a less-informed first draft [ASSUMPTION]
+- **WHEN** `/refining-problem` is invoked with only a slug
+- **THEN** the skill proceeds but infers the problem from the slug alone, producing a less-informed first draft [ASSUMPTION]
 
 ### F-02: Hypothesis Generation | MUST
 
@@ -68,17 +63,17 @@
 **F-02.1: First-iteration hypothesis generation (happy path)**
 - **GIVEN** a confirmed `problem.md` exists and no hypothesis files exist
 - **WHEN** `/generating-hypotheses` is invoked on the problem directory
-- **THEN** 2-5 hypothesis stub files are created (`hypothesis-01.md` through `hypothesis-NN.md`), each containing a falsifiable statement, rationale, and `pending` status
+- **THEN** hypothesis stub files are created (minimum 4, as many as the problem space warrants), each containing a falsifiable statement, rationale, and `pending` status
 
 **F-02.2: Subsequent-iteration hypothesis generation**
 - **GIVEN** hypothesis files from prior iterations exist, some with `confirmed`, `refuted`, or `inconclusive` conclusions
 - **WHEN** `/generating-hypotheses` is invoked
 - **THEN** new hypotheses are generated that build on prior conclusions, do not duplicate confirmed or refuted claims, and are numbered sequentially after the last existing file
 
-**F-02.3: All prior hypotheses still pending (warning)**
+**F-02.3: All prior hypotheses still pending (skip)**
 - **GIVEN** existing hypothesis files all have status `pending` (none concluded)
 - **WHEN** `/generating-hypotheses` is invoked
-- **THEN** a warning is issued that untested hypotheses already exist, and the operator is asked whether to proceed or abort
+- **THEN** the skill skips generation and reports that pending hypotheses must be tested first
 
 **F-02.4: No problem.md exists (failure)**
 - **GIVEN** the problem directory has no `problem.md`
@@ -285,17 +280,17 @@
 **F-08.1: Full loop from scratch (happy path)**
 - **GIVEN** an operator invokes `/researching` with a slug and description and no prior state exists
 - **WHEN** the orchestrator runs
-- **THEN** Phase 1 (problem refinement) involves the operator, then Phase 2 runs autonomously through hypothesis generation, refinement, experimentation, conclusion, and assessment without operator interaction
+- **THEN** Phase 1 (problem refinement) runs autonomously, then Phase 2 runs autonomously through hypothesis generation, refinement, experimentation, conclusion, and assessment — no operator interaction at any point
 
 **F-08.2: Problem solved in first iteration**
 - **GIVEN** the autonomous loop completes Step E and at least one hypothesis is `confirmed`
 - **WHEN** the confirmed hypothesis satisfies the success criteria in `problem.md`
 - **THEN** `findings.md` is written with outcome "solved" and the loop stops
 
-**F-08.3: Problem not solved, iteration continues**
+**F-08.3: Problem not solved, iteration continues with refinement addendum**
 - **GIVEN** the autonomous loop completes Step E and no hypothesis is confirmed (all refuted or inconclusive)
 - **WHEN** fewer than 5 iterations have completed
-- **THEN** the loop returns to Step A, and `/generating-hypotheses` reads prior conclusions to produce new angles
+- **THEN** a refinement addendum is appended to `problem.md` summarizing hypotheses tested, key findings, remaining gaps, and suggested direction. The loop then returns to Step A, and `/generating-hypotheses` reads prior conclusions and the addendum to produce new angles
 
 **F-08.4: Maximum iterations reached (termination)**
 - **GIVEN** 5 full iterations have completed without a confirmed solution
@@ -348,26 +343,31 @@
 **F-10.1: Solved findings (happy path)**
 - **GIVEN** the loop exits because a hypothesis was confirmed and satisfies success criteria
 - **WHEN** `findings.md` is written
-- **THEN** it contains: outcome "solved", solution summary, what was ruled out, open questions, iteration count, lists of confirmed and refuted hypotheses, and a `## Publishability Assessment` section
+- **THEN** it contains: outcome "solved", solution summary, what was ruled out, open questions, iteration count, lists of confirmed and refuted hypotheses, and a `## Publishability Assessment` section. An `article-abstract.md` is also written alongside
 
 **F-10.2: Inconclusive findings (termination)**
 - **GIVEN** the loop exits because MAX_ITERATIONS was reached
 - **WHEN** `findings.md` is written
-- **THEN** it contains: outcome "inconclusive after N iterations", what was ruled out, open questions with concrete follow-up directions, iteration count, lists of confirmed and refuted hypotheses, and a `## Publishability Assessment` section
+- **THEN** it contains: outcome "inconclusive after N iterations", what was ruled out, open questions with concrete follow-up directions, iteration count, lists of confirmed and refuted hypotheses, and a `## Publishability Assessment` section. An `article-abstract.md` is also written alongside
 
 **F-10.3: Publishability assessment in all findings**
 - **GIVEN** `findings.md` is being written (solved or inconclusive)
 - **WHEN** the `## Publishability Assessment` section is generated
 - **THEN** it evaluates three dimensions: (1) **Rigor** — whether the methodology, evidence collection, and statistical treatment meet publication-grade standards, (2) **Novelty** — whether the results advance beyond what the literature already establishes, distinguishing between `novel` (no prior art), `incremental` (extends prior work), and `replication` (reproduces known findings). Incremental contributions are noted as potentially suitable for workshop papers or short communications, while fully novel contributions may warrant a full paper, (3) **Significance** — whether the findings address a meaningful question with practical or theoretical impact. Each dimension receives a brief assessment. The section concludes with a verdict: `publishable`, `publishable-with-revisions`, or `not-publishable`. For `publishable-with-revisions` and `not-publishable` verdicts, the assessment includes 2-3 concrete, actionable suggestions for improving publishability (e.g., "gather additional data on X", "compare results against <method> from REF-NNN", "narrow scope to <specific aspect> where the contribution is clearest")
 
+**F-10.4: article-abstract.md written alongside findings**
+- **GIVEN** `findings.md` is being written (solved or inconclusive)
+- **WHEN** the loop exits
+- **THEN** `article-abstract.md` is written with a formal academic abstract (Background, Methods, Results, Conclusions), 200-350 words in length, suitable for conference or journal submission. It includes keywords, hypothesis count, iteration count, and outcome metadata
+
 ## Open Questions
 
 - ~~OQ-01~~: Resolved — fixed at 5 per invocation. Operator can re-invoke for another 5-iteration session.
 - OQ-02: Should findings.md include a cost/token summary of the research session?
-- OQ-03: What happens if the operator re-invokes `/refining-problem` after the autonomous loop has already started — should it reset the entire session or only update problem.md?
+- ~~OQ-03~~: Resolved — `/refining-problem` is no longer user-invocable. The orchestrator is the sole entry point.
 
 ## Assumptions
 
-- A-01: [ASSUMPTION] If no initial description is provided on first run, the skill will generate questions based solely on the slug name. The operator can always provide more context in their answers.
+- A-01: [ASSUMPTION] If no initial description is provided on first run, the skill will infer the problem from the slug name alone, producing a less-informed first draft.
 - A-02: [ASSUMPTION] The `/researching-literature` skill can fetch content from any publicly accessible URL. Paywalled or gated content is handled gracefully by recording the URL for manual access.
 - A-03: [ASSUMPTION] All hypothesis files within a single problem directory follow the same structural contract. Third-party files placed in the directory that do not conform are ignored by the orchestrator.

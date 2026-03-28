@@ -24,6 +24,6 @@ Novelty required: yes | no
 - <...>
 
 ## Background
-<Summary of what is known, synthesized from operator answers and literature research>
+<Summary of what is known, synthesized from literature research>
 
 See references.md for sources.

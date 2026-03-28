@@ -1,7 +1,7 @@
 ---
 name: refining-hypothesis
 description: "Deepen a hypothesis with targeted literature research. Use whenever a hypothesis file needs supporting evidence, counterexamples, or a sharpened claim — including after generating-hypotheses or when a user asks to refine, strengthen, or research a specific hypothesis."
-user-invocable: true
+user-invocable: false
 argument-hint: "path to hypothesis file (e.g., './dark-matter/hypothesis-01.md')"
 allowed-tools:
   - Read

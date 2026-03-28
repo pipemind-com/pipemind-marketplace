@@ -1,7 +1,7 @@
 ---
 name: designing-experiments
 description: "This skill should be used when the user asks to 'design experiments', 'plan tests for a hypothesis', 'create experiment paths', or 'figure out how to test this hypothesis'. Designs 1–3 experiment paths to verify or falsify a hypothesis and writes them into the hypothesis file."
-user-invocable: true
+user-invocable: false
 argument-hint: "path to hypothesis file (e.g., './dark-matter/hypothesis-01.md')"
 allowed-tools:
   - Read

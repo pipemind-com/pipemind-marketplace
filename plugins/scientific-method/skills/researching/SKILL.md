@@ -10,14 +10,15 @@ allowed-tools:
   - Glob
   - Bash
   - Task
-  - AskUserQuestion
 model: opus
 color: cyan
 ---
 
 # Researching
 
-Orchestrator for the scientific method loop. The operator participates only in Phase 1 (problem refinement). After that, the loop runs fully autonomously — generating hypotheses, researching, experimenting, concluding, and looping until the problem is solved or 5 iterations pass.
+Orchestrator for the scientific method loop. The entire loop runs fully autonomously — no operator interaction is required after invocation. It refines the problem, generates hypotheses, researches, experiments, concludes, and loops until the problem is solved or 5 iterations pass.
+
+**CRITICAL: You must execute the ENTIRE pipeline (Phase 1 through Step F) in a single session. After each step completes, immediately proceed to the next step — do NOT produce a text-only response or stop until `findings.md` and `article-abstract.md` have been written. Every intermediate step MUST be followed by a tool call for the next step.**
 
 **Idempotent**: re-running resumes where it left off by reading file state, so no work is duplicated and interrupted sessions recover cleanly.
 
@@ -39,7 +40,7 @@ Orchestrator for the scientific method loop. The operator participates only in P
 ## Loop Overview
 
 ```
-Phase 1 (operator involved):  Refine problem -> problem.md
+Phase 1 (autonomous):  Refine problem -> problem.md
 
 Phase 2 (autonomous):
   while not solved and iteration < MAX_ITERATIONS:
@@ -48,7 +49,7 @@ Phase 2 (autonomous):
     C: Design experiments (parallel)
     D: Run experiments (parallel)
     E: Draw conclusions (parallel)
-    F: Assess -- solved or loop
+    F: Assess -- solved, refine problem and loop, or stop
 ```
 
 ---
@@ -68,6 +69,7 @@ Use `Glob` for `<slug>/hypothesis-*.md`, then `Read` each file to check section 
 | Any hypothesis with `## Experiments` containing an empty `#### Results` and status not resolved | Step D |
 | Any hypothesis with results but no `## Conclusion` | Step E |
 | All hypotheses have conclusions | Step F |
+| `findings.md` exists but `article-abstract.md` does not | Write `article-abstract.md` from findings |
 
 A hypothesis is "resolved" if its status is `confirmed` or `refuted`. Hypotheses resolved by literature alone (confirmed/refuted during Step B without needing experiments) skip Steps C-D-E entirely.
 
@@ -75,15 +77,15 @@ A hypothesis is "resolved" if its status is `confirmed` or `refuted`. Hypotheses
 
 ---
 
-## Phase 1: Refine Problem (operator involved)
+## Phase 1: Refine Problem (autonomous)
 
-If `problem.md` does not exist, invoke the refining-problem skill:
+If `problem.md` does not exist, spawn a Task agent to refine the problem:
 
-```
-Skill("refining-problem", args="<slug> <initial-description>")
-```
+> Read the skill at `<path-to-refining-problem/SKILL.md>`, then follow its instructions EXACTLY to refine the problem. You MUST NOT ask questions or wait for user input — the skill is fully autonomous. Arguments: slug=`<slug>`, initial-description=`<initial-description>`.
 
-After `problem.md` is confirmed, proceed to Phase 2. This is the last operator interaction -- everything after runs autonomously.
+Use the same path resolution as Steps B-E: find the `refining-problem` skill directory relative to this skill's location (sibling under `skills/`). Wait for the Task to complete before proceeding.
+
+After `problem.md` is written, proceed to Phase 2.
 
 ---
 
@@ -143,9 +145,29 @@ Read all hypothesis files from this iteration. Check their verdicts.
 
 **Novelty gate** (check only when solved condition passes): read `problem.md` for the `Novelty required:` field. If the value is `yes` AND the confirmed hypothesis's conclusion contains `**Novelty:** replication`, the problem is NOT solved -- the replication is noted as useful context and the loop continues to the next iteration seeking a novel or incremental contribution.
 
-- **Solved**: write `findings.md` (format below) and stop.
-- **Not solved, iterations remain**: return to Step A. The generating-hypotheses skill will read prior conclusions and propose new angles informed by what was ruled out.
-- **Not solved, MAX_ITERATIONS reached**: write `findings.md` with outcome "inconclusive after N iterations" and report to the operator.
+- **Solved**: write `findings.md` and `article-abstract.md` (formats below) and stop.
+- **Not solved, iterations remain**: append a refinement addendum to `problem.md` (format below), then return to Step A. The generating-hypotheses skill will read prior conclusions and the addendum to propose new angles informed by what was ruled out and what was learned.
+- **Not solved, MAX_ITERATIONS reached**: write `findings.md` and `article-abstract.md` with outcome "inconclusive after N iterations" and stop.
+
+---
+
+## Refinement Addendum Format
+
+When the loop does not solve the problem and iterations remain, append a new section to `problem.md` using `Edit`:
+
+```
+## Refinement Addendum: Iteration N
+
+**Hypotheses tested this iteration:** <list hypothesis titles and their verdicts>
+
+**Key findings:** <2-4 sentences summarizing what was learned -- confirmed mechanisms, refuted approaches, narrowed scope>
+
+**Remaining gaps:** <1-3 specific gaps or open questions that the next iteration should target>
+
+**Suggested direction:** <1-2 sentences recommending what angle the next round of hypotheses should explore, informed by what was ruled out>
+```
+
+Addenda accumulate across iterations (Iteration 1, Iteration 2, etc.) and serve as context for `/generating-hypotheses` to produce better-targeted hypotheses in subsequent rounds.
 
 ---
 
@@ -177,3 +199,33 @@ Evaluate three dimensions in order:
 Each dimension receives a brief assessment (2-4 sentences). The section concludes with a verdict: `publishable`, `publishable-with-revisions`, or `not-publishable`. For `publishable-with-revisions` and `not-publishable` verdicts, include 2-3 concrete, actionable improvement suggestions (e.g., "gather additional data on X", "compare results against <method> from REF-NNN", "narrow scope to <specific aspect> where the contribution is clearest").
 
 This section appears in findings.md for both solved and inconclusive outcomes.
+
+---
+
+## article-abstract.md Format
+
+Write `<problem-dir>/article-abstract.md` whenever `findings.md` is written (both solved and inconclusive outcomes). This is a concise, publishable abstract suitable for submission to a conference or journal.
+
+```
+# Abstract: <Problem Title>
+
+## Background
+<2-3 sentences establishing the research context, the gap in knowledge, and the motivation for the investigation. Draw from problem.md and references.md.>
+
+## Methods
+<2-3 sentences describing the methodology: how many hypotheses were tested, what experiment types were used, what literature was consulted. Be specific about the approach without exhaustive detail.>
+
+## Results
+<3-5 sentences summarizing the key findings: which hypotheses were confirmed or refuted, the strength of evidence, and any surprising outcomes. Include quantitative results where available.>
+
+## Conclusions
+<2-3 sentences stating the main conclusion, its implications for the field, limitations of the study, and directions for future work.>
+
+---
+**Keywords:** <5-8 domain-relevant keywords>
+**Hypotheses tested:** <N>
+**Iterations completed:** <N>
+**Outcome:** <solved | inconclusive>
+```
+
+Write in formal academic style. Total length: 200-350 words.

@@ -1,7 +1,7 @@
 ---
 name: generating-hypotheses
 description: "Generate testable hypotheses from a problem statement and prior conclusions. Writes stub hypothesis files."
-user-invocable: true
+user-invocable: false
 argument-hint: "path to problem directory (e.g., './dark-matter')"
 allowed-tools:
   - Read
@@ -13,7 +13,7 @@ color: yellow
 
 # Generating Hypotheses
 
-Reads a refined problem statement and any conclusions from prior iterations, then generates 2-5 new testable hypotheses. Each hypothesis gets its own stub file for downstream skills (refining, experimentation, conclusion).
+Reads a refined problem statement and any conclusions from prior iterations, then generates new testable hypotheses (minimum 4). Each hypothesis gets its own stub file for downstream skills (refining, experimentation, conclusion). Generate as many hypotheses as the problem space warrants — more complex or multi-faceted problems should produce more hypotheses to ensure adequate coverage.
 
 Hypothesis files accumulate across iterations -- numbering never resets.
 
@@ -31,7 +31,7 @@ Do NOT use this skill to revise existing hypotheses. Use `/refining-hypothesis` 
 
 ### Step 0: Check state
 
-Glob `<problem-dir>/hypothesis-*.md`. If existing files all have `## Status` of `pending` (none concluded yet), warn: hypotheses already exist that haven't been tested. Ask whether to proceed or abort.
+Glob `<problem-dir>/hypothesis-*.md`. If existing files all have `## Status` of `pending` (none concluded yet), skip hypothesis generation — existing hypotheses must be tested first. Report that pending hypotheses exist and exit.
 
 If `<problem-dir>/problem.md` does not exist, stop with an error -- problem must be refined first via `/refining-problem`.
 
@@ -55,9 +55,9 @@ Build a summary of what has already been tried:
 
 Count existing hypothesis files. New hypotheses continue from the next number. If `hypothesis-03.md` is the last file, new hypotheses start at `hypothesis-04.md`.
 
-### Step 4: Generate 2-5 new hypotheses
+### Step 4: Generate hypotheses (minimum 4)
 
-Synthesize the problem statement, success criteria, constraints, and prior conclusions into **2-5 new, distinct, testable hypotheses**.
+Synthesize the problem statement, success criteria, constraints, and prior conclusions into **new, distinct, testable hypotheses (minimum 4)**. Generate as many hypotheses as the problem space warrants. More complex or multi-faceted problems should produce more hypotheses to ensure adequate coverage of the solution space.
 
 **Each hypothesis must:**
 - Be a clear, falsifiable claim that can be confirmed or refuted through experiment
@@ -109,4 +109,4 @@ Output a summary table:
 |------|-------|---------------------|
 | hypothesis-NN.md | ... | ... |
 
-State total hypotheses in the problem directory (existing + new) and suggest running `/refining-hypothesis` next.
+State total hypotheses in the problem directory (existing + new).

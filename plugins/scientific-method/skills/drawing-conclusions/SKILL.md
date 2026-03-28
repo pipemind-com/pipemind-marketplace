@@ -1,7 +1,7 @@
 ---
 name: drawing-conclusions
 description: "Synthesize experiment results for a hypothesis into a verdict: confirmed, refuted, or inconclusive. Writes conclusion into the hypothesis file. Use this skill after running-experiments has filled in results, or whenever the user wants to evaluate whether a hypothesis held up, assess experiment outcomes, or decide what a research iteration means for the original problem."
-user-invocable: true
+user-invocable: false
 argument-hint: "path to hypothesis file (e.g., './dark-matter/hypothesis-01.md')"
 allowed-tools:
   - Read

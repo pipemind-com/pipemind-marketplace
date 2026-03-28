@@ -1,7 +1,7 @@
 ---
 name: refining-problem
-description: "Refine a problem statement into a research-ready formulation. Creates problem.md through structured dialogue, defines a research question, and sharpens a problem statement backed by background literature research."
-user-invocable: true
+description: "Refine a problem statement into a research-ready formulation. Creates problem.md through autonomous self-refinement backed by literature research."
+user-invocable: false
 argument-hint: "problem-slug and initial description (e.g., 'dark-matter \"What accounts for missing mass in galaxy rotation?\"')"
 allowed-tools:
   - Read
@@ -9,16 +9,17 @@ allowed-tools:
   - Edit
   - Bash
   - Task
-  - AskUserQuestion
 model: opus
 color: green
 ---
 
 # Refining Problem
 
-Sharpen a rough problem statement into a precise, research-ready formulation through structured dialogue with the operator, backed by real-time background literature research. Produce `problem.md` as the source of truth for all downstream autonomous steps.
+Sharpen a rough problem statement into a precise, research-ready formulation through autonomous self-refinement backed by literature research. Produce `problem.md` as the source of truth for all downstream steps.
 
-The operator remains in full control until `problem.md` is confirmed. After confirmation, the autonomous loop runs without interruption.
+**CRITICAL: This skill is fully autonomous. You MUST NOT ask questions, wait for user input, or request clarification. You have all the information you need: the problem slug and the initial description. Infer everything else from the description and from literature findings. Proceed through every step without stopping.**
+
+The skill writes an initial draft from the provided description, uses literature findings to assess and improve it, and auto-determines novelty requirements based on the literature landscape.
 
 ## Arguments
 
@@ -34,73 +35,57 @@ Create the problem directory and references subdirectory:
 bash -c "mkdir -p <problem-slug>/references"
 ```
 
-If `problem.md` already exists and the operator has not requested re-refinement, read it and skip to Step 4 to re-confirm. The file is the checkpoint.
+If `problem.md` already exists, read it and skip to Step 3 for assessment. The file is the checkpoint.
 
 ### Step 1: Launch background research agents
 
-Immediately launch **2-3 background Task agents** (run_in_background: true) to map the problem space before asking any questions. Focus each on a different angle:
+Immediately launch **2-3 background Task agents** (run_in_background: true) to map the problem space. Focus each on a different angle:
 
 - **Scope agent**: Search for canonical definitions, existing frameworks, or established formulations of this problem. Run `/researching-literature` with the topic and problem directory.
 - **Prior work agent**: Search for existing solutions, known attempts, and related work. Run `/researching-literature`.
 - **Boundary agent**: Search for edge cases, known failure modes, and adjacent problems. Run `/researching-literature`.
 
-Launch all three in a single response before asking any questions.
+Launch all three in a single response.
 
-### Step 2: Ask refinement questions
+### Step 2: Write initial problem.md draft
 
-While background agents run, ask the operator **one question per round** via `AskUserQuestion`. Work through these in order, adapting based on answers:
+Using the initial description, write `<problem-slug>/problem.md` using the structure in `references/problem-template.md`. Fill in each section based on what can be inferred from the initial description:
 
-1. **Goals** -- What outcome would constitute "solving" this problem? What does success look like?
-2. **Scope** -- What is explicitly in scope? What should this research NOT address?
-3. **Constraints** -- Are there constraints (domain, tools, resources, time) the research must respect?
-4. **Prior knowledge** -- What does the operator already know or have tried? What approaches have failed?
-5. **Success criteria** -- How will the operator verify a solution? What would a definitive answer look like?
+- **Problem Statement**: expand the initial description into 1-3 precise paragraphs
+- **Scope**: infer in-scope and out-of-scope boundaries from the description
+- **Key Unknowns**: identify the core unknowns implied by the description
+- **Success Criteria**: derive testable success criteria directly from the initial description
+- **Novelty Required**: set to `TBD` (determined in Step 4)
+- **Constraints**: note any constraints implied by the description
+- **Background**: set to `Pending literature review` (filled in Step 3)
 
-For each question:
-- Provide 3-4 concrete answer choices reflecting the most likely interpretations
-- Always include a free-text option for custom answers
-- After each answer, fold it into a running internal formulation of the problem
+### Step 3: Autonomous refinement loop (max 3 iterations)
 
-### Step 3: Integrate background research
+Wait for background literature agents from Step 1 to complete. Read `references.md` for their findings.
 
-After 2-3 questions, check whether background agents have completed. Read `references.md` for their findings.
+For each refinement iteration (up to 3):
 
-For each significant finding, evaluate:
-- Does it reframe the problem?
-- Does it reveal an existing solution or partial solution?
-- Does it expose a hidden assumption or scope issue?
+**3a. Update background section**: Synthesize literature findings into the `## Background` section of `problem.md` using `Edit`. Incorporate relevant definitions, prior work, and known boundary conditions discovered by the research agents.
 
-Surface relevant findings as context in the next question: *"Background research found X -- does this change how you'd define the scope?"* Only surface findings that are genuinely useful; do not dump the full literature list.
+**3b. Assess problem definition quality**: Evaluate `problem.md` against three criteria:
+- **Clear research question**: Does the Problem Statement articulate a specific, answerable question -- not vague, compound, or circular?
+- **Testable success criteria**: Are the Success Criteria specific enough that an experiment could confirm or refute them?
+- **Appropriate scope**: Is the scope neither too broad (would take unbounded effort) nor too narrow (trivially answerable)?
 
-Continue asking questions, now incorporating both operator answers and literature context.
+**3c. Decision**:
+- If all three criteria pass: proceed to Step 4.
+- If any criterion fails and iterations remain: identify the specific deficiency, refine `problem.md` to address it, launch 1-2 additional targeted `/researching-literature` Tasks to fill knowledge gaps related to the deficiency, wait for results, and loop back to 3a.
+- If 3 iterations pass without all criteria met: proceed to Step 4 with the best available formulation. Note any remaining deficiencies in the Background section.
 
-### Step 4: Write problem.md
+### Step 4: Auto-determine novelty and finalize
 
-After 3-5 questions (or earlier if the problem is already well-defined), write `<problem-slug>/problem.md` using the structure in `references/problem-template.md`. Leave 'Novelty required' as a placeholder — the operator sets it during Step 5 confirmation.
+Assess the novelty landscape from literature findings in `references.md`:
+- If existing published solutions substantially cover the problem space (multiple papers addressing the same question with confirmed results): set `Novelty required: yes` -- replications of known work will not satisfy the research goal.
+- If the space is largely unexplored (few or no papers directly addressing the question, or existing work is preliminary/inconclusive): set `Novelty required: no` -- confirming or replicating findings is a valid outcome.
 
-### Step 5: Confirm with operator
+Update the `Novelty required:` field in `problem.md` from `TBD` to `yes` or `no` using `Edit`. Once set, this field is immutable for the duration of the research session.
 
-Ask via `AskUserQuestion`:
-
-> "Here is the refined problem statement. Does this capture what you're trying to solve?"
-
-Options: "Yes, this is correct", "Needs adjustments", "Start over"
-
-- **Adjustments**: Ask what to change, update the file, re-confirm.
-- **Start over**: Clear the file, return to Step 2.
-- **Confirmed**: Proceed to the novelty question below before finalizing.
-
-**Novelty question (after "Yes, this is correct" only):** Ask via `AskUserQuestion`:
-
-> "Does this research require a novel solution, or is confirming an existing result acceptable?"
-
-Options: "Novel solution required (replications do not count as solved)", "Replications accepted (confirming known results is a valid outcome)"
-
-Set `Novelty required: yes` or `Novelty required: no` in `problem.md` based on the answer. Once set, this field is immutable for the duration of the research session.
-
-Output the path to `problem.md` and confirm the autonomous loop is ready.
-
-Once confirmed, do not involve the operator again unless explicitly invoked.
+Output the path to `problem.md` and confirm the autonomous loop is ready to proceed.
 
 ## References
 

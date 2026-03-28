@@ -1,7 +1,7 @@
 ---
 name: researching-literature
 description: "Search for relevant academic and technical sources on a topic, build a structured bibliography in references.md, and download available articles. Use this skill whenever the user wants to find papers, survey existing research, build a reading list, gather citations, do a literature review, or explore what's been published on a topic -- even if they don't say 'literature review' explicitly."
-user-invocable: true
+user-invocable: false
 argument-hint: "topic query and problem directory (e.g., 'quantum error correction ./my-research')"
 allowed-tools:
   - WebSearch

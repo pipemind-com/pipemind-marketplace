@@ -1,7 +1,7 @@
 ---
 name: running-experiments
 description: "Execute experiments from a hypothesis file — run code, work through proofs, gather evidence, analyze data, and write results back. Use this skill whenever a hypothesis file has designed experiments with empty Results sections, when the user says 'run the experiments', 'test the hypothesis', 'try it', or 'execute the experiments', or when the next step in a scientific-method workflow is to actually attempt the experiments."
-user-invocable: true
+user-invocable: false
 argument-hint: "path to hypothesis file (e.g., './dark-matter/hypothesis-01.md')"
 allowed-tools:
   - Read
