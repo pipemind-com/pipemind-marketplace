@@ -1,6 +1,6 @@
 {
   "name": "mcp-semantic-scholar",
-  "version": "0.2.0",
+  "version": "0.2.1",
   "description": "Semantic Scholar MCP server for academic paper search, citation graphs, and reference discovery.",
   "agents": [],
   "skills": [],
