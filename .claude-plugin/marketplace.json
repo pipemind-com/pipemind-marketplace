@@ -3,7 +3,7 @@
   "description": "Marketplace of Claude Code plugins — agents and skills installable into ~/.claude/",
   "owner": {
     "name": "pipemind-com",
-    "email": ""
+    "email": "support@pipemind.com"
   },
   "plugins": [
     {

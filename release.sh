@@ -93,6 +93,6 @@ if [[ -f "$CARGO_TOML" ]]; then
 fi
 
 git commit -m "chore: release $PLUGIN v$NEW_VERSION"
-git tag "$TAG"
+git tag -a "$TAG" -m "chore: release $PLUGIN v$NEW_VERSION"
 git push
 git push --follow-tags
