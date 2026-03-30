@@ -5,7 +5,8 @@ A domain-agnostic scientific method research plugin for Claude Code. Guides any 
 ## Install
 
 ```bash
-./install.sh scientific-method --symlink
+claude plugin marketplace add pipemind-com/pipemind-marketplace
+claude plugin install scientific-method@pipemind-marketplace
 ```
 
 ## Usage

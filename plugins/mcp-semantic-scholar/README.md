@@ -10,42 +10,23 @@ MCP server that wraps the [Semantic Scholar API](https://api.semanticscholar.org
 
 Go to [semanticscholar.org/product/api](https://www.semanticscholar.org/product/api#api-key-form) and request a key. Approval is typically instant.
 
-### 2. Build
+### 2. Add your API key to `~/.bashrc`
 
 ```bash
-cd plugins/mcp-semantic-scholar
-cargo build --release
+echo 'export S2_API_KEY=your_key_here' >> ~/.bashrc
+source ~/.bashrc
 ```
 
-### 3. Install
+Replace `your_key_here` with your actual key.
+
+### 3. Install via the marketplace
 
 ```bash
-./install.sh mcp-semantic-scholar --symlink
+claude plugin marketplace add pipemind-com/pipemind-marketplace
+claude plugin install mcp-semantic-scholar@pipemind-marketplace
 ```
 
-The installer will prompt for your API key and save it to `~/.claude/settings.json`. If you skip, the server is registered but won't work until you add the key.
-
-## Adding or Changing Your API Key
-
-Edit `~/.claude/settings.json` and set the key in the MCP server's `env` block:
-
-```json
-{
-  "mcpServers": {
-    "mcp-semantic-scholar": {
-      "command": "/path/to/bin/mcp-semantic-scholar",
-      "args": [],
-      "env": {
-        "S2_API_KEY": "YOUR_KEY_HERE"
-      }
-    }
-  }
-}
-```
-
-Restart Claude Code after changing the key.
-
-**Never commit your API key to git.** The key lives only in `~/.claude/settings.json`, which is a local user config file outside the repo.
+**Never commit your API key to git.**
 
 ## Tools
 
