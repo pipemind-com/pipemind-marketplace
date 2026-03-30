@@ -46,9 +46,7 @@ Phase 2 (autonomous):
   while not solved and iteration < MAX_ITERATIONS:
     A: Generate hypotheses
     B: Refine hypotheses via literature (parallel)
-    C: Design experiments (parallel)
-    D: Run experiments (parallel)
-    E: Draw conclusions (parallel)
+    C-D-E: Design, run, and conclude experiments (parallel, one agent per hypothesis)
     F: Assess -- solved, refine problem and loop, or stop
 ```
 
@@ -65,9 +63,7 @@ Use `Glob` for `<slug>/hypothesis-*.md`, then `Read` each file to check section 
 | No `problem.md` | Phase 1 |
 | No `hypothesis-*.md` files | Step A |
 | Any hypothesis with status `pending` and no `## Literature` | Step B |
-| Any hypothesis with `## Literature`, no `## Experiments`, and status `pending` or `inconclusive` | Step C |
-| Any hypothesis with `## Experiments` containing an empty `#### Results` and status not resolved | Step D |
-| Any hypothesis with results but no `## Conclusion` | Step E |
+| Any hypothesis with `## Literature` but no `## Conclusion`, and status `pending` or `inconclusive` | Steps C-D-E |
 | All hypotheses have conclusions | Step F |
 | `findings.md` exists but `article-abstract.md` does not | Write `article-abstract.md` from findings |
 
@@ -81,9 +77,18 @@ A hypothesis is "resolved" if its status is `confirmed` or `refuted`. Hypotheses
 
 If `problem.md` does not exist, spawn a Task agent to refine the problem:
 
-> Read the skill at `<path-to-refining-problem/SKILL.md>`, then follow its instructions EXACTLY to refine the problem. You MUST NOT ask questions or wait for user input — the skill is fully autonomous. Arguments: slug=`<slug>`, initial-description=`<initial-description>`.
+> You are a problem-refinement agent. Sharpen a rough problem statement into a precise, research-ready formulation. You are fully autonomous — do NOT ask questions or wait for input.
+>
+> Arguments: slug=`<slug>`, initial-description=`<initial-description>`
+>
+> Workflow:
+> 1. Create `<slug>/references/` directory.
+> 2. Launch 2-3 background literature research Tasks (scope, prior work, boundary angles). Each Task should use the inline literature agent prompt from the "Literature Research Prompt" section below.
+> 3. Write initial `problem.md` draft using problem-template.md structure (Problem Statement, Scope, Key Unknowns, Success Criteria, Novelty Required: TBD, Constraints, Background: pending).
+> 4. Autonomous refinement loop (max 3 iterations): wait for literature agents, update Background section, assess quality (clear research question? testable success criteria? appropriate scope?), refine if needed.
+> 5. Auto-determine novelty (yes/no) from literature landscape; update Novelty Required field. Output path to problem.md.
 
-Use the same path resolution as Steps B-E: find the `refining-problem` skill directory relative to this skill's location (sibling under `skills/`). Wait for the Task to complete before proceeding.
+Wait for the Task to complete before proceeding.
 
 After `problem.md` is written, proceed to Phase 2.
 
@@ -103,39 +108,53 @@ This skill reads prior conclusions and generates fresh hypotheses that build on 
 
 ### Step B: Refine hypotheses (parallel)
 
-Find all hypothesis files with status `pending` and no `## Literature` section.
+Find all hypothesis files with status `pending` and no `## Literature` section. Read each file's full content — you will embed it in the Task prompt to avoid redundant reads by sub-agents.
 
 Spawn one Task per hypothesis **in a single response** so they run in parallel. Each Task prompt should be:
 
-> Read the skill at `<path-to-refining-hypothesis/SKILL.md>`, then follow its instructions to refine the hypothesis at `<hypothesis-file>`.
+> You are a hypothesis-refinement agent. Deepen a hypothesis with targeted literature research.
+>
+> Hypothesis file: `<hypothesis-file>`
+>
+> Hypothesis content:
+> ```
+> <contents of the hypothesis file, read by the orchestrator before spawning>
+> ```
+>
+> Workflow:
+> 1. If the hypothesis already has a `## Literature` section, stop (already refined). Read problem.md and references.md for context.
+> 2. Build 3 search queries: (a) the claim itself, (b) the underlying mechanism, (c) known counterexamples.
+> 3. Spawn 3 parallel literature research Tasks (one per query) using the inline literature agent prompt from the "Literature Research Prompt" section below.
+> 4. Run one additional broad literature search to fill recency/landmark gaps.
+> 5. Assess literature: identify supporting and challenging sources. Determine if hypothesis is already resolved by prior work.
+> 6. Append ## Literature and ## Refined Statement sections to hypothesis file. If resolved, update ## Status to confirmed/refuted.
 
 Wait for all tasks before proceeding. Parallelism here is important because literature research is the slowest step and hypotheses are independent of each other.
 
 After tasks complete, re-read each hypothesis. Some may now have status `confirmed` or `refuted` from literature alone -- those skip Steps C-D-E.
 
-### Step C: Design experiments (parallel)
+### Steps C-D-E: Design, run, and conclude experiments (parallel)
 
-Find hypotheses that have `## Literature` but no `## Experiments`, with status `pending` or `inconclusive`.
+Find hypotheses that have `## Literature` but no `## Conclusion`, with status `pending` or `inconclusive`. Read each file's full content — you will embed it in the Task prompt to avoid redundant reads by sub-agents.
 
-Spawn one Task per hypothesis in a single response:
+Spawn one Task per hypothesis **in a single response** so they run in parallel. Each Task completes all three phases (design, run, conclude) sequentially for its hypothesis, avoiding re-reading the hypothesis file between phases.
 
-> Read the skill at `<path-to-designing-experiments/SKILL.md>`, then follow its instructions to design experiments for the hypothesis at `<hypothesis-file>`.
+Each Task prompt should be:
 
-### Step D: Run experiments (parallel)
-
-Find hypotheses that have `## Experiments` with at least one empty `#### Results` section and status not yet resolved.
-
-Spawn one Task per hypothesis in a single response:
-
-> Read the skill at `<path-to-running-experiments/SKILL.md>`, then follow its instructions to run experiments for the hypothesis at `<hypothesis-file>`.
-
-### Step E: Draw conclusions (parallel)
-
-Find hypotheses that have experiment results but no `## Conclusion`.
-
-Spawn one Task per hypothesis in a single response:
-
-> Read the skill at `<path-to-drawing-conclusions/SKILL.md>`, then follow its instructions to draw conclusions for the hypothesis at `<hypothesis-file>`.
+> You are an experiment agent. You will design experiments, run them, and draw conclusions for a single hypothesis — all in one session.
+>
+> Hypothesis file: `<hypothesis-file>`
+>
+> Hypothesis content:
+> ```
+> <contents of the hypothesis file, read by the orchestrator before spawning>
+> ```
+>
+> **Phase 1 — Design experiments:** Read problem.md. If `## Experiments` already exists in the hypothesis, skip to Phase 2. Otherwise, assess what is testable (code, math-proof, evidence-gathering, data-analysis, logical-deduction). Design 1-3 experiments ordered simplest-to-most-involved. Each needs: Title, Type, Approach, Confirms if, Refutes if, Confidence, Publishability potential. Append `## Experiments` section with `#### Results` placeholders to the hypothesis file.
+>
+> **Phase 2 — Run experiments:** For each experiment with empty `#### Results`, execute it: run code to `experiments/<hypothesis-slug>/exp<N>.<ext>`, work through proofs, gather evidence, or analyze data. Record what actually happened — do not narrate. If an early experiment is decisive, mark remaining as `skipped`. Fill in each `#### Results` with: Artifact (if applicable), Outcome (confirmed/refuted/inconclusive/not-runnable), detailed narrative, Evidence strength (strong/moderate/weak). For confirmed outcomes with a Literature section, run novelty assessment and append Novelty tag.
+>
+> **Phase 3 — Draw conclusions:** Read all experiment results. Determine aggregate verdict (confirmed/refuted/inconclusive). Connect verdict to problem.md success criteria. Append `## Conclusion` with: Verdict, Reasoning, Implication for the problem, Rigor, Novelty (if confirmed), Follow-up questions. Update `## Status` to match the verdict.
 
 ### Step F: Assess -- solved or loop
 
@@ -148,6 +167,24 @@ Read all hypothesis files from this iteration. Check their verdicts.
 - **Solved**: write `findings.md` and `article-abstract.md` (formats below) and stop.
 - **Not solved, iterations remain**: append a refinement addendum to `problem.md` (format below), then return to Step A. The generating-hypotheses skill will read prior conclusions and the addendum to propose new angles informed by what was ruled out and what was learned.
 - **Not solved, MAX_ITERATIONS reached**: write `findings.md` and `article-abstract.md` with outcome "inconclusive after N iterations" and stop.
+
+---
+
+## Literature Research Prompt
+
+When spawning literature research Tasks (in Phase 1, Step B, or anywhere literature search is needed), use this inline prompt instead of referencing the `researching-literature` SKILL.md file. This eliminates redundant skill file reads across parallel agents.
+
+> You are a literature research agent. Search for relevant academic and technical sources on a topic, build a structured bibliography in references.md, and download available articles.
+>
+> Topic: "<topic>"
+> Problem directory: "<problem-dir>"
+>
+> Workflow:
+> 1. Create `references/` dir if needed. Read existing `references.md`; note highest REF-NNN and existing URLs.
+> 2. Search using dual-track strategy — use `mcp__mcp-semantic-scholar__search_papers` if available (3-4 calls: 2 recency-track, 1-2 landmark-track, plus citation snowball on top 2-3 papers via `get_references`/`get_citations`), otherwise 4-6 WebSearch queries (2-3 recency-track, 2-3 landmark-track). For recency-track sources, keep only last 3 years; discard older unless they also appear in landmark track. No date filter on landmark track. Deduplicate against existing references.md URLs.
+> 3. For each new source (up to 10): apply quality gate (peer-reviewed/conference/technical reports only — drop blog posts, press releases, opinion pieces), assess relevance, extract metadata (title, authors, year, type), write 2-3 sentence relevance summary, attempt PDF download to `references/`.
+> 4. Append new entries to `references.md` as: `## REF-NNN: <Title>` with Authors, Year, Type, URL, Downloaded, Relevance fields.
+> 5. Report: N new sources added, N skipped, N downloaded.
 
 ---
 

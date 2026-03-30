@@ -56,12 +56,10 @@ Read `problem.md` in the parent directory. The conclusion is only useful if it f
 
 Append to the hypothesis file:
 
-**If verdict is `confirmed`:**
-
 ```
 ## Conclusion
 
-**Verdict:** confirmed
+**Verdict:** <confirmed | refuted | inconclusive>
 
 **Reasoning:** <2-4 sentences explaining why this verdict follows from the experiment results. Be specific -- cite which experiments and what their evidence strengths were. Do not just summarize outcomes; explain why the aggregate picture leads to this verdict.>
 
@@ -69,25 +67,7 @@ Append to the hypothesis file:
 
 **Rigor:** <1-3 sentences assessing whether the evidence meets publication-grade standards: reproducibility of methodology, honesty of reporting, appropriate statistical treatment, and any methodological limitations.>
 
-**Novelty:** <1-2 sentences assessing whether the confirmed result reproduces existing knowledge or contributes something new. Draw from the **Novelty:** tags recorded in experiment Results sections; if none were recorded, assess directly from the Literature section. Use the scale: novel / incremental / replication.>
-
-**Follow-up questions:**
-- <Question raised by this result that the next iteration should address>
-- <...>
-```
-
-**If verdict is `refuted` or `inconclusive`:**
-
-```
-## Conclusion
-
-**Verdict:** <refuted | inconclusive>
-
-**Reasoning:** <2-4 sentences explaining why this verdict follows from the experiment results. Be specific -- cite which experiments and what their evidence strengths were. Do not just summarize outcomes; explain why the aggregate picture leads to this verdict.>
-
-**Implication for the problem:** <What this means for the original problem. Connect back to the success criteria from problem.md.>
-
-**Rigor:** <1-3 sentences assessing whether the evidence meets publication-grade standards: reproducibility of methodology, honesty of reporting, appropriate statistical treatment, and any methodological limitations.>
+**Novelty (confirmed verdicts only):** <1-2 sentences assessing whether the confirmed result reproduces existing knowledge or contributes something new. Draw from the **Novelty:** tags recorded in experiment Results sections; if none were recorded, assess directly from the Literature section. Use the scale: novel / incremental / replication. Omit this field for refuted/inconclusive verdicts.>
 
 **Follow-up questions:**
 - <Question raised by this result that the next iteration should address>

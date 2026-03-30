@@ -88,9 +88,7 @@ With the literature findings in hand, assess the hypothesis through these lenses
 
 Append to the hypothesis file after the existing content. Preserve the original `## Statement` and `## Rationale` sections unchanged -- they serve as a historical record of the initial thinking.
 
-Use `Edit` to append (never overwrite existing sections).
-
-Append the following sections:
+Use `Edit` to append the following sections:
 
 **Literature section:**
 

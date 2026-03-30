@@ -7,13 +7,13 @@ allowed-tools:
   - Read
   - Write
   - Glob
-model: opus
+model: sonnet
 color: yellow
 ---
 
 # Generating Hypotheses
 
-Reads a refined problem statement and any conclusions from prior iterations, then generates new testable hypotheses (minimum 4). Each hypothesis gets its own stub file for downstream skills (refining, experimentation, conclusion). Generate as many hypotheses as the problem space warrants — more complex or multi-faceted problems should produce more hypotheses to ensure adequate coverage.
+Reads a refined problem statement and any conclusions from prior iterations, then generates new testable hypotheses (minimum 3). Each hypothesis gets its own stub file for downstream skills (refining, experimentation, conclusion).
 
 Hypothesis files accumulate across iterations -- numbering never resets.
 
@@ -55,9 +55,9 @@ Build a summary of what has already been tried:
 
 Count existing hypothesis files. New hypotheses continue from the next number. If `hypothesis-03.md` is the last file, new hypotheses start at `hypothesis-04.md`.
 
-### Step 4: Generate hypotheses (minimum 4)
+### Step 4: Generate hypotheses (minimum 3)
 
-Synthesize the problem statement, success criteria, constraints, and prior conclusions into **new, distinct, testable hypotheses (minimum 4)**. Generate as many hypotheses as the problem space warrants. More complex or multi-faceted problems should produce more hypotheses to ensure adequate coverage of the solution space.
+Synthesize the problem statement, success criteria, constraints, and prior conclusions into **new, distinct, testable hypotheses (minimum 3)**. Generate as many hypotheses as the problem space warrants. More complex or multi-faceted problems should produce more hypotheses to ensure adequate coverage of the solution space.
 
 **Each hypothesis must:**
 - Be a clear, falsifiable claim that can be confirmed or refuted through experiment

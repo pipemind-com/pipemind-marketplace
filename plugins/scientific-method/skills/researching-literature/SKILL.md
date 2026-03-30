@@ -57,13 +57,11 @@ Run **3-4 `search_papers` calls** across two tracks:
 - The topic as stated
 - Topic narrowed by methodology or subfield
 
-After fetching sources (Step 3), keep only those published in the last 3 years. Older sources found here are discarded unless they surface in the landmark track.
-
 **Landmark track** (1-2 calls, limit 10 each):
 - Topic + "survey" or "review"
 - Topic + "limitations" or "challenges"
 
-No date filter — any source that directly advances understanding qualifies.
+No date filter.
 
 **Citation snowball** (MCP-only bonus): For the 2-3 most relevant papers found so far, call `get_references` (backward snowball) and `get_citations` (forward snowball) with limit 5-10. This surfaces connected papers that keyword search misses. Deduplicate against papers already collected.
 
@@ -79,19 +77,17 @@ Run 2-3 queries approaching the topic from different angles:
 - Topic + "peer reviewed" or "systematic review"
 - Topic + "empirical study" or "experimental results"
 
-After fetching sources for this track (Step 3), keep only those published in the last 3 years. Sources older than 3 years found during this track are discarded unless they surface in the landmark track.
-
 **Landmark track** (target: foundational papers with no recency filter)
 Run 2-3 queries that surface older, definitional work:
 - Topic + "foundational" or "seminal"
 - Topic + "limitations" or "challenges" — surfaces critical and contrarian literature
 - Topic + an adjacent domain if the topic is interdisciplinary
 
-The landmark track applies no date filter. Any source that directly advances understanding of the topic qualifies, regardless of age.
+No date filter on the landmark track.
 
 #### After either path
 
-Collect all result URLs across both tracks. Deduplicate against URLs already in `references.md`.
+For recency-track sources, keep only those published in the last 3 years. Older sources found in the recency track are discarded unless they also surface in the landmark track. Collect all result URLs across both tracks. Deduplicate against URLs already in `references.md`.
 
 ### Step 3: Fetch and evaluate each source
 

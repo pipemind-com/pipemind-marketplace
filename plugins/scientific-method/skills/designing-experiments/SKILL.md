@@ -13,9 +13,7 @@ color: cyan
 
 # Designing Experiments
 
-Read a refined hypothesis and design 1–3 distinct experiment paths to verify or falsify it. Each experiment specifies what to do, what result confirms the hypothesis, and what result refutes it.
-
-Design experiments to be as executable as possible with available tools. Prefer experiments that can be attempted now -- code to run, math to prove, data to gather, evidence to find -- over experiments that require external resources unavailable to the research agent.
+Design 1-3 experiment paths to verify or falsify a refined hypothesis. Prefer experiments executable with available tools — code to run, math to prove, data to gather, evidence to find — over those requiring unavailable external resources.
 
 ---
 

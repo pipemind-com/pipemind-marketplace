@@ -9,7 +9,7 @@ allowed-tools:
   - Edit
   - Bash
   - Task
-model: opus
+model: sonnet
 color: green
 ---
 

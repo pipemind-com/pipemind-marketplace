@@ -1,0 +1,19 @@
+# Abstract: Token Efficiency of the Scientific Method Researching Skill
+
+## Background
+Multi-agent LLM orchestration systems that implement iterative scientific method loops face compounding token costs from multiplicative agent spawning, redundant skill instruction loading, and suboptimal model routing. The scientific-method plugin's `researching` skill orchestrates a 6-phase autonomous research loop that, at the minimum 4-hypothesis configuration, loads approximately 37,000 words of skill instructions per iteration — before generated content, tool outputs, or file reads. Prior work on multi-agent token efficiency (AgentDropout, KVFlow, FrugalGPT) identifies shared-prefix deduplication, model routing, and task consolidation as high-yield levers, but their applicability to markdown-based checkpoint-driven orchestration systems has not been empirically characterized.
+
+## Methods
+Eight hypotheses were generated covering six distinct optimization categories: shared instruction prefix loading, model routing (Opus→Sonnet), manual skill compression, hypothesis count reduction, early-termination gates, inline task prompts, step consolidation (C-D-E merging), and literature search count reduction. Each hypothesis was refined against 67 academic sources from the multi-agent efficiency and prompt compression literature, then subjected to independent experiments combining direct word-count measurement, algebraic derivation, Python simulation, Semantic Scholar API coverage testing, and logical deduction from source code analysis.
+
+## Results
+Three hypotheses were confirmed with strong evidence. Prefix deduplication for the 16 parallel `researching-literature` sub-agents saves 52-79% of Step B's instruction-loading overhead (~20,369 tokens per iteration). Model routing from Opus to Sonnet for `generating-hypotheses` preserves equivalent output quality (90% pattern-following operations) while reducing per-invocation cost 70-91%, with corroborating evidence from FrugalGPT (504 citations) and Hybrid LLM (237 citations). Merging Steps C-D-E into a single task per hypothesis reduces agent spawns from 12 to 4, saving 44.7% of these phases' overhead; the mechanism is hypothesis file re-read elimination (100% of savings) rather than skill deduplication (~0%). Five hypotheses were refuted: skill files are already 91.7% non-redundant (only 8.3% compressible); reducing to 2 literature searches drops coverage to 41% (below 80% threshold); the per-hypothesis early-termination gate already exists in the orchestrator; and inline task prompts offer only 17.2% savings (not 60-70%) due to universal workflow logic dominating all skills.
+
+## Conclusions
+Meaningful token efficiency gains in markdown-based multi-agent research loops arise from structural architectural changes — shared instruction prefixes, task consolidation, and model routing — rather than prompt compression or parameter tuning. The common intuitions about optimization (compressing verbose instructions, batching searches, building early-exit gates) either face hard structural limits or are already implemented. The study confirms that hypothesis re-read overhead, not skill instruction loading, is the dominant cost driver for sequential task phases, a finding that generalizes to any checkpoint-based orchestration system where parallel agents process the same shared document. Combined application of the three confirmed optimizations is estimated to yield 35-55% total session token reduction. Future work should validate this through end-to-end live benchmarking across diverse research problems and extend the model routing analysis to cover the remaining Opus-designated skills.
+
+---
+**Keywords:** multi-agent LLM, token efficiency, prompt compression, model routing, agentic orchestration, scientific method automation, shared prefix, KV cache
+**Hypotheses tested:** 8
+**Iterations completed:** 1
+**Outcome:** solved

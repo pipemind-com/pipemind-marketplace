@@ -22,7 +22,7 @@ color: red
 
 # Running Experiments
 
-This is the "actually try" step in the scientific method workflow. The goal is genuine execution — running code, working through math, fetching real data — not describing what would happen. Every result must reflect what was actually observed, because the entire research loop depends on honest evidence to decide whether a hypothesis holds.
+Execute experiments and record what actually happens. The entire research loop depends on honest results.
 
 ## Arguments
 
@@ -30,7 +30,7 @@ This is the "actually try" step in the scientific method workflow. The goal is g
 
 ## Guiding Principles
 
-These principles exist because the research loop only works when experiment results are trustworthy. A fabricated or simulated result poisons every downstream decision.
+The research loop only works when results are trustworthy:
 
 1. **Execute, don't narrate.** Run the code. Work the proof. Fetch the data. The difference between this skill and a planning skill is that this one produces real artifacts and real output. If you find yourself writing "this would likely show..." you've slipped into narration.
 2. **Record what happened, not what was expected.** Confirmation bias is the enemy of good research. Write down the actual output, even when it surprises you.
@@ -72,7 +72,7 @@ Work through pending experiments in order. For each experiment type, follow the 
 
 **Data-analysis experiments (type: data-analysis):**
 - Search for available datasets relevant to the hypothesis (use `search_papers` if available to find papers with linked datasets, otherwise WebSearch)
-- Fetch accessible data (WebFetch or Bash download). Save fetched datasets and analysis scripts to `<problem-dir>/experiments/<hypothesis-slug>/` using the same `exp<N>.<ext>` naming convention.
+- Fetch accessible data (WebFetch or Bash download). Save to `<problem-dir>/experiments/<hypothesis-slug>/` using the `exp<N>.<ext>` convention from code experiments.
 - Analyze with Bash for structured data (CSV, JSON, etc.) — use Grep to search through local files when relevant
 - Report key statistics, patterns, or anomalies and explain what they mean for the hypothesis
 
