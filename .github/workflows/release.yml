@@ -1,0 +1,107 @@
+name: Release
+
+on:
+  push:
+    tags:
+      - '*/v*'
+
+permissions:
+  contents: write
+
+jobs:
+  meta:
+    runs-on: ubuntu-latest
+    outputs:
+      plugin: ${{ steps.parse.outputs.plugin }}
+      version: ${{ steps.parse.outputs.version }}
+      has_rust: ${{ steps.parse.outputs.has_rust }}
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Parse tag
+        id: parse
+        run: |
+          TAG="${GITHUB_REF_NAME}"
+          PLUGIN="${TAG%/v*}"
+          VERSION="${TAG#*/v}"
+          echo "plugin=$PLUGIN" >> "$GITHUB_OUTPUT"
+          echo "version=$VERSION" >> "$GITHUB_OUTPUT"
+          if [[ -f "plugins/$PLUGIN/Cargo.toml" ]]; then
+            echo "has_rust=true" >> "$GITHUB_OUTPUT"
+          else
+            echo "has_rust=false" >> "$GITHUB_OUTPUT"
+          fi
+
+  build:
+    needs: meta
+    if: needs.meta.outputs.has_rust == 'true'
+    strategy:
+      matrix:
+        include:
+          - target: x86_64-unknown-linux-gnu
+            os: ubuntu-latest
+            artifact: ${{ needs.meta.outputs.plugin }}-linux-x64
+            ext: ""
+          # - target: aarch64-apple-darwin
+          #   os: macos-latest
+          #   artifact: ${{ needs.meta.outputs.plugin }}-darwin-arm64
+          #   ext: ""
+          # - target: x86_64-apple-darwin
+          #   os: macos-latest
+          #   artifact: ${{ needs.meta.outputs.plugin }}-darwin-x64
+          #   ext: ""
+          - target: x86_64-pc-windows-msvc
+            os: windows-latest
+            artifact: ${{ needs.meta.outputs.plugin }}-windows-x64
+            ext: ".exe"
+
+    runs-on: ${{ matrix.os }}
+
+    env:
+      PLUGIN: plugins/${{ needs.meta.outputs.plugin }}
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: dtolnay/rust-toolchain@stable
+        with:
+          targets: ${{ matrix.target }}
+
+      - name: Build
+        run: cargo build --release --target ${{ matrix.target }}
+        working-directory: ${{ env.PLUGIN }}
+
+      - name: Package binary (unix)
+        if: runner.os != 'Windows'
+        run: |
+          cp ${{ env.PLUGIN }}/target/${{ matrix.target }}/release/${{ needs.meta.outputs.plugin }} ${{ matrix.artifact }}
+          chmod +x ${{ matrix.artifact }}
+
+      - name: Package binary (windows)
+        if: runner.os == 'Windows'
+        run: |
+          Copy-Item "${{ env.PLUGIN }}/target/${{ matrix.target }}/release/${{ needs.meta.outputs.plugin }}.exe" "${{ matrix.artifact }}.exe"
+        shell: pwsh
+
+      - uses: actions/upload-artifact@v4
+        with:
+          name: ${{ matrix.artifact }}
+          path: ${{ matrix.artifact }}${{ matrix.ext }}
+
+  release:
+    needs: [meta, build]
+    if: needs.meta.outputs.has_rust == 'true' && needs.build.result == 'success'
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/download-artifact@v4
+        if: needs.build.result == 'success'
+        with:
+          merge-multiple: true
+
+      - name: Create GitHub Release
+        uses: softprops/action-gh-release@v2
+        with:
+          name: ${{ needs.meta.outputs.plugin }} v${{ needs.meta.outputs.version }}
+          generate_release_notes: true
+          files: ${{ needs.meta.outputs.plugin }}-*

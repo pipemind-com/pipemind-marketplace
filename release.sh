@@ -84,6 +84,14 @@ jq --arg version "$NEW_VERSION" '.version = $version' \
 mv "_plugin.json" "$PLUGIN_JSON"
 
 git add "$MARKETPLACE_JSON" "$PLUGIN_JSON"
+
+# Sync Cargo.toml version if present
+CARGO_TOML="$PLUGIN_DIR/Cargo.toml"
+if [[ -f "$CARGO_TOML" ]]; then
+  sd "version = \"$CURRENT\"" "version = \"$NEW_VERSION\"" "$CARGO_TOML"
+  git add "$CARGO_TOML"
+fi
+
 git commit -m "chore: release $PLUGIN v$NEW_VERSION"
 git tag "$TAG"
 git push

@@ -7,39 +7,95 @@ set -euo pipefail
 # symlink from ~/.claude/ pointing back to the repo (install.sh --symlink).
 #
 # Dev override: if target/debug/mcp-semantic-scholar exists (i.e. you ran
-# `cargo build` locally), it is used directly. Set S2_USE_RELEASE=1 to force
-# the release binary even during development.
+# `cargo build` locally), it is used directly — no download.
+# Set S2_USE_RELEASE=1 to force the release binary even during development.
 
-SCRIPT_REAL="$(readlink -f "$0")"
-PLUGIN_ROOT="$(dirname "$SCRIPT_REAL")/.."
-BINARY_RELEASE="${PLUGIN_ROOT}/target/release/mcp-semantic-scholar"
-BINARY_DEBUG="${PLUGIN_ROOT}/target/debug/mcp-semantic-scholar"
+BIN_DIR="$(cd "$(dirname "$(readlink -f "$0")")" && pwd)"
+PLUGIN_ROOT="${BIN_DIR}/.."
+DEV_BINARY="${PLUGIN_ROOT}/target/debug/mcp-semantic-scholar"
 
-if [ -n "${S2_USE_RELEASE:-}" ]; then
-  # Explicit release mode
-  if [ -x "$BINARY_RELEASE" ]; then
-    exec "$BINARY_RELEASE" "$@"
+if [ -z "${S2_USE_RELEASE:-}" ] && [ -x "$DEV_BINARY" ]; then
+  exec "$DEV_BINARY" "$@"
+fi
+
+REPO="pipemind-com/agentic-marketplace"
+CACHE_DIR="${BIN_DIR}/.cache"
+
+# Detect platform
+case "$(uname -s)-$(uname -m)" in
+  Linux-x86_64)   ARTIFACT="mcp-semantic-scholar-linux-x64" ;;
+  Darwin-arm64)   ARTIFACT="mcp-semantic-scholar-darwin-arm64" ;;
+  Darwin-x86_64)  ARTIFACT="mcp-semantic-scholar-darwin-x64" ;;
+  *) echo "Unsupported platform: $(uname -s)-$(uname -m)" >&2; exit 1 ;;
+esac
+
+BINARY="${CACHE_DIR}/${ARTIFACT}"
+
+# Resolve expected version from plugin.json
+PLUGIN_JSON="${PLUGIN_ROOT}/.claude-plugin/plugin.json"
+if [ -f "$PLUGIN_JSON" ]; then
+  EXPECTED_VERSION=$(grep -o '"version": "[^"]*"' "$PLUGIN_JSON" | head -1 | cut -d'"' -f4)
+else
+  EXPECTED_VERSION=""
+fi
+
+VERSION_FILE="${CACHE_DIR}/.version"
+
+# Check if cached binary matches expected version
+NEED_DOWNLOAD=false
+if [ ! -x "$BINARY" ]; then
+  NEED_DOWNLOAD=true
+elif [ -n "$EXPECTED_VERSION" ] && [ -f "$VERSION_FILE" ]; then
+  CACHED_VERSION=$(cat "$VERSION_FILE")
+  if [ "$CACHED_VERSION" != "$EXPECTED_VERSION" ]; then
+    NEED_DOWNLOAD=true
   fi
-  if ! command -v cargo &>/dev/null; then
-    echo "mcp-semantic-scholar: cargo not found; cannot build release binary" >&2
+elif [ -n "$EXPECTED_VERSION" ] && [ ! -f "$VERSION_FILE" ]; then
+  NEED_DOWNLOAD=true
+fi
+
+if [ "$NEED_DOWNLOAD" = true ]; then
+  mkdir -p "$CACHE_DIR"
+  # Tags use plugin/vX.Y.Z format; URL-encode the slash as %2F
+  TAG="mcp-semantic-scholar%2Fv${EXPECTED_VERSION}"
+  URL="https://github.com/${REPO}/releases/download/${TAG}/${ARTIFACT}"
+
+  echo "Downloading mcp-semantic-scholar ${EXPECTED_VERSION} for $(uname -s)-$(uname -m)..." >&2
+
+  # Download to a temp file first, then atomically rename over the target.
+  # Writing directly to $BINARY fails with ETXTBSY if the old binary is still
+  # running (e.g. as the MCP server process during a version upgrade).
+  TMP_BINARY="${BINARY}.tmp.$$"
+  trap 'rm -f "$TMP_BINARY"' EXIT
+
+  DOWNLOAD_OK=false
+  if command -v curl &>/dev/null && curl -fsSL -o "$TMP_BINARY" "$URL" 2>/dev/null; then
+    DOWNLOAD_OK=true
+  elif command -v wget &>/dev/null && wget -q -O "$TMP_BINARY" "$URL" 2>/dev/null; then
+    DOWNLOAD_OK=true
+  fi
+
+  # Fallback: use gh CLI (handles auth and CDN quirks)
+  if [ "$DOWNLOAD_OK" = false ]; then
+    if command -v gh &>/dev/null; then
+      echo "Direct download failed, retrying via gh CLI..." >&2
+      gh release download "mcp-semantic-scholar/v${EXPECTED_VERSION}" \
+        --repo "$REPO" --pattern "$ARTIFACT" --output "$TMP_BINARY" --clobber
+      DOWNLOAD_OK=true
+    fi
+  fi
+
+  if [ "$DOWNLOAD_OK" = false ]; then
+    rm -f "$TMP_BINARY"
+    echo "Error: could not download mcp-semantic-scholar. Install curl, wget, or gh." >&2
     exit 1
   fi
-  echo "mcp-semantic-scholar: building release binary (first run)..." >&2
-  (cd "$PLUGIN_ROOT" && cargo build --release 2>&1) >&2
-  exec "$BINARY_RELEASE" "$@"
+
+  chmod +x "$TMP_BINARY"
+  mv -f "$TMP_BINARY" "$BINARY"
+  trap - EXIT
+  echo "$EXPECTED_VERSION" > "$VERSION_FILE"
+  echo "Downloaded mcp-semantic-scholar ${EXPECTED_VERSION}" >&2
 fi
 
-# Default dev mode: prefer debug, fall back to release, build if neither exists
-if [ -x "$BINARY_DEBUG" ]; then
-  exec "$BINARY_DEBUG" "$@"
-fi
-if [ -x "$BINARY_RELEASE" ]; then
-  exec "$BINARY_RELEASE" "$@"
-fi
-if ! command -v cargo &>/dev/null; then
-  echo "mcp-semantic-scholar: no binary found and cargo is not installed. Run 'cargo build --release' in ${PLUGIN_ROOT}" >&2
-  exit 1
-fi
-echo "mcp-semantic-scholar: building release binary (first run)..." >&2
-(cd "$PLUGIN_ROOT" && cargo build --release 2>&1) >&2
-exec "$BINARY_RELEASE" "$@"
+exec "$BINARY" "$@"
