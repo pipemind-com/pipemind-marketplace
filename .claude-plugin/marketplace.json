@@ -39,7 +39,7 @@
     {
       "name": "mcp-semantic-scholar",
       "source": "./plugins/mcp-semantic-scholar",
-      "version": "0.2.1",
+      "version": "0.2.2",
       "description": "Semantic Scholar MCP server for academic paper search, citation graphs, and reference discovery."
     }
   ]
