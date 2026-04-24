@@ -6,10 +6,10 @@ Reference documentation for the pipemind-marketplace repo. Read `CLAUDE.md` firs
 
 | Document | When to read |
 |----------|-------------|
-| [architecture.md](./architecture.md) | Understanding plugin layout, install flow, registry structure |
-| [getting-started.md](./getting-started.md) | Adding a new plugin, releasing, setting up |
-| [tech-stack.md](./tech-stack.md) | Agent/skill/manifest file formats, 80% rule, 150-instruction limit |
-| [workflow.md](./workflow.md) | Developing plugins using planner/builder agents, release workflow |
+| [architecture.md](./architecture.md) | Understanding plugin types, layout, install flow, registry structure |
+| [getting-started.md](./getting-started.md) | Adding a new plugin (markdown or Rust MCP server), releasing |
+| [tech-stack.md](./tech-stack.md) | Agent/skill/manifest file formats, MCP server manifest, 80% rule, 150-instruction limit |
+| [workflow.md](./workflow.md) | Developing plugins using planner/builder agents, MCP server dev loop, release workflow |
 
 ## spec-driven-development Plugin Docs
 

@@ -1,9 +1,9 @@
 # Tech Stack
 
-> **AI Context Summary**: Pure markdown/YAML/JSON system — no build step, no runtime, no package manager.
-> Agents are markdown files with YAML frontmatter. Skills are markdown files with YAML frontmatter in
-> named directories. The only scripting is `bash` (install.sh, release.sh). The 80% rule and 150-instruction
-> limit are the primary engineering constraints to keep in mind when authoring content.
+> **AI Context Summary**: Most plugins are pure markdown/YAML/JSON with no build step — agents and skills are
+> markdown files with YAML frontmatter. MCP server plugins (e.g., `mcp-semantic-scholar`) are Rust crates
+> that compile to binaries deployed via GitHub Actions. The 80% rule and 150-instruction limit are the primary
+> engineering constraints when authoring agent/skill content.
 
 ## Languages and File Types
 
@@ -14,6 +14,8 @@
 | Plugin manifest | JSON | `plugins/<name>/.claude-plugin/plugin.json` |
 | Registry | JSON | `.claude-plugin/marketplace.json` |
 | LSP config | JSON | `plugins/<name>/.lsp.json` |
+| MCP server source | Rust | `plugins/<name>/src/` + `Cargo.toml` |
+| MCP server binary | ELF/PE | `plugins/<name>/bin/` (committed, built by CI) |
 | Installer | Bash | `install.sh`, `release.sh` |
 
 ## Agent File Format
@@ -54,10 +56,12 @@ Constraints: 100-200 lines. Name must be gerund form (e.g., `compiling-`, `defin
 
 ## Plugin Manifest Format
 
+### Markdown/YAML Plugin
+
 ```json
 {
   "name": "spec-driven-development",
-  "version": "1.0.2",
+  "version": "1.1.2",
   "description": "...",
   "agents": ["planner", "builder"],
   "skills": ["compiling-project-settings"],
@@ -65,10 +69,33 @@ Constraints: 100-200 lines. Name must be gerund form (e.g., `compiling-`, `defin
 }
 ```
 
+### MCP Server Plugin
+
+```json
+{
+  "name": "mcp-semantic-scholar",
+  "version": "0.2.2",
+  "description": "...",
+  "agents": [],
+  "skills": [],
+  "dependencies": [],
+  "mcpServers": {
+    "mcp-semantic-scholar": {
+      "command": "${CLAUDE_PLUGIN_ROOT}/bin/mcp-semantic-scholar",
+      "env": { "S2_API_KEY": "${S2_API_KEY}" }
+    }
+  }
+}
+```
+
+The `mcpServers` field wires the binary as an MCP server in Claude Code. `${CLAUDE_PLUGIN_ROOT}` resolves to the plugin's install directory.
+
+Common fields:
 - `name`: kebab-case, matches directory name
 - `agents[]`: agent names without `.md` extension
 - `skills[]`: skill directory names
 - `dependencies[]`: other plugin names this depends on
+- `optionalDependencies[]`: optional plugins that enhance behavior
 
 ## The 150-Instruction Limit
 

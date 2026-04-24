@@ -3,7 +3,8 @@
 > **AI Context Summary**: Developing marketplace plugins follows a spec-first, agent-assisted pattern.
 > The `spec-driven-development` plugin's planner/builder agents apply to the marketplace itself — use them to plan
 > and implement new plugins or skill additions. Skills are live the moment files change (no restart).
-> Agent changes require re-installing the plugin to take effect.
+> Agent changes require re-installing the plugin to take effect. MCP server plugins (Rust) require
+> building binaries locally and committing them; CI rebuilds on release.
 
 ## Developing the Marketplace
 
@@ -36,6 +37,23 @@
 
 See [getting-started.md](./getting-started.md) for the full plugin creation checklist.
 
+### Developing an MCP Server Plugin (Rust)
+
+```bash
+cd plugins/mcp-semantic-scholar
+
+# Build and run locally
+cargo build
+cargo test
+
+# Build release binary and commit
+cargo build --release
+cp target/release/mcp-semantic-scholar bin/mcp-semantic-scholar
+git add bin/mcp-semantic-scholar
+```
+
+CI builds platform binaries on each release tag via `.github/workflows/release.yml`.
+
 ## Planner → Builder Pattern
 
 The `spec-driven-development` plugin's agents apply to developing the marketplace itself:
@@ -66,11 +84,13 @@ You (main thread)
 git add plugins/<name>/...
 git commit -m "feat: add <feature>"
 
-# 2. Cut release (bumps version, tags, pushes)
+# 2. Cut release (bumps version, tags, pushes; triggers CI for Rust plugins)
 ./release.sh <plugin-name> patch
 ```
 
-Release requires a clean working tree. See `release.sh` for full validation steps.
+Release requires a clean working tree. For Rust plugins, GitHub Actions triggers on the pushed tag and:
+- Builds binaries for linux-x64 and windows-x64
+- Commits binaries back to `plugins/<name>/bin/`
 
 ## Symlink Update Propagation
 

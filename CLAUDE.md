@@ -6,7 +6,7 @@ This repo is the **pipemind-marketplace**: self-contained plugins installable in
 
 ## About This Project
 
-Pure markdown/YAML system — no build pipeline, no runtime dependencies. The `install.sh` CLI handles symlink or copy installs. Plugins use a `.claude-plugin/plugin.json` manifest; legacy `spec-driven-development` uses `plugin.json` at the plugin root.
+Primarily a markdown/YAML system with no build pipeline for most plugins. The `install.sh` CLI handles symlink or copy installs. Plugins use a `.claude-plugin/plugin.json` manifest; legacy `spec-driven-development` uses `plugin.json` at the plugin root. Some plugins (e.g., `mcp-semantic-scholar`) are compiled Rust binaries — their `bin/` artifacts are committed and deployed via GitHub Actions.
 
 ## Key Directories
 
@@ -15,6 +15,7 @@ Pure markdown/YAML system — no build pipeline, no runtime dependencies. The `i
 - `plugins/rust-lsp/` - Rust LSP config plugin (`.claude-plugin/` layout)
 - `plugins/typescript-lsp/` - TypeScript LSP config plugin (`.claude-plugin/` layout)
 - `plugins/scientific-method/` - Scientific method research loop plugin (`.claude-plugin/` layout)
+- `plugins/mcp-semantic-scholar/` - Rust MCP server for academic paper search (`.claude-plugin/` layout)
 - `.claude-plugin/marketplace.json` - Authoritative registry of all published plugins
 - `.claude/agents/` - Project-specific planner and builder agents
 - `specs/` - Behavioral specs and domain glossary
