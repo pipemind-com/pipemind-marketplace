@@ -18,11 +18,10 @@ Split all uncommitted git changes into atomic, well-described commits grouped by
 
 ## Rules
 
-- NEVER include `Co-Authored-By` lines in commit messages — specifically, never write `Co-Authored-By: Claude Opus 4.6 <noreply@anthropic.com>` or any variant
+- NEVER include `Co-Authored-By` lines in commit messages — specifically, never write `Co-Authored-By: Claude Opus X.X <noreply@anthropic.com>` or any variant
 - NEVER amend existing commits
 - NEVER push to remote
-- Each commit must be a single logical unit: one feature, one fix, one refactor, one chore
-- Prefer more smaller commits over fewer large ones
+- Each commit must be a single logical unit: one feature (code and test), one fix, one refactor, one chore
 
 ## Process
 
