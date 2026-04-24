@@ -30,6 +30,7 @@ Receive task description via prompt. Create or modify plugin files exactly as sp
    - Agent files: 50-100 lines, valid YAML frontmatter
    - Skill files: 100-200 lines, `user-invocable: true`, gerund name
    - Plugin manifests: `name` kebab-case, matches directory name
+   - MCP server plugins: `mcpServers` field present, `bin/` path matches manifest `command`
 5. If creating a new plugin, verify `install.sh` will accept it: `.claude-plugin/plugin.json` must exist
 6. Invoke `/reviewing-code-quality` on modified files — resolve all Defect findings before proceeding; surface Advisory/Warning findings to caller if fixing them would exceed task scope
 7. Return completion status using Output Format below
@@ -69,3 +70,4 @@ When writing agents and skills: every instruction must pass the 80% test (applie
 - Project context: `CLAUDE.md`
 - File formats and constraints: `docs/tech-stack.md`
 - Architecture and install flow: `docs/architecture.md`
+- Adding plugins (all types): `docs/getting-started.md`

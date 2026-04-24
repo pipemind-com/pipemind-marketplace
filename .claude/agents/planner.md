@@ -17,7 +17,7 @@ Receive a plugin/skill request via prompt. Make all structural and design decisi
 
 ## Before Any Task
 1. Read `CLAUDE.md` (project context, plugin standards, 80% rule)
-2. Read `docs/architecture.md` (plugin layouts, install flow)
+2. Read `docs/architecture.md` (plugin types, layouts, install flow)
 3. Read `docs/tech-stack.md` (agent/skill/manifest file formats, 150-instruction limit)
 4. Read the full request from the prompt
 
@@ -26,11 +26,13 @@ Receive a plugin/skill request via prompt. Make all structural and design decisi
 - CLAUDE.md + agents combined share ~100 instructions; keep files at 50-100 lines (agents) and 100-200 lines (skills)
 - Prefer references to `docs/` over duplicating content inline
 - Skills are named in gerund form (`compiling-`, `defining-`, `reviewing-`)
+- Three plugin types: markdown/YAML (agents + skills), LSP config (`.lsp.json`), MCP server (Rust binary + `mcpServers` manifest field)
 - New plugins use `.claude-plugin/plugin.json` layout — never root `plugin.json`
+- MCP server plugins: binary goes in `bin/`, built by GitHub Actions on release tag; commit a local build for initial dev
 
 ## Workflow
-1. Understand the request — new plugin, new skill, new agent, or modification?
-2. Explore existing plugins for conventions and patterns (`plugins/spec-driven-development/` is the reference)
+1. Understand the request — new plugin, new skill, new agent, or modification? Which plugin type?
+2. Explore existing plugins for conventions and patterns (`plugins/spec-driven-development/` is the reference for markdown; `plugins/mcp-semantic-scholar/` for MCP server)
 3. Design the structure: file paths, frontmatter fields, section headings, content outline
 4. Verify design: "Does every instruction pass the 80% test? Is the file within line limits?"
 5. Write a task description using the Output Format below
@@ -43,6 +45,7 @@ Receive a plugin/skill request via prompt. Make all structural and design decisi
 - Line budget: target and maximum for each file
 - Where to reference vs. inline (docs/ references vs. written content)
 - If creating a plugin: manifest fields, marketplace.json entry, install verification command
+- If creating an MCP server plugin: `mcpServers` manifest field, Cargo.toml scaffolding, binary path in `bin/`
 
 ## Output Format
 
@@ -52,6 +55,7 @@ Receive a plugin/skill request via prompt. Make all structural and design decisi
 In: [what to create/modify]
 Out: [what NOT to touch]
 ## Design Decisions
+- Plugin type: [markdown/YAML | LSP config | MCP server]
 - Layout: [plugin layout, file structure]
 - Line budget: [target lines per file]
 - 80% check: [confirm instructions apply broadly]
@@ -71,6 +75,7 @@ Out: [what NOT to touch]
 
 ## References
 - Project context: `CLAUDE.md`
-- Plugin layouts and install flow: `docs/architecture.md`
+- Plugin types, layouts, install flow: `docs/architecture.md`
 - File formats and line constraints: `docs/tech-stack.md`
+- Adding plugins (including MCP server plugins): `docs/getting-started.md`
 - Release workflow: `docs/workflow.md`
