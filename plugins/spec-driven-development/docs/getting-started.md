@@ -1,9 +1,9 @@
 # Getting Started
 
-> **AI Context Summary**: Install the factory once per machine by symlinking or copying
-> `user_level_settings/` to `~/.claude/`. Then bootstrap any project by invoking the
-> compiling-* skills inside that project. Symlinks are preferred—`git pull` propagates
-> factory updates automatically. Requires Claude Code CLI and a git repository.
+> **AI Context Summary**: Install the factory once per machine via the marketplace `install.sh`
+> script or `claude plugin install`. Then bootstrap any project by invoking the compiling-* skills
+> inside that project. Symlinks are preferred—`git pull` propagates factory updates automatically.
+> Requires Claude Code CLI and a git repository.
 
 ## Prerequisites
 
@@ -13,30 +13,25 @@
 
 ## Step 1: Install the Global Factory (Once Per Machine)
 
+From the pipemind-marketplace repo root:
+
 ```bash
-# Navigate to this repo
-cd /path/to/claude-agentic
+# Symlink (recommended — git pull auto-updates)
+./install.sh spec-driven-development --symlink
 
-# Option A: Symlink (recommended — git pull auto-updates)
-mkdir -p ~/.claude
-ln -sf "$(pwd)/user_level_settings/agents" ~/.claude/agents
-ln -sf "$(pwd)/user_level_settings/skills" ~/.claude/skills
-
-# Option B: Copy (manual updates required)
-cp -r user_level_settings/agents ~/.claude/
-cp -r user_level_settings/skills ~/.claude/
+# Or copy (manual updates required)
+./install.sh spec-driven-development
 
 # Verify
 ls ~/.claude/agents/agent-author.md          # meta-agent
-ls ~/.claude/skills/*/SKILL.md               # 14 skills
+ls ~/.claude/skills/*/SKILL.md               # 14+ skills
 ```
 
-**Windows (PowerShell):**
-```powershell
-New-Item -ItemType SymbolicLink -Path "$env:USERPROFILE\.claude\agents" `
-  -Target "$(Get-Location)\user_level_settings\agents"
-New-Item -ItemType SymbolicLink -Path "$env:USERPROFILE\.claude\skills" `
-  -Target "$(Get-Location)\user_level_settings\skills"
+Or install via the Claude plugin system:
+
+```bash
+claude plugin marketplace add pipemind-com/pipemind-marketplace
+claude plugin install spec-driven-development@pipemind-marketplace
 ```
 
 ## Step 2: Bootstrap a Project
@@ -100,10 +95,9 @@ claude --agent builder
 # If using symlinks — just pull!
 git pull   # ~/.claude/agents and ~/.claude/skills update automatically
 
-# If using copies — re-copy after pulling
+# If using copies — re-run install after pulling
 git pull
-cp -r user_level_settings/agents ~/.claude/
-cp -r user_level_settings/skills ~/.claude/
+./install.sh spec-driven-development
 ```
 
 ## Cross-References

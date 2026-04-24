@@ -24,5 +24,5 @@
 ## Quick Links
 
 - Full workflow and usage examples: `README.md`
-- Agent authoring guide: `user_level_settings/agents/agent-author.md`
-- Skill source files: `user_level_settings/skills/`
+- Agent authoring guide: `agents/agent-author.md`
+- Skill source files: `skills/<gerund-name>/SKILL.md`
