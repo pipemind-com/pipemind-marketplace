@@ -18,7 +18,6 @@ Primarily a markdown/YAML system with no build pipeline for most plugins. The `i
 - `plugins/mcp-semantic-scholar/` - Rust MCP server for academic paper search (`.claude-plugin/` layout)
 - `.claude-plugin/marketplace.json` - Authoritative registry of all published plugins
 - `.claude/agents/` - Project-specific planner and builder agents
-- `specs/` - Behavioral specs and domain glossary
 - `install.sh` - CLI installer (symlink or copy)
 - `release.sh` - Version bump and tag helper
 
